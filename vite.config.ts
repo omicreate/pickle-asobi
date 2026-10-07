@@ -5,15 +5,17 @@ import site from './site.config.json'
 
 /**
  * 匿名の回数集計（src/core/counter.ts）の送り先だけを、CSP の connect-src に足す。
- * site.config.json の counterOrigin が空のあいだは、今までどおり外へは何も通さない。
+ * Google Apps Script の受け口は script.googleusercontent.com へ転送して返すので、そちらも足す。
+ * site.config.json の counterUrl が空のあいだは、今までどおり外へは何も通さない。
  */
 function counterCsp(): Plugin {
   return {
     name: 'counter-csp',
     transformIndexHtml(html) {
-      if (!site.counterOrigin) return html
-      const origin = new URL(site.counterOrigin).origin
-      return html.replace("connect-src 'self'", `connect-src 'self' ${origin}`)
+      if (!site.counterUrl) return html
+      const origin = new URL(site.counterUrl).origin
+      const extra = origin === 'https://script.google.com' ? ' https://script.googleusercontent.com' : ''
+      return html.replace("connect-src 'self'", `connect-src 'self' ${origin}${extra}`)
     },
   }
 }

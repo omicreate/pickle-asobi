@@ -21,8 +21,8 @@ export function SoloSetup({ game }: { game: GameInfo }) {
   const settings = useSettings()
   const [help, setHelp] = useState(false)
   const [picker, setPicker] = useState(false)
-  // パドルを使わないゲーム（ジャンプ・キャッチ）では出さない
-  const usesPaddle = game.id !== 'jump' && game.id !== 'catch'
+  // 自分のパドルが画面に出るゲームだけ（ジャンプ・キャッチ・リアクション・ピタッと では出さない）
+  const usesPaddle = (['lift', 'breakout', 'target', 'pikuru'] as string[]).includes(game.id)
 
   useEffect(() => {
     speak(game.howto)

@@ -72,7 +72,8 @@ export function missionsFor(day: string): MissionDef[] {
   return [a, b, c]
 }
 
-export type PlayEvent = { type: 'finish'; game: GameId; value?: number; two: boolean } | { type: 'party' }
+/** record＝じこベスト・メダルに数える（ひとりで遊んだとき・ディンク。じゅんばんモードは数えない） */
+export type PlayEvent = { type: 'finish'; game: GameId; value?: number; two: boolean; record?: boolean } | { type: 'party' }
 
 /** 1回遊んだあとの進み具合 */
 export function advance(def: MissionDef, current: number, ev: PlayEvent): number {

@@ -6,6 +6,7 @@ import { Home } from './shell/Home'
 import { Parents } from './shell/Parents'
 import { Party } from './shell/party/Party'
 import { Play } from './shell/Play'
+import { Records } from './shell/Records'
 import { useRoute } from './shell/route'
 import { Setup } from './shell/Setup'
 import { SoloSetup } from './shell/SoloSetup'
@@ -23,6 +24,7 @@ export default function App() {
   if (page === 'setup' && game) return game.players === 1 ? <SoloSetup key={game.id} game={game} /> : <Setup key={game.id} game={game} />
   if (page === 'play' && game) return <Play key={game.id} game={game.id} />
   if (page === 'collection') return <Collection />
+  if (page === 'records') return <Records />
   if (page === 'parents') return <Parents />
   if (page === 'party') return <Party />
   if (DevWear && page === 'dev')

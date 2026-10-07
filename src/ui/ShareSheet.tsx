@@ -4,6 +4,7 @@
  * どこにも自動では送らない（のせるかどうか・どこに のせるかは おうちの人が決める）。
  */
 import { useEffect, useState } from 'react'
+import { countShare } from '../core/counter'
 import { makeCard, shareText } from './shareCard'
 import type { CardData } from './shareCard'
 import { ParentGate } from './ParentGate'
@@ -42,6 +43,7 @@ export function ShareSheet({ card, onClose, flipped = false, fixed = false }: { 
     if (!file) return
     try {
       await navigator.share({ files: [file], text: shareText(card) })
+      countShare(card.game ?? '')
     } catch {
       // とじただけのときも ここに来る
     }
@@ -64,7 +66,11 @@ export function ShareSheet({ card, onClose, flipped = false, fixed = false }: { 
                   シェアする
                 </button>
               )}
-              <a className="btn" href={url} download="pickle-asobi.png" onClick={() => setNote('（保存できないときは、画像を長押しして保存してください）')}>
+              <a className="btn" href={url} download="pickle-asobi.png" onClick={() => {
+                  countShare(card.game ?? '')
+                  setNote('（保存できないときは、画像を長押しして保存してください）')
+                }}
+              >
                 画像を保存
               </a>
             </div>

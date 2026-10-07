@@ -156,7 +156,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: TugState, 
   // 下はオレンジ、上はあお
   ctx.fillStyle = '#ffe7b8'
   ctx.fillRect(0, 0, w, h)
-  ctx.fillStyle = 'rgba(61, 155, 233, 0.22)'
+  ctx.fillStyle = '#d3e7f8' // 上の人の地（tokens.css の --p1-tint）
   ctx.fillRect(0, 0, w, h / 2)
   ctx.fillStyle = 'rgba(255, 138, 61, 0.22)'
   ctx.fillRect(0, h / 2, w, h / 2)

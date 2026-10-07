@@ -67,6 +67,10 @@ export const DESIGNS = {
   pikuru: { label: 'ピクルくん モデル', base: '#6bb33f', pattern: 'band', accent: '#d4f03c' },
   rainbow: { label: 'にじいろ', base: '#ff8a3d', pattern: 'rainbow' },
   gold: { label: 'きんいろ', base: '#f5c400', pattern: 'gold' },
+  ocean: { label: 'うみ', base: '#3d9be9', pattern: 'stripe', accent: '#ffffff' },
+  sakura: { label: 'さくら', base: '#ffc2d9', pattern: 'heart', accent: '#ff5d8f' },
+  yozora: { label: 'よぞら', base: '#24497a', pattern: 'star', accent: '#ffd84d' },
+  champion: { label: 'チャンピオン', base: '#12302b', pattern: 'star', accent: '#f5c400' },
 } satisfies Record<string, Design>
 
 export type DesignId = keyof typeof DESIGNS

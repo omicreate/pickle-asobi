@@ -1,6 +1,8 @@
 /** ゲーム画面で共通に使う部品（知らせ・点数・結果・メニュー） */
 import type { ReactNode } from 'react'
 import type { Reward } from '../core/progress'
+import { MEDAL_MARK, MEDAL_NAME } from '../core/records'
+import { gameById } from '../shell/games'
 import { Both, Half } from '../core/Stage'
 import type { Side } from '../core/players'
 import { usePlay } from '../shell/playContext'
@@ -73,6 +75,8 @@ export function rewardText(r: Reward): string {
       return `🎁 「${r.item.label}」を もらった！`
     case 'welcome':
       return `🎁 はじめての プレゼント ⭐${r.stars}`
+    case 'medal':
+      return `${MEDAL_MARK[r.medal]} ${gameById(r.game)?.title ?? ''}で ${MEDAL_NAME[r.medal]}メダル！ ⭐+${r.stars}`
   }
 }
 

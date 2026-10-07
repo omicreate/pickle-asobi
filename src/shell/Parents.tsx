@@ -4,7 +4,7 @@
  */
 import { useState } from 'react'
 import { counterStatus, onPublicSite, PUBLIC_URL } from '../core/counter'
-import { resetProgress, useProgress } from '../core/progress'
+import { medalCount, resetProgress, useProgress } from '../core/progress'
 import { setSettings, useSettings } from '../core/settings'
 import { ParentGate } from '../ui/ParentGate'
 import { GAMES } from './games'
@@ -15,6 +15,9 @@ import '../ui/share.css'
 
 /** この画面を開いているあいだは、確認を1回で済ませる */
 let passed = false
+
+/** つづけて遊んだら声をかける時間（分。0＝声をかけない） */
+const BREAK_CHOICES = [0, 20, 30, 45]
 
 const STATUS_TEXT: Record<ReturnType<typeof counterStatus>, string> = {
   on: 'いまは送っています。',
@@ -94,7 +97,7 @@ function ParentsBody() {
       <section className="par-card" aria-labelledby="par-rec">
         <h2 id="par-rec">この端末の記録</h2>
         <p className="par-sum">
-          遊んだ回数 <b>{total}</b> 回 ／ 遊んだ日（スタンプ） <b>{progress.days.length}</b> 日 ／ クリアしたミッション <b>{progress.cleared}</b> こ ／ ほし <b>{progress.stars}</b> こ
+          遊んだ回数 <b>{total}</b> 回 ／ 遊んだ日（スタンプ） <b>{progress.days.length}</b> 日 ／ クリアしたミッション <b>{progress.cleared}</b> こ ／ メダル <b>{medalCount(progress)}</b> ／ ほし <b>{progress.stars}</b> こ
         </p>
         <ul className="par-bars">
           {rows.map(({ g, n }) => (
@@ -113,12 +116,25 @@ function ParentsBody() {
         <p className="par-note">この記録は端末の中だけにあり、外には送りません。</p>
       </section>
 
+      <section className="par-card" aria-labelledby="par-break">
+        <h2 id="par-break">遊びすぎの声かけ</h2>
+        <p>続けて遊んだ時間が決めた時間をこえると、ゲームの結果が出たときに、ピクルくんが「ちょっと きゅうけい しよう」と声をかけます（ゲームの途中では止めません）。10分以上はなれると、休んだとみなして数え直します。</p>
+        <div className="seg par-seg" role="radiogroup" aria-label="声をかけるまでの時間">
+          {BREAK_CHOICES.map((m) => (
+            <button key={m} role="radio" aria-checked={settings.breakMin === m} onClick={() => setSettings({ breakMin: m })} data-testid={`break-${m}`}>
+              {m === 0 ? 'かけない' : `${m}分`}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section className="par-card" aria-labelledby="par-count">
         <h2 id="par-count">遊ばれた回数の集計（匿名）</h2>
         <p>
-          どのゲームがよく遊ばれているかを知って、ゲームを良くするために、<b>「どのゲームを始めたか」と「アプリを開いたこと」だけ</b>を集計サービスに送ります。
+          どのゲームがよく遊ばれ、どれが最後まで遊ばれているかを知って、ゲームを良くするために、<b>次のことだけ</b>を集計（Googleスプレッドシート）に送ります。
         </p>
         <ul>
+          <li>送るもの：アプリを開いた・ゲームを始めた・最後まで遊んだ・きねんカードを共有した、のどれか／ゲームの名前／どのリンクから来たか（例：Instagram のプロフィール）／ホーム画面に追加して開いたか／アプリの版。</li>
           <li>送らないもの：名前・点数・写真・端末を見分けるID・Cookie・位置情報。</li>
           <li>公開版で開いたときだけ送ります。電波がないときは送らずに捨てます。</li>
           <li>ブラウザの「トラッキングしない」設定がオンなら送りません。</li>
@@ -160,7 +176,7 @@ function ParentsBody() {
 
       <section className="par-card" aria-labelledby="par-reset">
         <h2 id="par-reset">記録を消す</h2>
-        <p>ほし・きせかえ・スタンプ・ミッション・遊んだ回数を、はじめの状態に戻します。各ゲームの最高記録と設定は残ります。</p>
+        <p>ほし・きせかえ・スタンプ・ミッション・メダル・遊んだ回数を、はじめの状態に戻します。設定は残ります。</p>
         {confirmReset ? (
           <div className="par-actions">
             <button

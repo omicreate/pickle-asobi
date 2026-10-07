@@ -38,6 +38,7 @@ export const PHRASES = {
   srLast: 'さいごの チャンス！ かえる？ そのまま？',
   srRead: 'よんだ！ リターン！',
   srAce: 'サービスエース！',
+  rest: 'たくさん あそんだね！ ちょっと きゅうけい しよう',
 } as const
 
 export function allVoiceLines(): string[] {

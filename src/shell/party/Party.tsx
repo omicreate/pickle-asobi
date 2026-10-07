@@ -399,6 +399,7 @@ export function Party() {
             const champ = run.players[st[0].player]
             const tt = run.team ? teamTotals(run.scores, run.players.map((p) => p.team ?? 0), run.low) : null
             return {
+              game: 'party',
               gameTitle: 'じゅんばんモード',
               title: tt ? (tt[0] === tt[1] ? 'ひきわけ！' : teamWinLine(TEAMS[tt[0] > tt[1] ? 0 : 1].name)) : champLine(champ.name),
               sub: `${run.players.length}にん・${run.games.length}ラウンド`,

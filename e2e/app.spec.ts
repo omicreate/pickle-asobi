@@ -460,3 +460,48 @@ test('れんだ つなひき：準備画面で 2たい2 を選べる', async ({ 
   await page.getByTestId('ready-0').click()
   await page.waitForFunction(() => (window as unknown as { __tug?: { maxRate: number } }).__tug?.maxRate === 28)
 })
+
+test('ホーム：どのカードにも ゲームの絵。ひとりで記録を出すと メダルと「また あそぶ」に出る', async ({ page }) => {
+  await open(page, './')
+  await expect(page.locator('.game-card .game-icon')).toHaveCount(18)
+  await page.goto('./#/play/lift')
+  await expect(page.getByTestId('lift-canvas')).toBeVisible()
+  // 6かい つづいた ことにして、パドルを遠くへ（どうメダルは 5かい）
+  await page.evaluate(() => {
+    const s = (window as unknown as { __lift: { count: number; paddle: { x: number; y: number } } }).__lift
+    s.count = 6
+    s.paddle.x = 90
+    s.paddle.y = 140
+  })
+  await expect(page.getByText('6かい つづいた！')).toBeVisible({ timeout: 8_000 })
+  await expect(page.getByTestId('rewards')).toContainText('どうメダル')
+  await page.goto('./#/')
+  await expect(page.locator('[data-recent=lift]')).toBeVisible()
+  await expect(page.getByTestId('best-lift')).toContainText('6かい')
+  await page.getByTestId('records-link').click()
+  await expect(page.getByTestId('medal-total')).toContainText('1')
+  await expect(page.getByTestId('rec-lift')).toContainText('つぎは ぎんメダル')
+})
+
+test('遊びすぎの声かけ：決めた時間をこえると、結果のときに「きゅうけい しよう」', async ({ page }) => {
+  await open(page, './#/play/lift')
+  await expect(page.getByTestId('lift-canvas')).toBeVisible()
+  await page.evaluate(() => {
+    ;(window as unknown as { __setPlayed: (s: number) => void }).__setPlayed(31 * 60)
+    const s = (window as unknown as { __lift: { paddle: { x: number; y: number } } }).__lift
+    s.paddle.x = 90
+    s.paddle.y = 140
+  })
+  await expect(page.getByTestId('break-sheet')).toBeVisible({ timeout: 8_000 })
+  await page.getByRole('button', { name: 'あと 1かい だけ' }).click()
+  await expect(page.getByTestId('break-sheet')).toBeHidden()
+})
+
+test('よみあい サーブの準備：レベルは えらばず、えらぶ時間だけ', async ({ page }) => {
+  await open(page, './#/setup/serveread')
+  await expect(page.locator('.setup-nolevel')).toHaveCount(2)
+  await expect(page.locator('.level-grid')).toHaveCount(0)
+  await page.getByTestId('ready-0').click()
+  await page.getByTestId('ready-1').click()
+  await expect(page.getByTestId('sr-pick-0')).toBeVisible({ timeout: 6_000 })
+})

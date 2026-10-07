@@ -36,10 +36,13 @@ interface Props {
 /** 読み上げる文（問題と、並んでいる順の選択肢） */
 const speech = (a: Asked) => [a.q.prompt, ...a.choices.map((c) => c.text)]
 
+/** 出した問題（アプリを開いているあいだ覚えておき、「もういちど」でも同じ問題が続かないように） */
+const ASKED = new Set<string>()
+
 export function Quiz({ levels, paused, onRestart }: Props) {
   const play = usePlay()
   const delays: [number, number] = [LEVEL_INFO[levels[0]].pressDelay, LEVEL_INFO[levels[1]].pressDelay]
-  const used = useRef(new Set<string>())
+  const used = useRef(ASKED)
   const [roundNo, setRoundNo] = useState(1)
   const [asked, setAsked] = useState<[Asked, Asked]>(() => pickRound(levels, used.current))
   const [phase, setPhase] = useState<Phase>('intro')

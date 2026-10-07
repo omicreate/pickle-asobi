@@ -3,6 +3,7 @@
  * 根拠：USA Pickleball 公式ルールブック 2026
  *   PBK-0029 ラインに触れた球はイン（サービスコートは周りのラインを含む）
  *   PBK-0021 サーブがキッチンライン上に落ちたらフォルト。ラリー中の返球はキッチン（ライン含む）でもイン
+ *   PBK-0010 サーブは対角のサービスコートへ（センターラインの反対側＝となりのサービスコートはフォルト）
  */
 
 /** 線の幅（cm）。ラインは2インチ（約5cm） */
@@ -27,13 +28,16 @@ export interface LineCase {
   source: string
 }
 
-export type Region = 'court' | 'out' | 'kitchen' | 'service'
+export type Region = 'court' | 'out' | 'kitchen' | 'service' | 'target' | 'other-service'
 
 export const REGION_NAME: Record<Region, string> = {
   court: 'コート',
   out: 'コートのそと',
   kitchen: 'キッチン',
   service: 'サービスコート',
+  /** センターラインのサーブ：入れるべき対角のサービスコートと、そのとなり */
+  target: 'ねらうコート',
+  'other-service': 'となりのコート',
 }
 
 /** 球が線に触れているか */
@@ -87,6 +91,7 @@ export function makeLineCase(hard: boolean, rand: () => number = Math.random): L
     case 'kitchen-rally':
       return build('kitchen', 'service', 'ラリー', 'キッチンライン', 'in', 'in', 'ラリー中は キッチン（ライン）に おちても イン', 'ラリー中は キッチンラインの まわりは どこでも イン', 'PBK-0021')
     case 'center-serve':
-      return build('service', 'service', 'サーブ', 'センターライン', 'in', 'in', 'センターラインも サービスコートの いちぶ。イン', 'ただしい サービスコートの なか。イン', 'PBK-0029')
+      // 球は「となりの コート」の側から近づく。線に触れればイン、離れていれば となりの サービスコートなので フォルト
+      return build('target', 'other-service', 'サーブ', 'センターライン', 'in', 'out', 'センターラインも ねらう サービスコートの いちぶ。イン', 'となりの サービスコートに おちたので フォルト', 'PBK-0010・0029')
   }
 }

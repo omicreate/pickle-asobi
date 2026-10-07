@@ -1,24 +1,64 @@
 import { useEffect, useState } from 'react'
-import { countOpen } from '../core/counter'
 import { WELCOME_STARS } from '../core/items'
-import { takeWelcome } from '../core/progress'
+import { medalCount, takeWelcome, useProgress } from '../core/progress'
+import { MEDAL_MARK, MEDAL_RULES, recordText } from '../core/records'
 import { setSettings, useSettings } from '../core/settings'
 import { unlockAudio } from '../core/sound'
 import { speak } from '../core/speak'
 import { PHRASES } from '../core/voiceLines'
 import { Pikuru } from '../ui/Pikuru'
+import { GameIcon } from '../ui/GameIcon'
 import { PikuruCut } from '../ui/pikuruArt'
-import { GAMES } from './games'
+import { gameById, GAMES } from './games'
+import type { GameInfo } from './games'
 import { MissionCard } from './MissionCard'
 import { href } from './route'
 import './home.css'
 
+/** ゲーム名：単語の途中で折り返さないよう、区切ってよい所（| の所）でだけ折り返す */
+function CardTitle({ g }: { g: GameInfo }) {
+  const parts = (g.wrap ?? g.title).split('|')
+  return (
+    <span className="game-title">
+      {parts.map((p, i) => (
+        <span key={i}>
+          {p}
+          {i < parts.length - 1 && <wbr />}
+        </span>
+      ))}
+    </span>
+  )
+}
+
+/** ゲームのカード（絵・なかま分け・名前・ひとこと・じこベスト） */
+function GameCard({ g, best, medal, tag, className = '' }: { g: GameInfo; best?: number; medal: number; tag: string; className?: string }) {
+  const rule = MEDAL_RULES[g.id]
+  return (
+    <a className={`game-card ${className}`} href={href('setup', g.id)} data-game={g.id} onClick={unlockAudio}>
+      <span className="game-card-top">
+        <GameIcon game={g.id} size={64} />
+        <span className="game-tag">{tag}</span>
+      </span>
+      <span className="game-text">
+        <CardTitle g={g} />
+        <span className="game-desc">{g.desc}</span>
+        {rule && best !== undefined && (
+          <span className="game-best" data-testid={`best-${g.id}`}>
+            {MEDAL_MARK[medal] || '🎯'} {recordText(g.id, best)}
+          </span>
+        )}
+      </span>
+    </a>
+  )
+}
+
 export function Home() {
   const settings = useSettings()
+  const progress = useProgress()
+  const recent = progress.recent.map((id) => gameById(id)).filter((g): g is GameInfo => !!g)
   const [welcome, setWelcome] = useState(false)
 
   useEffect(() => {
-    countOpen()
     if (takeWelcome()) setWelcome(true)
   }, [])
 
@@ -35,13 +75,36 @@ export function Home() {
             あそぼ
           </h1>
           <p className="home-lead">ひとりでも ふたりでも みんなでも あそべるよ</p>
-          <a className="btn btn-small home-dress" href="#/collection" onClick={unlockAudio}>
-            👕 きせかえ
-          </a>
+          <div className="home-hero-btns">
+            <a className="btn btn-small home-dress" href="#/collection" onClick={unlockAudio}>
+              👕 きせかえ
+            </a>
+            <a className="btn btn-small home-dress" href="#/records" onClick={unlockAudio} data-testid="records-link">
+              🏅 きろく {medalCount(progress) > 0 ? medalCount(progress) : ''}
+            </a>
+          </div>
         </div>
       </header>
 
       <MissionCard />
+
+      {recent.length > 0 && (
+        <section className="home-recent" aria-labelledby="games-recent">
+          <h2 id="games-recent" className="game-section-title">
+            また あそぶ
+          </h2>
+          <ul className="recent-list">
+            {recent.map((g) => (
+              <li key={g.id}>
+                <a className="recent-chip" href={href('setup', g.id)} data-recent={g.id} onClick={unlockAudio}>
+                  <GameIcon game={g.id} size={44} />
+                  <span>{g.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {([2, 1] as const).map((n) => (
         <section key={n} className="game-section" aria-labelledby={`games-${n}`}>
@@ -51,14 +114,7 @@ export function Home() {
           <ul className="game-list">
             {GAMES.filter((g) => g.players === n && !g.adult).map((g) => (
               <li key={g.id}>
-                <a className="game-card" href={href('setup', g.id)} data-game={g.id} onClick={unlockAudio}>
-                  <Pikuru face={g.face} size={72} />
-                  <span className="game-text">
-                    <span className="game-tag">{g.tag}</span>
-                    <span className="game-title">{g.title}</span>
-                    <span className="game-desc">{g.desc}</span>
-                  </span>
-                </a>
+                <GameCard g={g} tag={g.tag} best={progress.best[g.id]} medal={progress.medals[g.id] ?? 0} />
               </li>
             ))}
           </ul>
@@ -69,18 +125,17 @@ export function Home() {
         <h2 id="games-adult" className="game-section-title">
           おとなも むちゅう
         </h2>
-        <p className="game-section-lead">かたてで サッと。けっかで もりあがる しょうぶ</p>
+        <p className="game-section-lead">サッと あそべて、けっかで もりあがる しょうぶ</p>
         <ul className="game-list">
           {GAMES.filter((g) => g.adult).map((g) => (
             <li key={g.id}>
-              <a className="game-card game-card-adult" href={href('setup', g.id)} data-game={g.id} onClick={unlockAudio}>
-                <Pikuru face={g.face} size={72} />
-                <span className="game-text">
-                  <span className="game-tag">{g.players === 2 ? `ふたり・${g.tag}` : g.tag}</span>
-                  <span className="game-title">{g.title}</span>
-                  <span className="game-desc">{g.desc}</span>
-                </span>
-              </a>
+              <GameCard
+                g={g}
+                className="game-card-adult"
+                tag={g.players === 2 ? `ふたり・${g.tag}` : g.tag}
+                best={progress.best[g.id]}
+                medal={progress.medals[g.id] ?? 0}
+              />
             </li>
           ))}
         </ul>

@@ -10,6 +10,8 @@ import { itemById, ITEMS, STARTER_ITEMS, WELCOME_STARS } from './items'
 import type { Item, Special } from './items'
 import { advance, BONUS_STARS, dayKey, missionsFor } from './missions'
 import type { MissionDef, PlayEvent } from './missions'
+import { isBetter, MEDAL_RULES, MEDAL_STARS, medalFor } from './records'
+import type { MedalLevel } from './records'
 import { load, save } from './storage'
 
 export interface MissionState {
@@ -32,6 +34,12 @@ export interface Progress {
   cleared: number
   /** じゅんばんモードを最後まで遊んだ回数 */
   parties: number
+  /** ゲームごとの じこベスト（records.ts の MEDAL_RULES にあるゲームだけ） */
+  best: Record<string, number>
+  /** ゲームごとの とった メダル（0〜3） */
+  medals: Record<string, MedalLevel>
+  /** さいきん はじめたゲーム（新しい順に3つ。ホームの「また あそぶ」） */
+  recent: GameId[]
 }
 
 export type Reward =
@@ -39,6 +47,7 @@ export type Reward =
   | { type: 'bonus'; stars: number }
   | { type: 'item'; item: Item }
   | { type: 'welcome'; stars: number }
+  | { type: 'medal'; game: GameId; medal: MedalLevel; stars: number }
 
 const KEY = 'progress'
 
@@ -47,14 +56,14 @@ function fresh(day: string): MissionState {
 }
 
 function initial(): Progress {
-  return { stars: WELCOME_STARS, owned: [...STARTER_ITEMS], wear: {}, plays: {}, days: [], mission: fresh(dayKey()), cleared: 0, parties: 0 }
+  return { stars: WELCOME_STARS, owned: [...STARTER_ITEMS], wear: {}, plays: {}, days: [], mission: fresh(dayKey()), cleared: 0, parties: 0, best: {}, medals: {}, recent: [] }
 }
 
 function restore(): { p: Progress; isNew: boolean } {
   const saved = load<Partial<Progress> | null>(KEY, null)
   if (!saved) return { p: initial(), isNew: true }
   const base = initial()
-  const p: Progress = { ...base, ...saved, mission: saved.mission ?? base.mission }
+  const p: Progress = { ...base, ...saved, mission: saved.mission ?? base.mission, best: saved.best ?? {}, medals: saved.medals ?? {}, recent: saved.recent ?? [] }
   // はじめから持っている物は いつも持っている（あとで増えたときも）
   p.owned = [...new Set([...STARTER_ITEMS, ...(saved.owned ?? [])])]
   return { p, isNew: false }
@@ -120,7 +129,8 @@ export function todayMissions(p: Progress = current, day = dayKey()): { defs: Mi
 export function recordStart(game: GameId | 'party', day = dayKey()): Reward[] {
   let p = withToday(current, day)
   const days = p.days.includes(day) ? p.days : [...p.days, day].slice(-400)
-  p = { ...p, plays: { ...p.plays, [game]: (p.plays[game] ?? 0) + 1 }, days }
+  const recent = game === 'party' ? p.recent : [game, ...p.recent.filter((g) => g !== game)].slice(0, 3)
+  p = { ...p, plays: { ...p.plays, [game]: (p.plays[game] ?? 0) + 1 }, days, recent }
   const rewards = grantSpecials(p)
   commit(rewards.p)
   return emit(rewards.list)
@@ -150,6 +160,19 @@ export function recordPlay(ev: PlayEvent, day = dayKey()): Reward[] {
     list.push({ type: 'bonus', stars: BONUS_STARS })
   }
   p = { ...p, mission: m, stars, cleared, parties: ev.type === 'party' ? p.parties + 1 : p.parties }
+  // じこベストと メダル（ひとりで遊んだときなど、record がついた記録だけ）
+  if (ev.type === 'finish' && ev.record && ev.value !== undefined && MEDAL_RULES[ev.game]) {
+    const g = ev.game
+    const best = isBetter(g, ev.value, p.best[g]) ? ev.value : p.best[g]
+    const had = p.medals[g] ?? 0
+    const now = medalFor(g, best)
+    let got = 0
+    for (let m = had + 1; m <= now; m++) {
+      got += MEDAL_STARS[m]
+      list.push({ type: 'medal', game: g, medal: m as MedalLevel, stars: MEDAL_STARS[m] })
+    }
+    p = { ...p, best: { ...p.best, [g]: best }, medals: { ...p.medals, [g]: Math.max(had, now) as MedalLevel }, stars: p.stars + got }
+  }
   const sp = grantSpecials(p)
   commit(sp.p)
   return emit([...list, ...sp.list])
@@ -166,7 +189,14 @@ export function specialMet(s: Special, p: Progress): boolean {
       return p.parties >= 1
     case 'missions10':
       return p.cleared >= 10
+    case 'medals9':
+      return medalCount(p) >= 9
   }
+}
+
+/** とった メダルの数（どう1・ぎん2・きん3 として足す） */
+export function medalCount(p: Progress = current): number {
+  return Object.values(p.medals).reduce<number>((a, m) => a + (m ?? 0), 0)
 }
 
 function grantSpecials(p: Progress): { p: Progress; list: Reward[] } {

@@ -9,7 +9,7 @@
   background: linear-gradient(to bottom, rgba(255, 138, 61, 0.08), rgba(255, 138, 61, 0.22));
 }
 .setup-side-1 {
-  background: linear-gradient(to bottom, rgba(61, 155, 233, 0.08), rgba(61, 155, 233, 0.22));
+  background: linear-gradient(to bottom, #eaf3fc, var(--p1-tint));
 }
 .setup-inner {
   width: 100%;
@@ -273,4 +273,20 @@
 /* 2人の準備画面：まんなかの帯にかからないように */
 .setup-half .picker {
   top: 44px;
+}
+
+/* レベルの ちがいが ない ゲーム（よみあい サーブ） */
+.setup-nolevel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.setup-nolevel p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
 }

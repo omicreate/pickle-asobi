@@ -11,6 +11,10 @@ import { drawPikuruArt, loadPikuru } from './pikuruArt'
 import type { CutArt } from './pikuruArt'
 
 export interface CardData {
+  /** ゲームの id（共有のリンクで、そのゲームの じゅんびの画面を開く）。じゅんばんモードは 'party' */
+  game?: string
+  /** ひとりで遊んだ記録（「この きろくに ちょうせんしてね」をそえる） */
+  challenge?: boolean
   gameTitle: string
   title: string
   sub?: string
@@ -25,9 +29,19 @@ const FONT = "'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif"
 
 export const HASHTAGS = '#ピクルくんとあそぼ #ピックルボール'
 
+/**
+ * 共有のリンク：受け取った人が そのゲームを すぐ遊べるように、じゅんびの画面を開く。
+ * ?src=share は「共有から来た」ことを数えるための印（アプリが読んだらアドレスから消す）。
+ */
+export function shareLink(game?: string): string {
+  const hash = game === 'party' ? '#/party' : game ? `#/setup/${game}` : ''
+  return `${PUBLIC_URL}?src=share${hash}`
+}
+
 /** 共有するときの文（公開URLで開いているときだけ URL をつける） */
-export function shareText(d: Pick<CardData, 'gameTitle' | 'title'>): string {
-  return `「${d.gameTitle}」で ${d.title} ${HASHTAGS}${onPublicSite() ? `\n${PUBLIC_URL}` : ''}`
+export function shareText(d: Pick<CardData, 'gameTitle' | 'title' | 'game' | 'challenge'>): string {
+  const dare = d.challenge ? ' この きろくに ちょうせんしてね！' : ''
+  return `「${d.gameTitle}」で ${d.title}${dare} ${HASHTAGS}${onPublicSite() ? `\n${shareLink(d.game)}` : ''}`
 }
 
 /** 分かち書き（スペース）のところで折り返す */

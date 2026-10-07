@@ -94,6 +94,16 @@ export function Setup({ game }: { game: GameInfo }) {
                 </button>
               )}
             </div>
+            {game.id === 'serveread' ? (
+              <div className="setup-nolevel">
+                <Pikuru face="think" size={56} />
+                <p>
+                  レベルの ちがいは ないよ。
+                  <br />
+                  こっそり えらぶ じかんは、まんなかで きめてね。
+                </p>
+              </div>
+            ) : (
             <div className="level-grid" role="radiogroup" aria-label="レベル">
               {LEVELS.map((lv) => (
                 <button
@@ -112,6 +122,7 @@ export function Setup({ game }: { game: GameInfo }) {
                 </button>
               ))}
             </div>
+            )}
             <button className={`btn ready-btn ${ready[side] ? 'is-ready' : 'btn-go'}`} aria-pressed={ready[side]} data-testid={`ready-${side}`} onClick={() => toggleReady(side)}>
               {ready[side] ? 'まってるよ…' : 'じゅんび OK！'}
             </button>

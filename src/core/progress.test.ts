@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { GAMES } from '../shell/games'
 import { ITEMS, STARTER_ITEMS, WELCOME_STARS } from './items'
 import { ALL_MISSIONS, BONUS_STARS, dayKey, missionsFor, RECORD } from './missions'
-import { __setProgress, buy, getProgress, recordPlay, recordStart, toggleWear, todayMissions } from './progress'
+import { __setProgress, buy, getProgress, medalCount, recordPlay, recordStart, toggleWear, todayMissions } from './progress'
+import { isBetter, MEDAL_GAMES, MEDAL_RULES, medalFor, nextGoal, pikuruValue, recordText } from './records'
 import type { Progress } from './progress'
 
 const DAY = '2026-10-07'
@@ -17,6 +18,9 @@ function fresh(): Progress {
     mission: { day: DAY, progress: [0, 0, 0], done: [false, false, false], bonus: false },
     cleared: 0,
     parties: 0,
+    best: {},
+    medals: {},
+    recent: [],
   }
 }
 
@@ -122,5 +126,61 @@ describe('スタンプと ごほうび', () => {
     expect(ITEMS.filter((i) => i.special).length).toBeGreaterThanOrEqual(4)
     // はじめの プレゼントで、何か1つは こうかんできる
     expect(ITEMS.some((i) => !i.special && i.price > 0 && i.price <= WELCOME_STARS)).toBe(true)
+  })
+})
+
+describe('じこベストと メダル', () => {
+  it('メダルの目標は どう＜ぎん＜きん の順（小さいほど良いゲームは逆）。メダルのあるゲームは ぜんぶ実在する', () => {
+    const ids = new Set(GAMES.map((g) => g.id))
+    for (const g of MEDAL_GAMES) {
+      expect(ids.has(g), g).toBe(true)
+      const [a, b, c] = MEDAL_RULES[g]!.need
+      if (MEDAL_RULES[g]!.low) expect(a > b && b > c, g).toBe(true)
+      else expect(a < b && b < c, g).toBe(true)
+    }
+  })
+
+  it('記録で メダルが決まる（反応の時間は 小さいほど良い）', () => {
+    expect(medalFor('jump', 10)).toBe(0)
+    expect(medalFor('jump', 50)).toBe(1)
+    expect(medalFor('jump', 999)).toBe(3)
+    expect(medalFor('reaction', 900)).toBe(0)
+    expect(medalFor('reaction', 450)).toBe(2)
+    expect(isBetter('reaction', 400, 500)).toBe(true)
+    expect(isBetter('jump', 40, 50)).toBe(false)
+    expect(nextGoal('jump', 60)).toEqual({ medal: 2, need: 150 })
+    expect(nextGoal('jump', 400)).toBeNull()
+    expect(recordText('pikuru', pikuruValue('otona'))).toBe('おとなで かった')
+  })
+
+  it('ひとりで遊んだ記録だけ じこベストに。メダルを とると ほし（きんは2こ）。とびこえたメダルの分も もらえる', () => {
+    const before = getProgress().stars
+    // じゅんばんモードなど record が無い記録は数えない
+    recordPlay({ type: 'finish', game: 'jump', value: 500, two: false }, DAY)
+    expect(getProgress().best.jump).toBeUndefined()
+    const got = recordPlay({ type: 'finish', game: 'lift', value: 16, two: false, record: true }, DAY)
+    expect(getProgress().best.lift).toBe(16)
+    expect(getProgress().medals.lift).toBe(2)
+    expect(got.filter((r) => r.type === 'medal').map((r) => (r.type === 'medal' ? r.medal : 0))).toEqual([1, 2])
+    // 悪い記録では下がらない
+    recordPlay({ type: 'finish', game: 'lift', value: 3, two: false, record: true }, DAY)
+    expect(getProgress().best.lift).toBe(16)
+    recordPlay({ type: 'finish', game: 'lift', value: 40, two: false, record: true }, DAY)
+    expect(getProgress().medals.lift).toBe(3)
+    const medalStars = 1 + 1 + 2
+    const missionStars = getProgress().cleared + (getProgress().mission.bonus ? BONUS_STARS : 0)
+    expect(getProgress().stars).toBe(before + medalStars + missionStars)
+    expect(medalCount()).toBe(3)
+  })
+
+  it('メダルを 9こ あつめると チャンピオンの パドル', () => {
+    for (const g of ['lift', 'catch', 'target'] as const) recordPlay({ type: 'finish', game: g, value: 999, two: false, record: true }, DAY)
+    expect(getProgress().owned).toContain('design:champion')
+  })
+
+  it('さいきん はじめたゲームは 新しい順に3つ（じゅんばんモードは入れない）', () => {
+    for (const g of ['jump', 'lift', 'catch', 'jump', 'rally'] as const) recordStart(g, DAY)
+    recordStart('party', DAY)
+    expect(getProgress().recent).toEqual(['rally', 'jump', 'catch'])
   })
 })

@@ -214,7 +214,11 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.fillStyle = '#12302b'
   ctx.font = `900 12px 'Zen Maru Gothic', sans-serif`
   ctx.textBaseline = 'top'
-  ctx.fillText('ルーペ（あかい てんが じめん）', lcx, lcy + lr + 4)
+  // 2行に分け、画面の はしで 切れないように 中心を内側へ寄せる
+  const notes = ['ルーペ', 'あかい てん＝じめん']
+  const half = Math.max(...notes.map((t) => ctx.measureText(t).width)) / 2
+  const nx = Math.min(lcx, w - half - 6)
+  notes.forEach((t, i) => ctx.fillText(t, nx, lcy + lr + 4 + i * 15))
 
   // ピクルくん（ラインジャッジ）
   drawPikuruArt(ctx, s.calls[side]?.kind === 'out' ? 'oops' : s.calls[side] ? 'ok' : 'think', lx / 2, Y(LINE) + 30, Math.min(90, lx * 0.9))

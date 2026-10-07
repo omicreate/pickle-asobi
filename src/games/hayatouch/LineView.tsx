@@ -5,6 +5,8 @@ import type { LineCase, Region } from './lineJudge'
 const FILL: Record<Region, string> = {
   court: '#2f5d9a',
   service: '#2f5d9a',
+  target: '#2f5d9a',
+  'other-service': '#24497a',
   kitchen: '#3d8f7a',
   out: '#183152',
 }

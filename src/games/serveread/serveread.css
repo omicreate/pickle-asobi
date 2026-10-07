@@ -1,7 +1,7 @@
 .sr {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(61, 155, 233, 0.18) 50%, rgba(255, 138, 61, 0.18) 50%);
+  background: linear-gradient(to bottom, var(--p1-tint) 50%, rgba(255, 138, 61, 0.18) 50%);
 }
 .sr-half {
   position: absolute;

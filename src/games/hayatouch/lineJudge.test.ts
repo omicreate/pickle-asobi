@@ -24,8 +24,12 @@ describe('ラインジャッジのお題', () => {
           expect(c.a === 'kitchen' || c.b === 'kitchen').toBe(true)
           break
         case 'kitchen-rally':
-        case 'center-serve':
           expect(c.answer).toBe('in')
+          break
+        case 'center-serve':
+          // 対角のサービスコート（センターラインを含む）に入ればイン。となりのサービスコートはフォルト（PBK-0010・0029）
+          expect(c.answer).toBe(touch ? 'in' : 'out')
+          expect([c.a, c.b].sort()).toEqual(['other-service', 'target'])
           break
       }
     }

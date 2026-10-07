@@ -1,6 +1,8 @@
 /** ゲームの画面の外枠：舞台・画面を消さない・一時停止・さいしょから・記録（ミッション）・きねんカード */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { countGame } from '../core/counter'
+import { countFinish, countGame } from '../core/counter'
+import { __setPlayed, addPlayed, breakDue, oneMore, tookBreak } from '../core/playtime'
+import { MEDAL_RULES, pikuruValue } from '../core/records'
 import type { Level } from '../core/players'
 import { getProgress, recordPlay, recordStart } from '../core/progress'
 import type { Reward } from '../core/progress'
@@ -22,6 +24,7 @@ import { LineStopGame } from '../games/linestop/LineStopGame'
 import { ReactionGame } from '../games/reaction/ReactionGame'
 import { ServeReadGame } from '../games/serveread/ServeReadGame'
 import { Stop10Game } from '../games/stop10/Stop10Game'
+import { BreakSheet } from '../ui/BreakSheet'
 import { GameMenu } from '../ui/GameUI'
 import { HowToSheet } from '../ui/HowToSheet'
 import { ShareSheet } from '../ui/ShareSheet'
@@ -36,6 +39,9 @@ export interface GameProps {
   paused: boolean
   onRestart: () => void
 }
+
+// 開発中だけ：遊んだ時間を入れかえる（「きゅうけい しよう」の確かめに使う）
+if (import.meta.env.DEV) (window as unknown as { __setPlayed?: (s: number) => void }).__setPlayed = __setPlayed
 
 /** 手に持って遊ぶゲーム（画面を回さない） */
 export const HANDHELD: GameId[] = ['jump', 'breakout', 'lift', 'catch', 'reaction', 'stop10']
@@ -78,6 +84,10 @@ export function Play({ game }: { game: GameId }) {
   const [round, setRound] = useState(0)
   const [rewards, setRewards] = useState<Reward[]>([])
   const [share, setShare] = useState<ShareRequest | null>(null)
+  /** つづけて遊んだので「きゅうけい しよう」を出している */
+  const [rest, setRest] = useState(false)
+  /** さいごの記録（きねんカードで「この きろくに ちょうせん」を そえるか） */
+  const [lastValue, setLastValue] = useState<number | undefined>(undefined)
   const solo = info?.players === 1
   // レベルはゲームの途中で変わらないように、始めたときの値で固定する（ひとりのときは自分とピクルくんが同じレベル）
   const [levels] = useState<[Level, Level]>(() => (solo ? [settings.soloLevel, settings.soloLevel] : [settings.levels[0], settings.levels[1]]))
@@ -97,9 +107,21 @@ export function Play({ game }: { game: GameId }) {
     setMenu(false)
     setRewards([])
     setShare(null)
+    setLastValue(undefined)
     setRound((r) => r + 1)
   }
-  const props: GameProps = { levels, paused: menu || help || !!share, onRestart: restart }
+  const paused = menu || help || !!share || rest
+  const props: GameProps = { levels, paused, onRestart: restart }
+
+  // 遊んだ時間をはかる（一時停止中・画面を見ていないときは数えない）
+  const pausedRef = useRef(paused)
+  pausedRef.current = paused
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!pausedRef.current && document.visibilityState === 'visible') addPlayed(1)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
   const openHelp = () => {
     stopSpeaking()
     setMenu(false)
@@ -111,14 +133,32 @@ export function Play({ game }: { game: GameId }) {
       game,
       paddles: settings.paddles,
       rewards,
-      finish: (r: GameResult) => setRewards(recordPlay({ type: 'finish', game, value: r.value, two: !solo })),
+      finish: (r: GameResult) => {
+        // ピクルくんと ラリー：かったときの レベルを記録にする（メダルの目安）
+        const value = game === 'pikuru' ? (r.winner === 0 ? pikuruValue(levels[0]) : undefined) : r.value
+        // じこベスト・メダルに数えるのは、ひとりで遊んだときと、ふたりで協力する ディンク
+        const record = (solo || game === 'dink') && !!MEDAL_RULES[game]
+        setRewards(recordPlay({ type: 'finish', game, value, two: !solo, record }))
+        setLastValue(value)
+        countFinish(game)
+        if (breakDue()) setRest(true)
+      },
       share: setShare,
     }),
-    [game, settings.paddles, rewards, solo],
+    [game, settings.paddles, rewards, solo, levels],
   )
 
   const card: CardData | null = share
-    ? { gameTitle: info?.title ?? '', title: share.title, sub: share.sub, face: share.face, wear: getProgress().wear, look: settings.paddles[share.side] }
+    ? {
+        game,
+        challenge: solo && lastValue !== undefined && game !== 'pikuru',
+        gameTitle: info?.title ?? '',
+        title: share.title,
+        sub: share.sub,
+        face: share.face,
+        wear: getProgress().wear,
+        look: settings.paddles[share.side],
+      }
     : null
 
   return (
@@ -128,6 +168,16 @@ export function Play({ game }: { game: GameId }) {
         <GameMenu open={menu} onOpen={() => setMenu(true)} onClose={() => setMenu(false)} onRestart={restart} onHelp={openHelp} corner={handheld} />
         {help && <HowToSheet game={game} onClose={() => setHelp(false)} canFlip={!solo} />}
         {card && share && <ShareSheet card={card} flipped={share.side === 1} onClose={() => setShare(null)} />}
+        {rest && (
+          <BreakSheet
+            single={handheld}
+            onRest={tookBreak}
+            onMore={() => {
+              oneMore()
+              setRest(false)
+            }}
+          />
+        )}
       </Stage>
     </PlayContext.Provider>
   )

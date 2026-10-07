@@ -10,7 +10,7 @@ import type { DesignId, PaddleShape } from '../ui/paddleArt'
 export type ItemKind = 'design' | 'shape' | 'wear'
 
 /** とくべつな ごほうびの条件 */
-export type Special = 'stamps7' | 'stamps14' | 'party' | 'missions10'
+export type Special = 'stamps7' | 'stamps14' | 'party' | 'missions10' | 'medals9'
 
 export interface Item {
   /** design:orange・shape:long・wear:crown のように「種類:名前」 */
@@ -28,6 +28,7 @@ export const SPECIAL_TEXT: Record<Special, string> = {
   stamps14: 'スタンプを 14こ あつめる',
   party: 'じゅんばんモードを さいごまで あそぶ',
   missions10: 'ミッションを 10こ クリア',
+  medals9: 'メダルを 9こ あつめる（どう1・ぎん2・きん3）',
 }
 
 const DESIGN_PRICE: Record<DesignId, number | Special> = {
@@ -42,6 +43,10 @@ const DESIGN_PRICE: Record<DesignId, number | Special> = {
   pikuru: 5,
   rainbow: 6,
   gold: 'stamps7',
+  ocean: 5,
+  sakura: 5,
+  yozora: 6,
+  champion: 'medals9',
 }
 
 const SHAPE_PRICE: Record<PaddleShape, number> = { std: 0, round: 2, long: 3, wide: 3 }

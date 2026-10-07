@@ -41,6 +41,8 @@ export interface GameInfo {
   fmt?: (v: number) => string
   /** ホームの「おとなも むちゅう」に出す（大人どうしでも楽しめる勝負） */
   adult?: boolean
+  /** ホームのカードで折り返してよい所を | で示した名前（単語の途中で折り返さないように） */
+  wrap?: string
 }
 
 /** 記録を文字にする（じゅんばんモードの結果など） */
@@ -98,6 +100,7 @@ export const GAMES: GameInfo[] = [
   {
     id: 'quiz',
     title: 'ピクルくんクイズ',
+    wrap: 'ピクルくん|クイズ',
     tag: 'クイズ',
     desc: 'さきに あてた ほうが かち',
     face: 'think',
@@ -138,6 +141,7 @@ export const GAMES: GameInfo[] = [
   {
     id: 'catch',
     title: 'ボールキャッチ',
+    wrap: 'ボール|キャッチ',
     tag: 'ひとりで',
     desc: 'あなの あいた ボールだけ とろう',
     face: 'eh',
@@ -160,6 +164,7 @@ export const GAMES: GameInfo[] = [
   {
     id: 'target',
     title: 'ねらってショット',
+    wrap: 'ねらって|ショット',
     tag: 'ひとりで',
     desc: 'ピクルマシンの ボールを まとに うちかえそう',
     face: 'think',
@@ -201,7 +206,7 @@ export const GAMES: GameInfo[] = [
     id: 'serveread',
     title: 'よみあい サーブ',
     tag: 'しんりせん',
-    desc: 'こっそり えらんで、だましあい',
+    desc: 'こっそり えらんで、よみあい かけひき',
     face: 'think',
     howto: 'じゅんばんに こっそり えらぼう。サーブは ねらう ところ、レシーブは まつ ところ。あいてが えらぶ あいだは めを とじて、はなしかけて ゆさぶろう。おなじなら レシーブの てん、ちがえば サーブの てん。',
     players: 2,
