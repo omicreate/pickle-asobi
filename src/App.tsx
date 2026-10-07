@@ -1,0 +1,35 @@
+import { lazy, Suspense, useEffect } from 'react'
+import { stopSpeaking } from './core/speak'
+import { Collection } from './shell/Collection'
+import { gameById } from './shell/games'
+import { Home } from './shell/Home'
+import { Parents } from './shell/Parents'
+import { Party } from './shell/party/Party'
+import { Play } from './shell/Play'
+import { useRoute } from './shell/route'
+import { Setup } from './shell/Setup'
+import { SoloSetup } from './shell/SoloSetup'
+
+// 開発用の確認ページ（本番のビルドには入らない）
+const DevWear = import.meta.env.DEV ? lazy(() => import('./shell/DevWear')) : null
+
+export default function App() {
+  const [page, id] = useRoute()
+  const game = gameById(id)
+
+  // 画面が変わったら読み上げを止める
+  useEffect(() => stopSpeaking, [page, id])
+
+  if (page === 'setup' && game) return game.players === 1 ? <SoloSetup key={game.id} game={game} /> : <Setup key={game.id} game={game} />
+  if (page === 'play' && game) return <Play key={game.id} game={game.id} />
+  if (page === 'collection') return <Collection />
+  if (page === 'parents') return <Parents />
+  if (page === 'party') return <Party />
+  if (DevWear && page === 'dev')
+    return (
+      <Suspense>
+        <DevWear />
+      </Suspense>
+    )
+  return <Home />
+}
