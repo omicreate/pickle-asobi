@@ -21,8 +21,8 @@ export interface NoticeData {
   big?: boolean
 }
 
-/** 知らせを上下両方の向きに出す（only を指定すると片方だけ） */
-export function Notice({ data }: { data: NoticeData | null }) {
+/** 知らせを上下両方の向きに出す（only を指定すると片方だけ。single＝手に持つ画面で1つだけ） */
+export function Notice({ data, single = false }: { data: NoticeData | null; single?: boolean }) {
   if (!data) return null
   const body = (side: Side) => {
     const face = data.faces?.[side] ?? data.face
@@ -42,6 +42,7 @@ export function Notice({ data }: { data: NoticeData | null }) {
       </div>
     )
   }
+  if (single) return body(0)
   if (data.only !== undefined) {
     return (
       <Half side={data.only} interactive={false}>

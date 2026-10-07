@@ -145,6 +145,14 @@ export function Home() {
         <h2 id="games-party" className="game-section-title">
           みんなで あそぶ
         </h2>
+        <p className="game-section-lead">1だいを じゅんばんに てわたし して あそぶよ</p>
+        <ul className="game-list game-list-group">
+          {GAMES.filter((g) => g.players === 'group').map((g) => (
+            <li key={g.id}>
+              <GameCard g={g} className="game-card-group" tag={g.range ? `${g.range[0]}〜${g.range[1]}にん` : g.tag} medal={0} />
+            </li>
+          ))}
+        </ul>
         <a className="game-card game-card-party" href="#/party" data-game="party" onClick={unlockAudio}>
           <Pikuru face="ok" size={72} />
           <span className="game-text">

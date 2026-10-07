@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { stopSpeaking } from './core/speak'
+import { GestureGame } from './games/gesture/GestureGame'
+import { NiseGame } from './games/nise/NiseGame'
 import { Collection } from './shell/Collection'
 import { gameById } from './shell/games'
 import { Home } from './shell/Home'
@@ -21,12 +23,15 @@ export default function App() {
   // 画面が変わったら読み上げを止める
   useEffect(() => stopSpeaking, [page, id])
 
+  // みんなで遊ぶゲームは、準備から結果まで1つの画面
+  if ((page === 'setup' || page === 'play') && game?.id === 'nise') return <NiseGame />
+  if ((page === 'setup' || page === 'play') && game?.id === 'gesture') return <GestureGame />
   if (page === 'setup' && game) return game.players === 1 ? <SoloSetup key={game.id} game={game} /> : <Setup key={game.id} game={game} />
   if (page === 'play' && game) return <Play key={game.id} game={game.id} />
   if (page === 'collection') return <Collection />
   if (page === 'records') return <Records />
   if (page === 'parents') return <Parents />
-  if (page === 'party') return <Party />
+  if (page === 'party') return <Party key={id ?? ''} fixed={game?.party ? game.id : undefined} />
   if (DevWear && page === 'dev')
     return (
       <Suspense>

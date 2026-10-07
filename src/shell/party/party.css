@@ -332,3 +332,11 @@ button.party-team {
 .party-players-team {
   grid-template-columns: 1fr;
 }
+
+/* 手わたしの幕の注意書き */
+.party-handoff-note {
+  font-size: 15px;
+  max-width: 22em;
+  padding: 0 16px;
+  line-height: 1.5;
+}

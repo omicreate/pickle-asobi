@@ -24,11 +24,13 @@ export interface Settings {
   tugTeam: boolean
   /** よみあい サーブで1人が選ぶ時間（秒） */
   srTime: number
+  /** よみあい サーブの遊び方（face＝机に置いて向かい合う／pass＝1台を手わたし） */
+  srStyle: 'face' | 'pass'
   /** つづけて遊んだら「きゅうけい しよう」と声をかける時間（分。0＝声をかけない） */
   breakMin: number
 }
 
-const defaults: Settings = { sound: true, speak: true, levels: ['kids', 'otona'], rallyRules: 'easy', rallyTarget: 5, rallyScoring: 'sideout', soloLevel: 'kids', paddles: DEFAULT_LOOKS, counter: true, tugTeam: false, srTime: 20, breakMin: 30 }
+const defaults: Settings = { sound: true, speak: true, levels: ['kids', 'otona'], rallyRules: 'easy', rallyTarget: 5, rallyScoring: 'sideout', soloLevel: 'kids', paddles: DEFAULT_LOOKS, counter: true, tugTeam: false, srTime: 20, srStyle: 'face', breakMin: 30 }
 
 let current: Settings = { ...defaults, ...load<Partial<Settings>>('settings', {}) }
 const listeners = new Set<() => void>()

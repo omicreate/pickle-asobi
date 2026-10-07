@@ -83,7 +83,7 @@ export function Setup({ game }: { game: GameInfo }) {
   return (
     <Stage>
       {([1, 0] as Side[]).map((side) => (
-        <Half key={side} side={side} className={`setup-half setup-side-${side} ${game.id === 'rally' ? 'setup-half-wide' : ''}`}>
+        <Half key={side} side={side} className={`setup-half setup-side-${side} ${game.id === 'rally' || game.id === 'serveread' ? 'setup-half-wide' : ''}`}>
           <div className="setup-inner">
             <div className="setup-head">
               <span className={`side-chip side-chip-${side}`}>{SIDE_NAME[side]}</span>
@@ -100,7 +100,7 @@ export function Setup({ game }: { game: GameInfo }) {
                 <p>
                   レベルの ちがいは ないよ。
                   <br />
-                  こっそり えらぶ じかんは、まんなかで きめてね。
+                  {settings.srStyle === 'pass' ? 'てわたし：ひとりずつ がめんを みて えらぶよ。あいてには みせないでね。' : 'むかいあう：あいてが えらぶ あいだは めを とじてね。'}
                 </p>
               </div>
             ) : (
@@ -164,12 +164,21 @@ export function Setup({ game }: { game: GameInfo }) {
             </div>
           </div>
         ) : game.id === 'serveread' ? (
-          <div className="seg" role="radiogroup" aria-label="えらぶ じかん">
-            {PICK_TIMES.map((t) => (
-              <button key={t} role="radio" aria-checked={settings.srTime === t} onClick={() => setSettings({ srTime: t })}>
-                {t}びょう
-              </button>
-            ))}
+          <div className="setup-rows">
+            <div className="seg" role="radiogroup" aria-label="あそびかた">
+              {(['face', 'pass'] as const).map((m) => (
+                <button key={m} role="radio" aria-checked={settings.srStyle === m} onClick={() => setSettings({ srStyle: m })} data-testid={`sr-style-${m}`}>
+                  {m === 'face' ? 'むかいあう' : 'てわたし'}
+                </button>
+              ))}
+            </div>
+            <div className="seg" role="radiogroup" aria-label="えらぶ じかん">
+              {PICK_TIMES.map((t) => (
+                <button key={t} role="radio" aria-checked={settings.srTime === t} onClick={() => setSettings({ srTime: t })}>
+                  {t}びょう
+                </button>
+              ))}
+            </div>
           </div>
         ) : game.id === 'tug' ? (
           <div className="seg" role="radiogroup" aria-label="なんにんずつ">

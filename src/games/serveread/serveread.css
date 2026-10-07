@@ -225,3 +225,41 @@
 .sr-summary span {
   font-weight: 900;
 }
+
+/* てわたし：手に持つ1画面（回さない） */
+.sr-pass {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+.sr-pass-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* 右上の ？・⏸ ボタンの所をあける */
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 112px 6px 12px;
+  font-weight: 900;
+  font-size: 14px;
+}
+.sr-pass-score {
+  color: #fff;
+  border-radius: var(--r-pill);
+  padding: 2px 12px;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.sr-pass-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 14px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+}
+.sr-pass-body .party-handoff {
+  min-height: 70vh;
+}

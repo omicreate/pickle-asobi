@@ -290,3 +290,19 @@
   font-size: 15px;
   line-height: 1.6;
 }
+
+/* ひとりのゲームを みんなで（じゅんばんモード） */
+.solo-party {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.3;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.solo-party small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mute);
+}

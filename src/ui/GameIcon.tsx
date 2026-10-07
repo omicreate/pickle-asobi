@@ -346,6 +346,48 @@ const ICONS: Record<GameId, () => ReactNode> = {
       <path d="M48 34 v4" stroke={C.ink} strokeWidth={3} strokeLinecap="round" />
     </>
   ),
+  nise: () => (
+    <>
+      <Bg fill="#efe6ff" />
+      <MiniPikuru x={20} y={62} h={30} tilt={-6} />
+      <MiniPikuru x={76} y={62} h={30} tilt={6} />
+      <MiniPikuru x={48} y={60} h={38} />
+      {/* まんなかの子は へんそう中（めがねと ひげ） */}
+      <g fill="none" stroke={C.ink} strokeWidth={1.8}>
+        <circle cx={43.4} cy={62.3} r={5.6} />
+        <circle cx={52.6} cy={62.3} r={5.6} />
+        <path d="M49 62 h-2" />
+      </g>
+      <path d="M40.5 69.5 q3.75 -3.4 7.5 0 q3.75 -3.4 7.5 0" fill="none" stroke={C.ink} strokeWidth={2.6} strokeLinecap="round" />
+      <path d="M36 8 H60 A6 6 0 0 1 66 14 V26 A6 6 0 0 1 60 32 H52 L48 37 L44 32 H36 A6 6 0 0 1 30 26 V14 A6 6 0 0 1 36 8 Z" fill="#fff" stroke={C.dark} strokeWidth={2} />
+      <text x={48} y={28} textAnchor="middle" fontSize={20} fontWeight={900} fill="#9b6bff" fontFamily="'Zen Maru Gothic', sans-serif">
+        ？
+      </text>
+    </>
+  ),
+  gesture: () => (
+    <>
+      <Bg fill={C.p0tint} />
+      {/* りょうてを ひろげて まねっこ（パドルは もたない）。うでは からだの よこから */}
+      <g stroke={C.dark} strokeWidth={4} strokeLinecap="round" fill="none">
+        <path d="M26 66 Q18 60 13 47" />
+        <path d="M52 66 Q60 60 64 47" />
+      </g>
+      <circle cx={13} cy={45} r={4.2} fill={C.body} stroke={C.dark} strokeWidth={2} />
+      <circle cx={64} cy={45} r={4.2} fill={C.body} stroke={C.dark} strokeWidth={2} />
+      <path d="M5 38 q3 -6 9 -8 M70 30 q6 2 8 8" fill="none" stroke={C.orange} strokeWidth={2.6} strokeLinecap="round" />
+      <MiniPikuru x={39} y={68} h={40} />
+      {/* こえは ださない（「…」の ふきだし） */}
+      <path d="M24 10 H50 A5 5 0 0 1 55 15 V25 A5 5 0 0 1 50 30 H42 L38 35 L36 30 H24 A5 5 0 0 1 19 25 V15 A5 5 0 0 1 24 10 Z" fill="#fff" stroke={C.dark} strokeWidth={2} />
+      {[30, 37, 44].map((x) => (
+        <circle key={x} cx={x} cy={20} r={2.4} fill={C.dark} />
+      ))}
+      <path d="M68 52 H86 A5 5 0 0 1 91 57 V69 A5 5 0 0 1 86 74 H80 L74 80 L74 74 H68 A5 5 0 0 1 63 69 V57 A5 5 0 0 1 68 52 Z" fill="#fff" stroke={C.dark} strokeWidth={2} />
+      <text x={77} y={69} textAnchor="middle" fontSize={14} fontWeight={900} fill={C.orange} fontFamily="'Zen Maru Gothic', sans-serif">
+        ！？
+      </text>
+    </>
+  ),
 }
 
 export function GameIcon({ game, size = 72 }: { game: GameId; size?: number }) {

@@ -39,6 +39,23 @@ export const PHRASES = {
   srRead: 'よんだ！ リターン！',
   srAce: 'サービスエース！',
   rest: 'たくさん あそんだね！ ちょっと きゅうけい しよう',
+  niseIntro: 'ひとりだけ おだいが ちがう、にせピクルくんが いるよ。はなして、せーので ゆびさし！ にせピクルくんは、じぶんが にせものだと しらないよ',
+  niseReady: 'みんな おだいを みたね！ つくえの まんなかに おいてね',
+  niseTalk: 'はなしあい スタート！ おだいの ことばは いわないでね',
+  niseTie: 'おなじ かず！ もう すこし はなして、もういちど ゆびさし',
+  nisePoint: 'じかん！ にせピクルくんだと おもう ひとを、せーので ゆびさそう',
+  niseSeno: 'せーの！',
+  niseVote: 'じかん！ こっそり とうひょう するよ。1だいを じゅんばんに まわしてね',
+  niseCaught: 'にせピクルくん だった！',
+  niseMissed: 'ほんものの ピクルくん だった！',
+  niseChance: 'ぎゃくてん チャンス！ みんなの おだいを、こえに だして いってみよう',
+  niseMinnaWin: 'みんなの かち！',
+  niseWin: 'にせピクルくんの かち！',
+  niseReverse: 'ぎゃくてん！ にせピクルくんの かち！',
+  gestIntro: 'やる ひとだけ がめんを みて、こえを ださずに からだで まねしよう。パドルは もたずに、てで やってね',
+  gestStart: 'スタート！',
+  gestEnd: 'そこまで！',
+  gestFinal: 'みんなで たくさん つたえられたね！',
 } as const
 
 export function allVoiceLines(): string[] {

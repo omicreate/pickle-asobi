@@ -1,7 +1,7 @@
 /** ゲームの画面の外枠：舞台・画面を消さない・一時停止・さいしょから・記録（ミッション）・きねんカード */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { countFinish, countGame } from '../core/counter'
-import { __setPlayed, addPlayed, breakDue, oneMore, tookBreak } from '../core/playtime'
+import { __setPlayed, breakDue, oneMore, tookBreak } from '../core/playtime'
 import { MEDAL_RULES, pikuruValue } from '../core/records'
 import type { Level } from '../core/players'
 import { getProgress, recordPlay, recordStart } from '../core/progress'
@@ -9,6 +9,7 @@ import type { Reward } from '../core/progress'
 import { useSettings } from '../core/settings'
 import { stopSpeaking } from '../core/speak'
 import { Stage } from '../core/Stage'
+import { usePlayClock } from '../core/usePlayClock'
 import { useWakeLock } from '../core/wakelock'
 import { AirGame } from '../games/air/AirGame'
 import { BreakoutGame } from '../games/breakout/BreakoutGame'
@@ -91,7 +92,8 @@ export function Play({ game }: { game: GameId }) {
   const solo = info?.players === 1
   // レベルはゲームの途中で変わらないように、始めたときの値で固定する（ひとりのときは自分とピクルくんが同じレベル）
   const [levels] = useState<[Level, Level]>(() => (solo ? [settings.soloLevel, settings.soloLevel] : [settings.levels[0], settings.levels[1]]))
-  const handheld = HANDHELD.includes(game)
+  // よみあい サーブの「てわたし」は手に持つ1画面（回さない）。始めたときの設定で固定
+  const [handheld] = useState(() => HANDHELD.includes(game) || (game === 'serveread' && settings.srStyle === 'pass'))
 
   // はじめた回数とスタンプ（StrictMode で2回呼ばれても1回だけ数える）
   const started = useRef(-1)
@@ -114,14 +116,7 @@ export function Play({ game }: { game: GameId }) {
   const props: GameProps = { levels, paused, onRestart: restart }
 
   // 遊んだ時間をはかる（一時停止中・画面を見ていないときは数えない）
-  const pausedRef = useRef(paused)
-  pausedRef.current = paused
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (!pausedRef.current && document.visibilityState === 'visible') addPlayed(1)
-    }, 1000)
-    return () => clearInterval(id)
-  }, [])
+  usePlayClock(paused)
   const openHelp = () => {
     stopSpeaking()
     setMenu(false)

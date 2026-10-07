@@ -19,6 +19,8 @@ export type GameId =
   | 'serveread'
   | 'reaction'
   | 'stop10'
+  | 'nise'
+  | 'gesture'
 
 export interface GameInfo {
   id: GameId
@@ -29,8 +31,12 @@ export interface GameInfo {
   face: Face
   /** 読み上げる説明（文字が読めない子のため） */
   howto: string
-  /** 何人で遊ぶか（1＝ひとりで） */
-  players: 1 | 2
+  /** 何人で遊ぶか（1＝ひとりで、2＝1台を机に置いて上下で向かい合う、group＝みんなで1台を手わたし） */
+  players: 1 | 2 | 'group'
+  /** みんなで遊ぶゲームの人数（いちばん少ない・多い） */
+  range?: [number, number]
+  /** ふたりのゲームを「てわたし」（1人ずつ画面を見て、相手には見せない）でも遊べる */
+  pass?: boolean
   /** じゅんばんモードで使う（ひとりで、同じ条件で記録を比べられるゲーム） */
   party?: boolean
   /** じゅんばんモードで比べる記録の単位（例 m・てん） */
@@ -210,6 +216,7 @@ export const GAMES: GameInfo[] = [
     face: 'think',
     howto: 'じゅんばんに こっそり えらぼう。サーブは ねらう ところ、レシーブは まつ ところ。あいてが えらぶ あいだは めを とじて、はなしかけて ゆさぶろう。おなじなら レシーブの てん、ちがえば サーブの てん。',
     players: 2,
+    pass: true,
     adult: true,
   },
   {
@@ -239,6 +246,28 @@ export const GAMES: GameInfo[] = [
     better: 'low',
     unit: 'びょう',
     fmt: (v) => `ずれ ${(v / 1000).toFixed(2)}びょう`,
+  },
+  {
+    id: 'nise',
+    title: 'にせピクルくんは だれだ？',
+    wrap: 'にせピクルくんは|だれだ？',
+    tag: 'じんろう',
+    desc: 'ひとりだけ おだいが ちがう。はなして みつけよう',
+    face: 'think',
+    howto: 'ひとりずつ こっそり おだいを みるよ。ひとりだけ ちがう おだいの、にせピクルくんが いる。おだいの ことを はなして、さいごに せーので ゆびさし！',
+    players: 'group',
+    range: [3, 6],
+  },
+  {
+    id: 'gesture',
+    title: 'ジェスチャー ピックル',
+    wrap: 'ジェスチャー|ピックル',
+    tag: 'ジェスチャー',
+    desc: 'こえを ださずに、からだで つたえよう',
+    face: 'ok',
+    howto: 'やる ひとだけ がめんを みて、こえを ださずに からだで まねしよう。みんなは なにか あててね。あたったら、やる ひとが あたりを おすよ。',
+    players: 'group',
+    range: [2, 6],
   },
 ]
 

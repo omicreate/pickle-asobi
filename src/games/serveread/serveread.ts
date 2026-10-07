@@ -56,6 +56,8 @@ export interface ServeResult {
 
 export interface SrState {
   pickTime: number
+  /** さいごの かけひき（かえる？ そのまま？）をするか。てわたしで遊ぶときは しない（手わたしが倍になるので） */
+  lastChance: boolean
   phase: SrPhase
   /** ラウンド（1から。4以上はサドンデス）と、ラウンドの中で何回めのサーブか（0・1） */
   round: number
@@ -89,24 +91,30 @@ export const firstServer = (round: number): Side => (round % 2 === 1 ? 0 : 1)
 
 export const isFinal = (s: Pick<SrState, 'round'>) => s.round >= ROUNDS
 
-function stepsFor(server: Side): Step[] {
+function stepsFor(server: Side, lastChance = true): Step[] {
   const r = other(server)
-  return [
+  const first: Step[] = [
     { side: server, kind: 'first' },
     { side: r, kind: 'first' },
-    { side: server, kind: 'last' },
-    { side: r, kind: 'last' },
   ]
+  return lastChance
+    ? [
+        ...first,
+        { side: server, kind: 'last' },
+        { side: r, kind: 'last' },
+      ]
+    : first
 }
 
-export function createSr(pickTime = 20): SrState {
+export function createSr(pickTime = 20, lastChance = true): SrState {
   return {
     pickTime,
+    lastChance,
     phase: 'intro',
     round: 1,
     serveNo: 0,
     server: firstServer(1),
-    steps: stepsFor(firstServer(1)),
+    steps: stepsFor(firstServer(1), lastChance),
     stepIndex: 0,
     left: 2.5,
     picks: [null, null],
@@ -190,7 +198,7 @@ function startServe(s: SrState, ev: SrEvent[]) {
   s.picks = [null, null]
   s.auto = [false, false]
   s.doubleNow = [false, false]
-  s.steps = stepsFor(s.server)
+  s.steps = stepsFor(s.server, s.lastChance)
   s.stepIndex = 0
   s.phase = 'pick'
   s.left = s.pickTime

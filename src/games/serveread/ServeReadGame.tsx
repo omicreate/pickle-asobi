@@ -13,9 +13,11 @@ import { sfx, unlockAudio } from '../../core/sound'
 import { speak } from '../../core/speak'
 import { Half } from '../../core/Stage'
 import { PHRASES } from '../../core/voiceLines'
+import { turnLine } from '../../shell/party/colors'
 import { usePlay } from '../../shell/playContext'
 import { Notice, Result, Scores } from '../../ui/GameUI'
 import type { NoticeData } from '../../ui/GameUI'
+import { Handoff } from '../../ui/Handoff'
 import { drawPaddleArt } from '../../ui/paddleArt'
 import { PikuruCut } from '../../ui/pikuruArt'
 import { choose, createSr, currentStep, FINAL_MULT, finishStep, isFinal, REVEAL_TIME, ROUNDS, SPOT_LABEL, SPOT_POINTS, SPOTS, stepSr, TAUNTS, toggleDouble } from './serveread'
@@ -49,7 +51,11 @@ function SpotIcon({ spot }: { spot: Spot }) {
 
 export function ServeReadGame({ paused, onRestart }: Props) {
   const play = usePlay()
-  const game = useMemo<SrState>(() => createSr(getSettings().srTime), [])
+  /** てわたし：1台を渡しあい、選ぶ人だけが画面を見る（始めたときの設定で固定） */
+  const [pass] = useState(() => getSettings().srStyle === 'pass')
+  const game = useMemo<SrState>(() => createSr(getSettings().srTime, !pass), [pass])
+  /** てわたしの幕（次に選ぶ人の色）。幕の間は時間を止める */
+  const [curtain, setCurtain] = useState(false)
   const [, setTick] = useState(0)
   const [notice, setNotice] = useState<NoticeData | null>({ title: `${ROUNDS}かい しょうぶ！`, sub: `さいごの ラウンドは とくてん ${FINAL_MULT}ばい`, face: 'think' })
   const [over, setOver] = useState<Side | null>(null)
@@ -67,7 +73,11 @@ export function ServeReadGame({ paused, onRestart }: Props) {
         case 'step':
           sfx.tick()
           setTaunt(Math.floor(Math.random() * TAUNTS.length))
-          if (ev.step.kind === 'first' && ev.step.side === game.server && game.serveNo === 0 && ev.final) {
+          if (pass) {
+            setCurtain(true)
+            const final = ev.step.side === game.server && game.serveNo === 0 && ev.final
+            speak(final ? PHRASES.srFinal : turnLine(SIDE_NAME[ev.step.side]))
+          } else if (ev.step.kind === 'first' && ev.step.side === game.server && game.serveNo === 0 && ev.final) {
             setNotice({ title: 'ファイナル ラウンド！', sub: `とくてん ${FINAL_MULT}ばい！ ぎゃくてんの チャンス`, face: 'eh' })
             noticeTimer.current = 2
             speak(PHRASES.srFinal)
@@ -98,6 +108,7 @@ export function ServeReadGame({ paused, onRestart }: Props) {
       noticeTimer.current -= dt
       if (noticeTimer.current <= 0) setNotice(null)
     }
+    if (pass && curtain) return
     // 発表の効果音（時間割に合わせて）
     if (game.phase === 'reveal' && game.last) {
       const a = revealT.current
@@ -134,6 +145,78 @@ export function ServeReadGame({ paused, onRestart }: Props) {
 
   const step = currentStep(game)
   const final = isFinal(game)
+
+  if (pass) {
+    const picker = step?.side
+    return (
+      <div className="sr sr-pass" data-phase={game.phase}>
+        <header className="sr-pass-head">
+          <span className="sr-pass-score" style={{ background: SIDE_COLOR[0] }}>
+            {SIDE_NAME[0]} {game.score[0]}
+          </span>
+          <span className="sr-round">
+            {game.round > ROUNDS ? 'サドンデス' : `ラウンド ${game.round}/${ROUNDS}`}
+            {final && <b className="sr-final">×{FINAL_MULT}</b>}
+          </span>
+          <span className="sr-pass-score" style={{ background: SIDE_COLOR[1] }}>
+            {SIDE_NAME[1]} {game.score[1]}
+          </span>
+        </header>
+        <div className="sr-pass-body">
+          {game.phase === 'pick' && picker !== undefined && curtain && (
+            <Handoff
+              name={SIDE_NAME[picker]}
+              color={SIDE_COLOR[picker]}
+              sub={`${game.server === picker ? 'サーブ（ねらう ところ）' : 'レシーブ（まつ ところ）'}${final ? `・とくてん ${FINAL_MULT}ばい！` : ''}`}
+              note={`${SIDE_NAME[picker]}の ひとに わたしてね。わたす ときの ゆさぶり：💬 ${TAUNTS[taunt]}`}
+              go={`${SIDE_NAME[picker]}だけで みる（タッチ）`}
+              onGo={() => {
+                unlockAudio()
+                sfx.tick()
+                setCurtain(false)
+              }}
+              testId="sr-pass-go"
+            />
+          )}
+          {game.phase === 'pick' && picker !== undefined && !curtain && (
+            <PickPanel
+              game={game}
+              side={picker}
+              last={false}
+              onChoose={(spot) =>
+                act(() => {
+                  if (choose(game, picker, spot)) sfx.tick()
+                })
+              }
+              onDouble={() =>
+                act(() => {
+                  if (toggleDouble(game, picker)) sfx.pop(0.3)
+                })
+              }
+              onDone={() =>
+                act(() => {
+                  const ev: SrEvent[] = []
+                  if (finishStep(game, picker, ev)) handle(ev)
+                })
+              }
+            />
+          )}
+          {game.phase === 'reveal' && game.last && <RevealPanel r={game.last} t={revealT.current} side={game.last.gainer} />}
+        </div>
+        {!curtain && <Notice data={notice} single />}
+        {over !== null && (
+          <Result
+            single
+            title={() => `${SIDE_NAME[over]}の かち！ よみの てんさい`}
+            sub={() => `${SIDE_NAME[0]} ${game.score[0]} たい ${game.score[1]} ${SIDE_NAME[1]}`}
+            face={() => 'ok'}
+            onAgain={onRestart}
+            extra={<Summary results={game.results} />}
+          />
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="sr" data-phase={game.phase}>

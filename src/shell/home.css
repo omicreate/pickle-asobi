@@ -408,3 +408,15 @@
   transform: translateY(3px);
   box-shadow: none;
 }
+
+/* みんなで（てわたし）のゲーム */
+.game-list-group {
+  margin-bottom: 10px;
+}
+.game-card-group {
+  background: linear-gradient(160deg, #ffffff 55%, rgba(155, 107, 255, 0.16));
+}
+.game-card-group .game-tag {
+  background: #7a4fe0;
+  color: #fff;
+}

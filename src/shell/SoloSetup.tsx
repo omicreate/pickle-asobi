@@ -111,6 +111,12 @@ export function SoloSetup({ game }: { game: GameInfo }) {
       <a className="btn btn-go solo-start" href={href('play', game.id)} data-testid="solo-start" onClick={unlockAudio}>
         はじめる！
       </a>
+      {game.party && (
+        <a className="btn solo-party" href={href('party', game.id)} data-testid="solo-party" onClick={unlockAudio}>
+          👥 みんなで じゅんばんに しょうぶ
+          <small>1だいを まわして、この ゲームの きろくで くらべる</small>
+        </a>
+      )}
       {help && <HowToSheet game={game.id} onClose={() => setHelp(false)} fixed />}
       {picker && (
         <div className="picker-fixed" onClick={() => setPicker(false)}>

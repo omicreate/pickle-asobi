@@ -157,6 +157,19 @@ describe('よみあい サーブ', () => {
     expect(choose(t, 0, 'body')).toBe(true)
   })
 
+  it('てわたし：さいごの かけひきは なく、サーブ側 → レシーブ側の 2回だけ選ぶ', () => {
+    const s = createSr(20, false)
+    const order: string[] = []
+    playServe(s, (side, kind) => {
+      order.push(`${side}-${kind}`)
+      return 'wide'
+    })
+    expect(order).toEqual(['0-first', '1-first'])
+    expect(s.last).toMatchObject({ read: true, gainer: 1, points: 3 })
+    toNext(s)
+    expect(s.steps.map((x) => x.kind)).toEqual(['first', 'first'])
+  })
+
   it('読まれなければサーブ側、読まれたらレシーブ側が、ねらった所の点をとる', () => {
     const s = createSr(20)
     playServe(s, (side) => (side === 0 ? 'wide' : 'body'))

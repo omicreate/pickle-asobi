@@ -54,8 +54,8 @@ const paddles = (page: Page) => page.evaluate(() => (window as unknown as { __ra
 
 test('ホームから2人そろって「じゅんびOK」でラリーが始まる', async ({ page }) => {
   await open(page, './')
-  // ふたりで7つ・ひとりで6つ・おとなも むちゅう5つ・じゅんばんモード
-  await expect(page.locator('.game-card')).toHaveCount(19)
+  // ふたりで7つ・ひとりで6つ・おとなも むちゅう5つ・みんなで2つ・じゅんばんモード
+  await expect(page.locator('.game-card')).toHaveCount(21)
   await page.locator('[data-game=rally]').click()
   await expect(page).toHaveURL(/#\/setup\/rally/)
   await page.getByTestId('ready-1').click()
@@ -463,7 +463,7 @@ test('れんだ つなひき：準備画面で 2たい2 を選べる', async ({ 
 
 test('ホーム：どのカードにも ゲームの絵。ひとりで記録を出すと メダルと「また あそぶ」に出る', async ({ page }) => {
   await open(page, './')
-  await expect(page.locator('.game-card .game-icon')).toHaveCount(18)
+  await expect(page.locator('.game-card .game-icon')).toHaveCount(20)
   await page.goto('./#/play/lift')
   await expect(page.getByTestId('lift-canvas')).toBeVisible()
   // 6かい つづいた ことにして、パドルを遠くへ（どうメダルは 5かい）
@@ -504,4 +504,113 @@ test('よみあい サーブの準備：レベルは えらばず、えらぶ時
   await page.getByTestId('ready-0').click()
   await page.getByTestId('ready-1').click()
   await expect(page.getByTestId('sr-pick-0')).toBeVisible({ timeout: 6_000 })
+})
+
+test('にせピクルくん：1人ずつ お題を見る（1人だけ ちがう）→ ゆびさし → ぎゃくてん チャンス → 結果', async ({ page }) => {
+  await open(page, './#/')
+  await expect(page.locator('[data-game=nise]')).toBeVisible()
+  await expect(page.locator('[data-game=gesture]')).toBeVisible()
+  await page.locator('[data-game=nise]').click()
+  await page.getByTestId('nise-count-3').click()
+  await page.getByTestId('nise-deck-e').click()
+  await page.getByTestId('nise-start').click()
+  const words: string[] = []
+  for (let i = 0; i < 3; i++) {
+    // 手わたしの幕の間は、お題が画面に無い
+    await expect(page.getByTestId('nise-go')).toBeVisible()
+    await expect(page.locator('.nise-word')).toHaveCount(0)
+    await page.getByTestId('nise-go').click()
+    words.push((await page.locator('.nise-word-text').textContent()) ?? '')
+    await page.getByTestId('nise-hide').click()
+  }
+  const wolf = await page.evaluate(() => (window as unknown as { __nise: { wolf: number } }).__nise.wolf)
+  const odd = words.filter((w) => w !== words[(wolf + 1) % 3])
+  expect(odd).toEqual([words[wolf]])
+  await page.getByTestId('nise-talk').click()
+  await expect(page.getByTestId('nise-talk-card')).toBeVisible()
+  await page.getByTestId('nise-to-point').click()
+  await page.getByTestId('nise-seno').click()
+  await page.getByTestId(`nise-point-${wolf}`).click()
+  await expect(page.getByTestId('nise-reveal')).toContainText('にせピクルくん だった', { timeout: 4_000 })
+  // ばれたときは、ぎゃくてん チャンスまで お題を見せない
+  await expect(page.locator('.nise-answers')).toHaveCount(0)
+  await page.getByTestId('nise-chance').click()
+  await page.getByTestId('nise-answer').click()
+  await page.getByTestId('nise-guess-wrong').click()
+  const result = page.getByTestId('nise-result')
+  await expect(result).toContainText('みんなの かち')
+  await expect(result.locator('.nise-mark')).toHaveCount(1)
+  // つぎの おだい：また1人目から
+  await page.getByTestId('nise-again').click()
+  await expect(page.getByTestId('nise-go')).toContainText('オレンジ')
+})
+
+test('ジェスチャー ピックル：あたり・パスを数えて、みんなの合計を出す', async ({ page }) => {
+  await open(page, './#/setup/gesture')
+  await page.getByTestId('gesture-count-2').click()
+  await page.getByTestId('gesture-start').click()
+  for (const hits of [2, 1]) {
+    await page.getByTestId('gesture-go').click()
+    await expect(page.getByTestId('gesture-act')).toBeVisible({ timeout: 6_000 })
+    for (let i = 0; i < hits; i++) await page.getByTestId('gesture-hit').click()
+    await page.getByTestId('gesture-pass').click()
+    await page.evaluate(() => (window as unknown as { __gestureEnd: () => void }).__gestureEnd())
+    await expect(page.getByTestId('gesture-turn')).toContainText(`${hits}`)
+    await page.getByTestId('gesture-next').click()
+  }
+  await expect(page.getByTestId('gesture-total')).toContainText('3')
+})
+
+test('よみあい サーブ「てわたし」：選ぶ人だけが画面を見る。幕の間は選べない', async ({ page }) => {
+  await open(page, './#/setup/serveread')
+  await page.getByTestId('sr-style-pass').click()
+  await page.getByTestId('ready-0').click()
+  await page.getByTestId('ready-1').click()
+  await expect(page.getByTestId('sr-pass-go')).toContainText('オレンジ', { timeout: 6_000 })
+  await expect(page.locator('[data-testid^=sr-pick-]')).toHaveCount(0)
+  await page.getByTestId('sr-pass-go').click()
+  await page.getByTestId('sr-0-wide').dispatchEvent('pointerdown')
+  await page.getByTestId('sr-done-0').dispatchEvent('pointerdown')
+  await expect(page.getByTestId('sr-pass-go')).toContainText('あお')
+  await page.getByTestId('sr-pass-go').click()
+  await page.getByTestId('sr-1-body').dispatchEvent('pointerdown')
+  await page.getByTestId('sr-done-1').dispatchEvent('pointerdown')
+  // さいごの かけひきは なく、すぐ発表
+  await expect(page.getByTestId('sr-reveal-0')).toContainText('サービスエース', { timeout: 4_000 })
+  expect(await dev<number[]>(page, '__sr', 's.score')).toEqual([3, 0])
+})
+
+test('ひとりのゲームを「みんなで じゅんばん」：そのゲームだけで勝負する', async ({ page }) => {
+  await open(page, './#/setup/jump')
+  await page.getByTestId('solo-party').click()
+  await expect(page.getByTestId('party-only')).toHaveAttribute('aria-checked', 'true')
+  await expect(page.getByTestId('party-rounds-1')).toHaveAttribute('aria-checked', 'true')
+  await page.getByTestId('party-count-2').click()
+  await page.getByTestId('party-start').click()
+  await expect(page.locator('.party-game')).toContainText('ピクルくん ジャンプ')
+  await page.getByTestId('party-next').click()
+  await expect(page.getByTestId('party-go')).toContainText('ピクルくん ジャンプ')
+})
+
+test('にせピクルくん「こっそり とうひょう」：1台を回して1人ずつ選ぶ。票の数で決まる', async ({ page }) => {
+  await open(page, './#/setup/nise')
+  await page.getByTestId('nise-count-3').click()
+  await page.getByTestId('nise-vote-secret').click()
+  await page.getByTestId('nise-start').click()
+  for (let i = 0; i < 3; i++) {
+    await page.getByTestId('nise-go').click()
+    await page.getByTestId('nise-hide').click()
+  }
+  const wolf = await page.evaluate(() => (window as unknown as { __nise: { wolf: number } }).__nise.wolf)
+  await page.getByTestId('nise-talk').click()
+  await page.getByTestId('nise-to-point').click()
+  for (let v = 0; v < 3; v++) {
+    await page.getByTestId('nise-vote-go').click()
+    // 自分には とうひょうできない
+    await expect(page.getByTestId(`nise-vote-${v}`)).toHaveCount(0)
+    const target = v === wolf ? (wolf + 1) % 3 : wolf
+    await page.getByTestId(`nise-vote-${target}`).click()
+  }
+  await expect(page.getByTestId('nise-reveal')).toContainText('にせピクルくん だった', { timeout: 4_000 })
+  await expect(page.locator('.nise-votes')).toContainText('2ひょう')
 })

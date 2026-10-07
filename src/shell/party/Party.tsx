@@ -17,6 +17,7 @@ import { load, save } from '../../core/storage'
 import { PHRASES } from '../../core/voiceLines'
 import { useWakeLock } from '../../core/wakelock'
 import { GameMenu, RewardList } from '../../ui/GameUI'
+import { Handoff } from '../../ui/Handoff'
 import { HowToSheet } from '../../ui/HowToSheet'
 import { Pikuru } from '../../ui/Pikuru'
 import { PikuruCut } from '../../ui/pikuruArt'
@@ -56,15 +57,22 @@ interface SavedSetup {
 
 const POOL = GAMES.filter((g) => g.party).map((g) => g.id)
 const ROUND_CHOICES = [3, 5]
+/** そのゲームだけで遊ぶとき（同じゲームを何回するか） */
+const FIXED_ROUND_CHOICES = [1, 2, 3]
 const MEDAL = ['🥇', '🥈', '🥉']
 
-export function Party() {
+/** fixed：ひとりで遊ぶゲームの準備画面から来たとき、そのゲームだけで勝負する */
+export function Party({ fixed }: { fixed?: GameId }) {
   useWakeLock()
   const saved = useMemo(() => load<SavedSetup>('party-setup', { count: 3, levels: Array(MAX_PLAYERS).fill('kids'), rounds: 3 }), [])
   const [phase, setPhase] = useState<Phase>('setup')
   const [count, setCount] = useState(saved.count)
   const [levels, setLevels] = useState<Level[]>(saved.levels)
-  const [rounds, setRounds] = useState(saved.rounds)
+  const firstOnly = fixed && POOL.includes(fixed) ? fixed : undefined
+  const [rounds, setRounds] = useState(firstOnly ? 1 : saved.rounds)
+  /** そのゲームだけで遊ぶ（無いときは、ラウンドごとにちがうゲーム） */
+  const [only, setOnly] = useState<GameId | undefined>(firstOnly)
+  const roundChoices = only ? FIXED_ROUND_CHOICES : ROUND_CHOICES
   const [teamMode, setTeamMode] = useState(saved.team ?? false)
   const [teams, setTeams] = useState<number[]>(saved.teams ?? defaultTeams(MAX_PLAYERS))
   const [run, setRun] = useState<Run | null>(null)
@@ -76,7 +84,10 @@ export function Party() {
   const [share, setShare] = useState(false)
   const finishing = useRef(false)
 
-  useEffect(() => save('party-setup', { count, levels, rounds, team: teamMode, teams }), [count, levels, rounds, teamMode, teams])
+  // そのゲームだけのときのラウンド数は、いつもの設定（いろいろ）に残さない
+  const mixRounds = useRef(ROUND_CHOICES.includes(saved.rounds) ? saved.rounds : 3)
+  if (!only) mixRounds.current = rounds
+  useEffect(() => save('party-setup', { count, levels, rounds: mixRounds.current, team: teamMode, teams }), [count, levels, rounds, teamMode, teams, only])
   useEffect(() => () => stopSpeaking(), [])
 
   const players: PartyPlayer[] = PARTY_COLORS.slice(0, count).map((c, i) => ({ name: c.name, color: c.color, level: levels[i] ?? 'kids', team: teamMode ? (teams[i] ?? i % 2) : undefined }))
@@ -89,7 +100,7 @@ export function Party() {
     unlockAudio()
     sfx.go()
     const base = hashString(`${Date.now()}:${Math.random()}`)
-    const games = pickGames(POOL, rounds, mulberry32(base))
+    const games = only ? Array.from({ length: rounds }, () => only) : pickGames(POOL, rounds, mulberry32(base))
     setRun({
       players,
       games,
@@ -309,15 +320,43 @@ export function Party() {
             </p>
           )}
 
+          <h2 className="party-label">でる ゲーム</h2>
+          <div className="seg party-seg" role="radiogroup" aria-label="でる ゲーム">
+            <button
+              role="radio"
+              aria-checked={!only}
+              onClick={() => {
+                setOnly(undefined)
+                if (!ROUND_CHOICES.includes(rounds)) setRounds(3)
+              }}
+              data-testid="party-mix"
+            >
+              いろいろ
+            </button>
+            {(only ?? fixed) && (
+              <button
+                role="radio"
+                aria-checked={!!only}
+                onClick={() => {
+                  setOnly(only ?? fixed)
+                  if (!FIXED_ROUND_CHOICES.includes(rounds)) setRounds(1)
+                }}
+                data-testid="party-only"
+              >
+                {gameById(only ?? fixed)?.title}だけ
+              </button>
+            )}
+          </div>
+
           <h2 className="party-label">なんラウンド？</h2>
           <div className="seg party-seg" role="radiogroup" aria-label="ラウンド">
-            {ROUND_CHOICES.map((n) => (
-              <button key={n} role="radio" aria-checked={rounds === n} onClick={() => setRounds(n)}>
+            {roundChoices.map((n) => (
+              <button key={n} role="radio" aria-checked={rounds === n} onClick={() => setRounds(n)} data-testid={`party-rounds-${n}`}>
                 {n}ラウンド
               </button>
             ))}
           </div>
-          <p className="party-note">でる ゲーム：{POOL.map((id) => gameById(id)?.title).join('・')}</p>
+          <p className="party-note">{only ? `ぜんぶ ${gameById(only)?.title}。みんな おなじ コースで しょうぶ！` : `でる ゲーム：${POOL.map((id) => gameById(id)?.title).join('・')}`}</p>
 
           <button className="btn btn-go party-start" onClick={start} disabled={!teamsOk} data-testid="party-start">
             {teamsOk ? 'はじめる！' : 'どちらの チームにも 1にんは いれてね'}
@@ -345,23 +384,18 @@ export function Party() {
       )}
 
       {phase === 'handoff' && run && player && game && (
-        <button
-          className="party-handoff"
-          style={{ background: player.color }}
-          onClick={() => {
+        <Handoff
+          name={player.name}
+          color={player.color}
+          sub={`${game.title}・${LEVEL_INFO[player.level].label}`}
+          onGo={() => {
             unlockAudio()
             stopSpeaking()
             sfx.go()
             setPhase('play')
           }}
-          data-testid="party-go"
-        >
-          <span className="party-handoff-name">{player.name}の ばん！</span>
-          <span className="party-handoff-sub">
-            {game.title}・{LEVEL_INFO[player.level].label}
-          </span>
-          <span className="party-handoff-go">じゅんびが できたら タッチ！</span>
-        </button>
+          testId="party-go"
+        />
       )}
 
       {phase === 'turn' && run && player && game && (
