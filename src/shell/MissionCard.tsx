@@ -4,6 +4,8 @@ import { BONUS_STARS, dayKey } from '../core/missions'
 import { todayMissions, useProgress } from '../core/progress'
 import { unlockAudio } from '../core/sound'
 import { speak } from '../core/speak'
+import { GameIcon } from '../ui/GameIcon'
+import { Pikuru } from '../ui/Pikuru'
 import { PHRASES } from '../core/voiceLines'
 
 const WEEK = ['にち', 'げつ', 'か', 'すい', 'もく', 'きん', 'ど']
@@ -32,7 +34,7 @@ export function MissionCard() {
           aria-label="ミッションを よみあげる"
           onClick={() => {
             unlockAudio()
-            speak([PHRASES.missions, ...defs.map((d) => d.text)])
+            speak([PHRASES.missions, ...defs.map((d) => d.text), ...(defs.some((d) => d.together && !state.done[defs.indexOf(d)]) ? [PHRASES.missionSolo] : [])])
           }}
         >
           🗣️
@@ -50,7 +52,18 @@ export function MissionCard() {
               <span className="mission-check" aria-hidden>
                 {done ? '✓' : ''}
               </span>
-              <span className="mission-text">{d.text}</span>
+              {/* 字が読めなくても、どのゲームか 絵で分かるように */}
+              <span className="mission-icon" aria-hidden>
+                {d.game ? <GameIcon game={d.game} size={34} /> : <Pikuru face="ok" size={34} />}
+              </span>
+              <span className="mission-text">
+                {d.text}
+                {d.together && !done && (
+                  <small className="mission-solo">
+                    ひとりなら <GameIcon game="pikuru" size={18} /> ピクルくんと <span className="nowrap">ラリーでも OK</span>
+                  </small>
+                )}
+              </span>
               <span className="mission-prog">{done ? '⭐+1' : d.need > 1 ? `${v}/${d.need}` : ''}</span>
             </li>
           )

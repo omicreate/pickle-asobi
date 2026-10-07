@@ -22,13 +22,15 @@ export interface LiftLevel {
   air: number
   /** はじめに飛ぶ距離・いちばん遠いとき */
   spread: [number, number]
+  /** 落としても つづけられる回数をふくめた ライフ（ちびっこ・キッズは 落としても もう1回。数は つづきから） */
+  lives: number
 }
 
 export const LIFT_LEVEL: Record<Level, LiftLevel> = {
-  chibi: { paddle: 36, air: 1.6, spread: [4, 16] },
-  kids: { paddle: 31, air: 1.4, spread: [6, 24] },
-  otona: { paddle: 26, air: 1.2, spread: [8, 32] },
-  senshu: { paddle: 22, air: 1.05, spread: [10, 40] },
+  chibi: { paddle: 36, air: 1.6, spread: [4, 16], lives: 3 },
+  kids: { paddle: 31, air: 1.4, spread: [6, 24], lives: 2 },
+  otona: { paddle: 26, air: 1.2, spread: [8, 32], lives: 1 },
+  senshu: { paddle: 22, air: 1.05, spread: [10, 40], lives: 1 },
 }
 
 export interface LiftState {
@@ -36,16 +38,19 @@ export interface LiftState {
   ball: { x: number; y: number; z: number; vx: number; vy: number; vz: number }
   paddle: { x: number; y: number; len: number; wid: number }
   count: number
+  /** のこりのライフ（0 になったら おしまい） */
+  lives: number
   phase: 'ready' | 'play' | 'drop' | 'over'
   /** ready・drop の残り時間 */
   wait: number
 }
 
-export type LiftEvent = { type: 'pon'; count: number } | { type: 'drop' } | { type: 'over'; count: number }
+export type LiftEvent = { type: 'pon'; count: number } | { type: 'drop' } | { type: 'again'; lives: number } | { type: 'over'; count: number }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
-export function createLift(level: Level): LiftState {
+/** oneLife＝じゅんばんモード（みんな同じ条件で、1回落としたら おしまい） */
+export function createLift(level: Level, oneLife = false): LiftState {
   const len = LIFT_LEVEL[level].paddle
   const py = FIELD_H * 0.62
   return {
@@ -54,6 +59,7 @@ export function createLift(level: Level): LiftState {
     ball: { x: FIELD_W / 2, y: py, z: 40, vx: 0, vy: 0, vz: 0 },
     paddle: { x: FIELD_W / 2, y: py, len, wid: len * FACE_RATIO },
     count: 0,
+    lives: oneLife ? 1 : LIFT_LEVEL[level].lives,
     phase: 'ready',
     wait: 1.6,
   }
@@ -123,8 +129,18 @@ export function stepLift(s: LiftState, dt: number, rand: () => number = Math.ran
     b.z = Math.max(0, b.z + b.vz * dt)
     s.wait -= dt
     if (s.wait <= 0) {
-      s.phase = 'over'
-      ev.push({ type: 'over', count: s.count })
+      s.lives -= 1
+      if (s.lives > 0) {
+        // もう1回：パドルの真上から落とす（数は つづきから）
+        const p = s.paddle
+        s.ball = { x: p.x, y: p.y, z: 40, vx: 0, vy: 0, vz: 0 }
+        s.phase = 'ready'
+        s.wait = 1.0
+        ev.push({ type: 'again', lives: s.lives })
+      } else {
+        s.phase = 'over'
+        ev.push({ type: 'over', count: s.count })
+      }
     }
     return ev
   }

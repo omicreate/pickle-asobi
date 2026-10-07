@@ -168,13 +168,26 @@ export function drawRally(ctx: CanvasRenderingContext2D, w: number, h: number, v
   if (e.opts.kind === 'target') {
     const z = e.zone
     if (z && e.phase !== 'over') {
-      ctx.fillStyle = 'rgba(212, 240, 60, 0.3)'
-      ctx.fillRect(X(z.x0), Y(z.y0), (z.x1 - z.x0) * s, (z.y1 - z.y0) * s)
+      // ねらう所は はっきり：明るい色・太い枠（ゆっくり明るさが変わる）・「ここを ねらう」
+      const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 300)
+      const zx = X(z.x0)
+      const zy = Y(z.y0)
+      const zw = (z.x1 - z.x0) * s
+      const zh = (z.y1 - z.y0) * s
+      ctx.fillStyle = `rgba(212, 240, 60, ${0.34 + 0.16 * pulse})`
+      ctx.fillRect(zx, zy, zw, zh)
       ctx.strokeStyle = C.ball
-      ctx.lineWidth = Math.max(2, 0.07 * s)
-      ctx.setLineDash([0.25 * s, 0.15 * s])
-      ctx.strokeRect(X(z.x0), Y(z.y0), (z.x1 - z.x0) * s, (z.y1 - z.y0) * s)
-      ctx.setLineDash([])
+      ctx.lineWidth = Math.max(3, 0.1 * s)
+      ctx.strokeRect(zx, zy, zw, zh)
+      const fs = Math.max(12, Math.min(0.42 * s, zw / 6, zh * 0.5))
+      ctx.font = `900 ${fs}px 'Zen Maru Gothic', sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.lineWidth = Math.max(3, fs * 0.22)
+      ctx.strokeStyle = 'rgba(18, 48, 43, 0.75)'
+      ctx.strokeText('ここを ねらう', zx + zw / 2, zy + zh / 2)
+      ctx.fillStyle = '#ffffff'
+      ctx.fillText('ここを ねらう', zx + zw / 2, zy + zh / 2)
     }
     drawMachine(ctx, X, Y, s, o.pikuruFace ?? 'think')
   }
@@ -250,17 +263,16 @@ function drawPlayer(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: R
   const cpu = e.opts.cpu === side
   const color = cpu ? PICKLE : SIDE_COLOR[side]
 
-  // とどく範囲
-  roundRect(ctx, X(p.x - p.width / 2), Y(p.y - 0.14), p.width * s, 0.28 * s, 0.14 * s)
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'
+  // とどく範囲：自分の色でぬる（小さい子のレベルほど広い。パドルの絵は原画のまま）
+  roundRect(ctx, X(p.x - p.width / 2), Y(p.y - 0.17), p.width * s, 0.34 * s, 0.17 * s)
+  ctx.fillStyle = color
+  ctx.globalAlpha = 0.3
   ctx.fill()
-  ctx.setLineDash([0.12 * s, 0.1 * s])
-  ctx.lineWidth = Math.max(1.5, 0.03 * s)
+  ctx.globalAlpha = 0.9
+  ctx.lineWidth = Math.max(2, 0.045 * s)
   ctx.strokeStyle = color
-  ctx.globalAlpha = 0.7
   ctx.stroke()
   ctx.globalAlpha = 1
-  ctx.setLineDash([])
 
   const bx = p.x
   const by = p.y - n * 0.55

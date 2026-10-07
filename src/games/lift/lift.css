@@ -45,3 +45,8 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
+
+.lift-lives {
+  font-size: 18px;
+  letter-spacing: 1px;
+}

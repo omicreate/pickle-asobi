@@ -205,7 +205,7 @@
 }
 .mission-list li {
   display: grid;
-  grid-template-columns: 30px 1fr auto;
+  grid-template-columns: 30px 34px 1fr auto;
   align-items: center;
   gap: 8px;
   font-size: 16px;
@@ -227,6 +227,32 @@
 }
 .mission-list li[data-done] .mission-text {
   color: var(--mute);
+}
+.mission-icon {
+  display: grid;
+  place-items: center;
+}
+.mission-icon .game-icon {
+  display: block;
+}
+.mission-list li[data-done] .mission-icon {
+  opacity: 0.55;
+}
+.mission-text {
+  display: flex;
+  flex-direction: column;
+}
+.mission-solo {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--p0-deep);
+}
+.mission-solo .game-icon {
+  display: inline-block;
+  vertical-align: -4px;
+  margin: 0 2px;
 }
 .mission-prog {
   font-size: 14px;
@@ -419,4 +445,8 @@
 .game-card-group .game-tag {
   background: #7a4fe0;
   color: #fff;
+}
+
+.mission-solo .nowrap {
+  white-space: nowrap;
 }

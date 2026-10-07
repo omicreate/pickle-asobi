@@ -96,6 +96,7 @@ function variants(level: Level): { [K in keyof Look]?: Look[K][] } {
   const easy = level === 'chibi' || level === 'kids'
   return {
     band: easy ? ['orange', 'blue', 'pink'] : level === 'otona' ? ['orange', 'blue', 'pink', 'white'] : ['orange', 'blue', 'white', 'yellow'],
+    // せんしゅの「yellow」は SceneSvg で だいだい寄りの黄色（ライムと見分けられる色）にする
     hat: ['red', 'blue'],
     glasses: [true],
     body: easy ? ['dark'] : ['dark', 'olive'],
@@ -112,6 +113,17 @@ function shuffle<T>(xs: T[], rand: () => number): T[] {
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
+}
+
+/** にせものが ほんものと どこが ちがうか（まちがえて押したときに見せる。いちばん目立つものから1つ） */
+export function whyNot(look: Look): string | null {
+  if (look.hat) return 'ぼうしを かぶってるよ'
+  if (look.glasses) return 'めがねを かけてるよ'
+  if (look.mustache) return 'ひげが あるよ'
+  if (look.band !== 'lime') return 'はちまきの いろが ちがうよ'
+  if (!look.stem) return 'あたまに つるが ないよ'
+  if (look.body !== 'green') return 'からだの いろが ちがうよ'
+  return null
 }
 
 export const sameLook = (a: Look, b: Look) =>

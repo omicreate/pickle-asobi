@@ -16,7 +16,7 @@ import { load, save } from '../../core/storage'
 import { PHRASES } from '../../core/voiceLines'
 import { usePlay } from '../../shell/playContext'
 import { Result } from '../../ui/GameUI'
-import { CONTEST_ROUNDS, HINT_AFTER, HINT_MS, makeDiff, makeWally, MISS_MS, WALLY_ROUNDS, ZONE_NAME } from './sagasu'
+import { CONTEST_ROUNDS, HINT_AFTER, HINT_MS, makeDiff, makeWally, MISS_MS, WALLY_ROUNDS, whyNot, ZONE_NAME } from './sagasu'
 import type { DiffRound, WallyRound, Zone } from './sagasu'
 import { SceneSvg, TargetCard } from './SceneSvg'
 import './sagasu.css'
@@ -33,7 +33,7 @@ export const ZONE_PHRASE: Record<Zone, string> = {
   outside: PHRASES.sagasuOutside,
 }
 
-const HEAD = 64
+const HEAD = 72
 const sec = (ms: number) => (ms / 1000).toFixed(1)
 const bestKey = (mode: string, lv: Level) => `sagasu-best-${mode}-${lv}`
 
@@ -130,7 +130,9 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
     } else {
       sfx.ng()
       penalty.current += MISS_MS[level]
-      flash(MISS_MS[level] ? `ちがうよ +${MISS_MS[level] / 1000}びょう` : 'ちがうよ')
+      // どこが ちがうかを見せる（つぎは見分けられるように）
+      const why = whyNot(wally.scene.people.find((p) => p.id === id)?.look ?? wally.scene.people[0].look)
+      flash(`${why ?? 'ちがうよ'}${MISS_MS[level] ? ` +${MISS_MS[level] / 1000}びょう` : ''}`)
     }
   }
 
@@ -178,9 +180,10 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       <header className="sagasu-head">
         {mode === 'wally' ? (
           <>
-            <TargetCard size={52} />
+            <TargetCard size={60} />
             <div className="sagasu-head-text">
               <b>ほんものは どこ？</b>
+              <small className="sagasu-marks">ライムの はちまき・あたまに つる</small>
               <small>
                 {round + 1} / {rounds}かいめ
               </small>

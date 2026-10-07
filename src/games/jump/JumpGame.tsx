@@ -31,6 +31,9 @@ const bestKey = (lv: Level) => `jump-best-${lv}`
 const VIEW_X0 = -2
 const VIEW_X1 = 11.5
 const VIEW_X1_PORTRAIT = 8
+/** 縦向きの ちびっこ・キッズ（大きく描く） */
+const VIEW_X0_BIG = -1.2
+const VIEW_X1_BIG = 7.2
 /** じゅんばんモード：1回当たったら終わり。長くても60秒で終わる（みんな同じ障害の並び） */
 export const JUMP_CONTEST_TIME = 60
 
@@ -53,14 +56,17 @@ export function JumpGame({ levels, paused, onRestart }: Props) {
   const [over, setOver] = useState<{ dist: number; dodged: number; best: number } | null>(null)
 
   // 1m を何px で描くか（横は見える範囲、縦は3段ジャンプの高さが入るように）
+  // 縦向きの ちびっこ・キッズは 見える範囲を せまくして 大きく描く（約1.2倍。走るのが ゆっくりなので 先も見える）
   const view = useMemo(() => {
     const portrait = stage.h > stage.w
-    const span = (portrait ? VIEW_X1_PORTRAIT : VIEW_X1) - VIEW_X0
+    const big = portrait && (level === 'chibi' || level === 'kids')
+    const x0 = big ? VIEW_X0_BIG : VIEW_X0
+    const span = (big ? VIEW_X1_BIG : portrait ? VIEW_X1_PORTRAIT : VIEW_X1) - x0
     const scale = Math.min(stage.w / span, (stage.h * 0.62) / 4.6)
-    // 3段ジャンプのいちばん上（約4.6m）が入る高さに地面を置く
-    const ground = Math.min(stage.h * 0.8, Math.max(70 + 4.8 * scale, stage.h * 0.5))
-    return { scale, ox: -VIEW_X0 * scale, ground }
-  }, [stage.w, stage.h])
+    // 3段ジャンプのいちばん上（約4.6m）が入る高さに地面を置く（縦向きは少し下げて、空いた下半分を へらす）
+    const ground = Math.min(stage.h * 0.8, Math.max(70 + 4.8 * scale, stage.h * (portrait ? 0.58 : 0.5)))
+    return { scale, ox: -x0 * scale, ground }
+  }, [stage.w, stage.h, level])
 
   useEffect(() => {
     if (import.meta.env.DEV) (window as unknown as { __jump?: RunnerState }).__jump = game

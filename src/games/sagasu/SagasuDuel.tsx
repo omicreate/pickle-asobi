@@ -13,7 +13,7 @@ import { PHRASES } from '../../core/voiceLines'
 import { usePlay } from '../../shell/playContext'
 import { Notice, Result, Scores } from '../../ui/GameUI'
 import type { NoticeData } from '../../ui/GameUI'
-import { DUEL_WIN, makeWally, ZONE_NAME } from './sagasu'
+import { DUEL_WIN, makeWally, whyNot, ZONE_NAME } from './sagasu'
 import type { WallyRound } from './sagasu'
 import { ZONE_PHRASE } from './SagasuGame'
 import { SceneSvg, TargetCard } from './SceneSvg'
@@ -49,6 +49,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
   const [notice, setNotice] = useState<NoticeData | null>({ title: 'よーい', big: true })
   const ready = useRef(1.2)
   const frozen = useRef<[number, number]>([0, 0])
+  /** おてつきの わけ（どこが ちがったか） */
+  const [why, setWhy] = useState<[string, string]>(['', ''])
   const [, setTick] = useState(0)
 
   useEffect(() => {
@@ -80,6 +82,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
     if (id !== r.target) {
       sfx.ng()
       frozen.current[side] = FREEZE
+      const w = whyNot(r.scene.people.find((p) => p.id === id)?.look ?? r.scene.people[0].look) ?? ''
+      setWhy((cur) => (side === 0 ? [w, cur[1]] : [cur[0], w]))
       return
     }
     sfx.ok()
@@ -129,7 +133,12 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
                   testId={`sagasu-duel-${side}`}
                 />
               ) : null}
-              {frozen.current[side] > 0 && <div className="sagasu-freeze">おてつき！</div>}
+              {frozen.current[side] > 0 && (
+                <div className="sagasu-freeze">
+                  おてつき！
+                  {why[side] && <small>{why[side]}</small>}
+                </div>
+              )}
             </div>
           </div>
         </Half>

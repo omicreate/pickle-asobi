@@ -1,7 +1,8 @@
 /**
  * きょうの ミッション。日付から毎日3つ決まる（どの端末でも、その日は同じミッション）。
  * ①かんたん（あそぶだけ） ②きろく（ひとりで遊ぶゲームの目標） ③いっしょに（ふたり・みんなで）
- * 目標の数はレベルに関係なく同じ。レベルでゲームの難しさが変わるので、小さい子でも届く数にしている。
+ * 目標の数はレベルに関係なく同じ。レベルでゲームの難しさが変わるので、小さい子でも届く数（どうメダルより下）にしている。
+ * ③いっしょに は、ひとりで遊ぶ子のために ピクルくんと ラリーでも クリアになる。
  */
 import type { GameId } from '../shell/games'
 import { hashString } from './rng'
@@ -16,10 +17,15 @@ export interface MissionDef {
   /** いくつで達成か（play・any・two・party は回数、value はそのゲームの記録） */
   need: number
   game?: GameId
+  /** いっしょに（③）のミッション。ひとりのときは ピクルくんと ラリーでも クリアになる */
+  together?: boolean
 }
 
+/** ひとりで遊ぶ子も ③いっしょに を クリアできるように：ピクルくん（コンピューター）と ラリー */
+export const SOLO_PARTNER: GameId = 'pikuru'
+
 export const EASY: MissionDef[] = [
-  { id: 'any-3', text: 'ゲームを 3かい あそぼう', kind: 'any', need: 3 },
+  { id: 'any-2', text: 'ゲームを 2かい あそぼう', kind: 'any', need: 2 },
   { id: 'play-jump', text: 'ピクルくん ジャンプで あそぼう', kind: 'play', need: 1, game: 'jump' },
   { id: 'play-lift', text: 'ポンポン リフティングで あそぼう', kind: 'play', need: 1, game: 'lift' },
   { id: 'play-catch', text: 'ボールキャッチで あそぼう', kind: 'play', need: 1, game: 'catch' },
@@ -32,16 +38,16 @@ export const EASY: MissionDef[] = [
 ]
 
 export const RECORD: MissionDef[] = [
-  { id: 'jump-50', text: 'ジャンプで 50メートル はしろう', kind: 'value', need: 50, game: 'jump' },
-  { id: 'lift-10', text: 'リフティングを 10かい つづけよう', kind: 'value', need: 10, game: 'lift' },
-  { id: 'catch-15', text: 'ボールキャッチで 15てん とろう', kind: 'value', need: 15, game: 'catch' },
-  { id: 'breakout-20', text: 'ピクルくずしで 20てん とろう', kind: 'value', need: 20, game: 'breakout' },
-  { id: 'target-3', text: 'ねらってショットで 3こ いれよう', kind: 'value', need: 3, game: 'target' },
+  { id: 'jump-30', text: 'ジャンプで 30メートル はしろう', kind: 'value', need: 30, game: 'jump' },
+  { id: 'lift-3', text: 'リフティングを 3かい しよう', kind: 'value', need: 3, game: 'lift' },
+  { id: 'catch-6', text: 'ボールキャッチで 6てん とろう', kind: 'value', need: 6, game: 'catch' },
+  { id: 'breakout-10', text: 'ピクルくずしで 10てん とろう', kind: 'value', need: 10, game: 'breakout' },
+  { id: 'target-2', text: 'ねらってショットで 2こ いれよう', kind: 'value', need: 2, game: 'target' },
 ]
 
-export const TOGETHER: MissionDef[] = [
+export const TOGETHER: MissionDef[] = ([
   { id: 'two-1', text: 'ふたりで あそぶ ゲームを 1かい あそぼう', kind: 'two', need: 1 },
-  { id: 'dink-5', text: 'ディンクで 5かい つなごう', kind: 'value', need: 5, game: 'dink' },
+  { id: 'dink-2', text: 'ディンクで 2かい つなごう', kind: 'value', need: 2, game: 'dink' },
   { id: 'tug-1', text: 'れんだ つなひきで しょうぶしよう', kind: 'play', need: 1, game: 'tug' },
   { id: 'air-1', text: 'エアピックルで しょうぶしよう', kind: 'play', need: 1, game: 'air' },
   { id: 'quiz-1', text: 'ピクルくんクイズで あそぼう', kind: 'play', need: 1, game: 'quiz' },
@@ -53,7 +59,7 @@ export const TOGETHER: MissionDef[] = [
   { id: 'gesture-1', text: 'ジェスチャー ピックルで あそぼう', kind: 'play', need: 1, game: 'gesture' },
   { id: 'sagasu2-1', text: 'ピクルくん さがし たいせんで しょうぶしよう', kind: 'play', need: 1, game: 'sagasu2' },
   { id: 'ishin-1', text: 'いしんでんしん ダブルスで あそぼう', kind: 'play', need: 1, game: 'ishin' },
-]
+] as MissionDef[]).map((m) => ({ ...m, together: true }))
 
 export const ALL_MISSIONS = [...EASY, ...RECORD, ...TOGETHER]
 
@@ -82,6 +88,8 @@ export type PlayEvent = { type: 'finish'; game: GameId; value?: number; two: boo
 /** 1回遊んだあとの進み具合 */
 export function advance(def: MissionDef, current: number, ev: PlayEvent): number {
   if (ev.type === 'party') return def.kind === 'party' ? current + 1 : current
+  // ③いっしょに は、ひとりなら ピクルくんと ラリーで クリア
+  if (def.together && ev.game === SOLO_PARTNER) return Math.max(current, def.need)
   switch (def.kind) {
     case 'any':
       return current + 1

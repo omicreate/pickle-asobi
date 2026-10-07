@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { LEVELS } from '../../core/players'
 import { mulberry32 } from '../../core/rng'
-import { courtBox, decoyLook, DIFF, feet, hitDiff, makeDiff, makeWally, REAL, sameLook, WALLY, zoneOf } from './sagasu'
+import { courtBox, decoyLook, DIFF, feet, hitDiff, makeDiff, makeWally, REAL, sameLook, WALLY, whyNot, zoneOf } from './sagasu'
 
 describe('さがせ！ピクルくん', () => {
   it('ほんものは1人だけ。にせものは どれも どこかがちがう', () => {
@@ -44,6 +44,12 @@ describe('さがせ！ピクルくん', () => {
       expect(diffCount(decoyLook('chibi', WALLY.chibi.changes, rand))).toBeGreaterThanOrEqual(2)
       expect(diffCount(decoyLook('senshu', WALLY.senshu.changes, rand))).toBeLessThanOrEqual(1)
     }
+  })
+
+  it('まちがえて押した にせものには、どこが ちがうかを言える（ほんものは null）', () => {
+    const rand = mulberry32(8)
+    expect(whyNot(REAL)).toBeNull()
+    for (const lv of LEVELS) for (let k = 0; k < 40; k++) expect(whyNot(decoyLook(lv, WALLY[lv].changes, rand)), lv).toBeTruthy()
   })
 
   it('同じ種なら同じ場面（じゅんばんモードで公平に）', () => {

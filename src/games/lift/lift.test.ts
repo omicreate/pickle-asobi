@@ -39,8 +39,8 @@ describe('ポンポン リフティング', () => {
     expect(ev.some((e) => e.type === 'drop')).toBe(false)
   })
 
-  it('パドルの外に落ちたら おしまい', () => {
-    const s = createLift('kids')
+  it('パドルの外に落ちたら おしまい（おとな・せんしゅ）', () => {
+    const s = createLift('otona')
     run(s, 2.6)
     // パドルを遠くへ
     const ev = run(s, 4, (st) => movePaddle(st, st.ball.x > FIELD_W / 2 ? 5 : FIELD_W - 5, FIELD_H - 5))
@@ -76,5 +76,21 @@ describe('ポンポン リフティング', () => {
     run(b, 10, perfect, mulberry32(7))
     expect(a.ball.x).toBeCloseTo(b.ball.x, 6)
     expect(a.count).toBe(b.count)
+  })
+
+  it('ちびっこ・キッズは 落としても もう1回。数は つづきから（じゅんばんモードは1回で おしまい）', () => {
+    const s = createLift('kids')
+    run(s, 2.6)
+    const before = s.count
+    const away = (st: ReturnType<typeof createLift>) => movePaddle(st, st.ball.x > FIELD_W / 2 ? 5 : FIELD_W - 5, FIELD_H - 5)
+    const ev = run(s, 4, away)
+    expect(ev.find((e) => e.type === 'again')).toMatchObject({ lives: 1 })
+    expect(ev.some((e) => e.type === 'over')).toBe(false)
+    expect(s.count).toBe(before)
+    // もう1回落とすと おしまい
+    const ev2 = run(s, 6, away)
+    expect(ev2.find((e) => e.type === 'over')).toBeTruthy()
+    expect(createLift('chibi').lives).toBe(3)
+    expect(createLift('chibi', true).lives).toBe(1)
   })
 })

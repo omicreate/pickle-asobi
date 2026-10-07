@@ -11,20 +11,22 @@
 .bo-hud {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 10px);
-  left: 12px;
-  right: 120px;
+  left: 10px;
+  right: 116px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  /* 小さい画面でも1行に（「ステー／ジ」「1て／ん」と折り返さないように） */
+  white-space: nowrap;
   font-weight: 900;
   pointer-events: none;
 }
 .bo-lives {
-  font-size: 18px;
-  letter-spacing: -2px;
+  font-size: 15px;
+  letter-spacing: -3px;
 }
 .bo-stage {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--mute);
 }
 .bo-pikuru {
@@ -32,7 +34,7 @@
 }
 .bo-score {
   margin-left: auto;
-  font-size: 26px;
+  font-size: 24px;
   font-variant-numeric: tabular-nums;
 }
 .bo-timer {

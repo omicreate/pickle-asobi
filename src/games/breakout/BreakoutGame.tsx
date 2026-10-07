@@ -199,7 +199,7 @@ export function BreakoutGame({ two, levels, paused, onRestart }: Props) {
             {'❤️'.repeat(Math.max(0, hud.lives))}
           </span>
           <span className="bo-stage">{contest ? `のこり ${hud.time}びょう` : `ステージ ${Math.min(hud.stage + 1, STAGES)}/${STAGES}`}</span>
-          <PikuruCut art={pkFace} height={46} className="bo-pikuru" />
+          <PikuruCut art={pkFace} height={40} className="bo-pikuru" />
           <span className="bo-score">{hud.score[0]}てん</span>
         </div>
       )}

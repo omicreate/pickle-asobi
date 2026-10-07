@@ -7,9 +7,11 @@ import type { Band, Diff, Hat, Look, Person, Scene, Thing, Tone } from './sagasu
 
 const INK = '#12302b'
 const DARK = '#2e5a1c'
-const BAND: Record<Band, string> = { lime: '#d4f03c', orange: '#ff8a3d', blue: '#3d9be9', pink: '#ff6fae', white: '#ffffff', yellow: '#f5d300' }
+// yellow はライム（#d4f03c）と見分けられるよう、だいだい寄りの黄色にする
+const BAND: Record<Band, string> = { lime: '#d4f03c', orange: '#ff8a3d', blue: '#3d9be9', pink: '#ff6fae', white: '#ffffff', yellow: '#ffb300' }
 const HAT: Record<Hat, string> = { red: '#e53935', blue: '#3d6fd9' }
-const TONE: Record<Tone, string> = { green: '#6bb33f', dark: '#3f7f2a', olive: '#8fae3a' }
+// olive は みどり（#6bb33f）と見分けられるよう、黄みを強くする
+const TONE: Record<Tone, string> = { green: '#6bb33f', dark: '#3f7f2a', olive: '#a8b83a' }
 
 /** ピクルくん（とにせもの）。x,y は体の中心、s は高さ */
 export function PersonFigure({ look, x, y, s, flip = false }: { look: Look; x: number; y: number; s: number; flip?: boolean }) {

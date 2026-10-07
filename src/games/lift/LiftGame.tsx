@@ -20,7 +20,7 @@ import { drawPaddleArt } from '../../ui/paddleArt'
 import type { PaddleLook } from '../../ui/paddleArt'
 import type { Face } from '../../ui/Pikuru'
 import { PikuruCut } from '../../ui/pikuruArt'
-import { BALL_R, createLift, FIELD_H, FIELD_W, GRAVITY, movePaddle, stepLift } from './lift'
+import { BALL_R, createLift, FIELD_H, FIELD_W, GRAVITY, LIFT_LEVEL, movePaddle, stepLift } from './lift'
 import type { LiftState } from './lift'
 import './lift.css'
 
@@ -41,10 +41,11 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
   const contest = play.contest
   const level = levels[0]
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const game = useMemo<LiftState>(() => createLift(level), [level])
+  const game = useMemo<LiftState>(() => createLift(level, !!contest), [level, contest])
   const rand = useMemo(() => (contest ? mulberry32(contest.seed) : Math.random), [contest])
   const noticeTimer = useRef(0)
   const [count, setCount] = useState(0)
+  const [lives, setLives] = useState(game.lives)
   const [face, setFace] = useState<Face>('think')
   const [notice, setNotice] = useState<NoticeData | null>({ title: 'かげの ところで うけてね', face: 'think', only: 0 })
   const [over, setOver] = useState<{ count: number; best: number } | null>(null)
@@ -89,6 +90,11 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
         } else if (ev.type === 'drop') {
           sfx.ng()
           setFace('oops')
+        } else if (ev.type === 'again') {
+          setLives(ev.lives)
+          setFace('think')
+          setNotice({ title: 'もう いちど！', sub: `のこり ${ev.lives}かい・かずは つづきから`, face: 'think', only: 0 })
+          noticeTimer.current = 1.4
         } else if (ev.type === 'over') {
           sfx.fanfare()
           setNotice(null)
@@ -139,12 +145,17 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
           {count}
           <small>かい</small>
         </span>
+        {game.lives > 0 && LIFT_LEVEL[level].lives > 1 && !contest && (
+          <span className="lift-lives" aria-label={`のこり ${lives}かい`}>
+            {'❤️'.repeat(Math.max(0, lives))}
+          </span>
+        )}
       </div>
       <Notice data={notice} />
       {over && !contest && (
         <Result
           single
-          title={() => `${over.count}かい つづいた！`}
+          title={() => (LIFT_LEVEL[level].lives > 1 && !contest ? `ぜんぶで ${over.count}かい！` : `${over.count}かい つづいた！`)}
           sub={() => (over.count >= over.best && over.count > 0 ? 'さいこう きろく！' : `さいこうは ${over.best}かい（${LEVEL_INFO[level].label}）`)}
           face={() => (over.count >= over.best && over.count > 0 ? 'ok' : 'eh')}
           onAgain={onRestart}

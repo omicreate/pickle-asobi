@@ -29,6 +29,7 @@ export const PHRASES = {
   pikuruWin: 'ピクルくんの かち！ また あそぼう',
   missions: 'きょうの ミッション',
   missionClear: 'ミッション クリア！',
+  missionSolo: 'ひとりの ときは、ピクルくんと ラリーでも クリア できるよ',
   newItem: 'あたらしい ごほうびを もらったよ！',
   welcome: 'はじめての プレゼント！ ほしを 3つ あげるね',
   partyIntro: 'じゅんばんモード！ じゅんばんに あそんで、きろくで しょうぶだよ',

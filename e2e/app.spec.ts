@@ -245,6 +245,9 @@ test('はじめて開くと、プレゼント（ほし3つ）の知らせが出�
   await page.getByRole('button', { name: 'ありがとう！' }).click()
   await expect(page.getByTestId('home-stars')).toContainText('3')
   await expect(page.getByTestId('missions').locator('.mission-list li')).toHaveCount(3)
+  // 字が読めなくても分かるよう、ミッションごとに絵。③いっしょに は ひとりでも できる道を出す
+  await expect(page.getByTestId('missions').locator('.mission-icon')).toHaveCount(3)
+  await expect(page.getByTestId('missions').locator('.mission-solo')).toContainText('ピクルくんと')
 })
 
 test('きせかえ：ほしと こうかんして、つけられる', async ({ page }) => {
@@ -302,11 +305,14 @@ test('ポンポン リフティング：パドルを外すと終わり、結果�
   await expect(page.getByTestId('lift-canvas')).toBeVisible()
   // 1回目のボールが落ちる前に、パドルを遠くへ
   await page.evaluate(() => {
-    const s = (window as unknown as { __lift: { paddle: { x: number; y: number } } }).__lift
+    const s = (window as unknown as { __lift: { lives: number; paddle: { x: number; y: number } } }).__lift
+    // キッズは 落としても もう1回できるので、この確かめでは 1回で おしまいにする
+    s.lives = 1
     s.paddle.x = 90
     s.paddle.y = 140
   })
-  await expect(page.getByText('0かい つづいた！')).toBeVisible({ timeout: 8_000 })
+  // キッズは「ぜんぶで 0かい！」（落としても つづけられるので、合計の数）
+  await expect(page.locator('.result-title')).toContainText('0かい', { timeout: 8_000 })
   await page.getByTestId('share-btn').click()
   await expect(page.getByTestId('parent-gate')).toBeVisible()
   await page.locator('[data-testid=parent-gate] button[data-answer]').click()
@@ -331,7 +337,9 @@ test.describe('きねんカードの保存：iPhone は「写真に保存」（�
     })
     await open(page, './#/play/lift')
     await page.evaluate(() => {
-      const s = (window as unknown as { __lift: { paddle: { x: number; y: number } } }).__lift
+      const s = (window as unknown as { __lift: { lives: number; paddle: { x: number; y: number } } }).__lift
+    // キッズは 落としても もう1回できるので、この確かめでは 1回で おしまいにする
+    s.lives = 1
       s.paddle.x = 90
       s.paddle.y = 140
     })
@@ -500,12 +508,14 @@ test('ホーム：どのカードにも ゲームの絵。ひとりで記録を�
   await expect(page.getByTestId('lift-canvas')).toBeVisible()
   // 6かい つづいた ことにして、パドルを遠くへ（どうメダルは 5かい）
   await page.evaluate(() => {
-    const s = (window as unknown as { __lift: { count: number; paddle: { x: number; y: number } } }).__lift
+    const s = (window as unknown as { __lift: { lives: number; count: number; paddle: { x: number; y: number } } }).__lift
+    // キッズは 落としても もう1回できるので、この確かめでは 1回で おしまいにする
+    s.lives = 1
     s.count = 6
     s.paddle.x = 90
     s.paddle.y = 140
   })
-  await expect(page.getByText('6かい つづいた！')).toBeVisible({ timeout: 8_000 })
+  await expect(page.locator('.result-title')).toContainText('6かい', { timeout: 8_000 })
   await expect(page.getByTestId('rewards')).toContainText('どうメダル')
   await page.goto('./#/')
   await expect(page.locator('[data-recent=lift]')).toBeVisible()
@@ -520,7 +530,9 @@ test('遊びすぎの声かけ：決めた時間をこえると、結果のと�
   await expect(page.getByTestId('lift-canvas')).toBeVisible()
   await page.evaluate(() => {
     ;(window as unknown as { __setPlayed: (s: number) => void }).__setPlayed(31 * 60)
-    const s = (window as unknown as { __lift: { paddle: { x: number; y: number } } }).__lift
+    const s = (window as unknown as { __lift: { lives: number; paddle: { x: number; y: number } } }).__lift
+    // キッズは 落としても もう1回できるので、この確かめでは 1回で おしまいにする
+    s.lives = 1
     s.paddle.x = 90
     s.paddle.y = 140
   })
@@ -701,7 +713,8 @@ test('ピクルくん さがし：ちがう人では進まず、ほんものを�
     return { target: w.target, other: w.scene.people.find((p) => p.id !== w.target)!.id }
   })
   await page.locator(`[data-testid=sagasu-scene] [data-person=${ids.other}]`).dispatchEvent('pointerdown')
-  await expect(page.getByText('ちがうよ')).toBeVisible()
+  // どこが ちがうかが出る（めがね・ぼうし など）
+  await expect(page.locator('.sagasu-toast')).toContainText(/よ/)
   await expect(page.getByText('1 / 5かいめ')).toBeVisible()
   await page.locator(`[data-testid=sagasu-scene] [data-person=${ids.target}]`).dispatchEvent('pointerdown')
   await expect(page.getByTestId('sagasu-found')).toContainText(/キッチン|サービスコート|コートの そと/)
