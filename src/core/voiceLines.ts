@@ -2,6 +2,7 @@
  * ElevenLabs で前もって音声にしておくセリフの一覧（scripts/build-voice.mjs が読む）。
  * ここにない文は、端末の読み上げ（speechSynthesis）で読む。
  */
+import { I_QUESTIONS } from '../games/ishin/questions'
 import { QUESTIONS } from '../games/quiz/questions'
 import { GAMES } from '../shell/games'
 import { howtoSpeech } from '../shell/howto'
@@ -56,6 +57,10 @@ export const PHRASES = {
   gestStart: 'スタート！',
   gestEnd: 'そこまで！',
   gestFinal: 'みんなで たくさん つたえられたね！',
+  ishinIntro: 'おなじ しつもんに、ペアの ふたりが こっそり こたえるよ。おなじ こたえなら いしんでんしん！ せいかいは ないよ',
+  ishinMatch: 'いしんでんしん！',
+  ishinMiss: 'おしい！ どうして それに したか、はなしてみよう',
+  ishinEnd: 'けっか はっぴょう！',
 } as const
 
 export function allVoiceLines(): string[] {
@@ -70,6 +75,8 @@ export function allVoiceLines(): string[] {
     lines.add(q.explain)
   }
   for (const p of Object.values(PHRASES)) lines.add(p)
+  // いしんでんしん：しつもんは みんなに聞こえてよいので読み上げる（答えは読まない）
+  for (const q of I_QUESTIONS) lines.add(q.prompt)
   for (const m of ALL_MISSIONS) lines.add(m.text)
   for (const i of ITEMS) lines.add(i.label)
   for (const c of PARTY_COLORS) {

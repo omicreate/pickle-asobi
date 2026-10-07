@@ -21,6 +21,7 @@ export type GameId =
   | 'stop10'
   | 'nise'
   | 'gesture'
+  | 'ishin'
 
 export interface GameInfo {
   id: GameId
@@ -35,6 +36,8 @@ export interface GameInfo {
   players: 1 | 2 | 'group'
   /** みんなで遊ぶゲームの人数（いちばん少ない・多い） */
   range?: [number, number]
+  /** みんなで遊ぶゲームで、遊べる人数がとびとびのとき（例 2人か4人） */
+  sizes?: number[]
   /** ふたりのゲームを「てわたし」（1人ずつ画面を見て、相手には見せない）でも遊べる */
   pass?: boolean
   /** じゅんばんモードで使う（ひとりで、同じ条件で記録を比べられるゲーム） */
@@ -268,6 +271,18 @@ export const GAMES: GameInfo[] = [
     howto: 'やる ひとだけ がめんを みて、こえを ださずに からだで まねしよう。みんなは なにか あててね。あたったら、やる ひとが あたりを おすよ。',
     players: 'group',
     range: [2, 6],
+  },
+  {
+    id: 'ishin',
+    title: 'いしんでんしん ダブルス',
+    wrap: 'いしんでんしん|ダブルス',
+    tag: 'きょうりょく',
+    desc: 'パートナーと おなじ こたえを えらべるかな',
+    face: 'ok',
+    howto: 'おなじ しつもんに、ペアの ふたりが こっそり こたえるよ。おなじ こたえなら いしんでんしん！ せいかいは ないよ。',
+    players: 'group',
+    range: [2, 4],
+    sizes: [2, 4],
   },
 ]
 

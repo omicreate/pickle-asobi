@@ -50,6 +50,7 @@ export const TOGETHER: MissionDef[] = [
   { id: 'curling-1', text: 'キッチン カーリングで しょうぶしよう', kind: 'play', need: 1, game: 'curling' },
   { id: 'serveread-1', text: 'よみあい サーブで しょうぶしよう', kind: 'play', need: 1, game: 'serveread' },
   { id: 'gesture-1', text: 'ジェスチャー ピックルで あそぼう', kind: 'play', need: 1, game: 'gesture' },
+  { id: 'ishin-1', text: 'いしんでんしん ダブルスで あそぼう', kind: 'play', need: 1, game: 'ishin' },
 ]
 
 export const ALL_MISSIONS = [...EASY, ...RECORD, ...TOGETHER]

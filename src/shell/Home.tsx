@@ -149,7 +149,7 @@ export function Home() {
         <ul className="game-list game-list-group">
           {GAMES.filter((g) => g.players === 'group').map((g) => (
             <li key={g.id}>
-              <GameCard g={g} className="game-card-group" tag={g.range ? `${g.range[0]}〜${g.range[1]}にん` : g.tag} medal={0} />
+              <GameCard g={g} className="game-card-group" tag={g.sizes ? `${g.sizes.join('・')}にん` : g.range ? `${g.range[0]}〜${g.range[1]}にん` : g.tag} medal={0} />
             </li>
           ))}
         </ul>

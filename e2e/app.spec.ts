@@ -54,8 +54,8 @@ const paddles = (page: Page) => page.evaluate(() => (window as unknown as { __ra
 
 test('ホームから2人そろって「じゅんびOK」でラリーが始まる', async ({ page }) => {
   await open(page, './')
-  // ふたりで7つ・ひとりで6つ・おとなも むちゅう5つ・みんなで2つ・じゅんばんモード
-  await expect(page.locator('.game-card')).toHaveCount(21)
+  // ふたりで7つ・ひとりで6つ・おとなも むちゅう5つ・みんなで3つ・じゅんばんモード
+  await expect(page.locator('.game-card')).toHaveCount(22)
   await page.locator('[data-game=rally]').click()
   await expect(page).toHaveURL(/#\/setup\/rally/)
   await page.getByTestId('ready-1').click()
@@ -463,7 +463,7 @@ test('れんだ つなひき：準備画面で 2たい2 を選べる', async ({ 
 
 test('ホーム：どのカードにも ゲームの絵。ひとりで記録を出すと メダルと「また あそぶ」に出る', async ({ page }) => {
   await open(page, './')
-  await expect(page.locator('.game-card .game-icon')).toHaveCount(20)
+  await expect(page.locator('.game-card .game-icon')).toHaveCount(21)
   await page.goto('./#/play/lift')
   await expect(page.getByTestId('lift-canvas')).toBeVisible()
   // 6かい つづいた ことにして、パドルを遠くへ（どうメダルは 5かい）
@@ -613,4 +613,48 @@ test('にせピクルくん「こっそり とうひょう」：1台を回して
   }
   await expect(page.getByTestId('nise-reveal')).toContainText('にせピクルくん だった', { timeout: 4_000 })
   await expect(page.locator('.nise-votes')).toContainText('2ひょう')
+})
+
+test('いしんでんしん「むかいあう」：上下で同時に選ぶ。同じなら いしんでんしん', async ({ page }) => {
+  await open(page, './#/setup/ishin')
+  await page.getByTestId('ishin-size-2').click()
+  await page.getByTestId('ishin-style-face').click()
+  await page.getByTestId('ishin-n-5').click()
+  await page.getByTestId('ishin-start').click()
+  // 1もんめ：同じもの → いしんでんしん
+  await page.getByTestId('ishin-face-0-0').click()
+  await expect(page.getByText('えらんだ！ あいてを まってね')).toBeVisible()
+  await page.getByTestId('ishin-face-1-0').click()
+  await expect(page.getByTestId('ishin-verdict').first()).toContainText('いしんでんしん', { timeout: 3_000 })
+  await page.getByTestId('ishin-next').first().click()
+  // のこり4もん：ちがうもの
+  for (let i = 0; i < 4; i++) {
+    await page.getByTestId('ishin-face-0-0').click()
+    await page.getByTestId('ishin-face-1-1').click()
+    await expect(page.getByTestId('ishin-verdict').first()).toContainText('おしい', { timeout: 3_000 })
+    await page.getByTestId('ishin-next').first().click()
+  }
+  await expect(page.getByTestId('ishin-score')).toContainText('1')
+})
+
+test('いしんでんしん 4人：てわたしで2ペアたいせん。そろった数で勝ち負け', async ({ page }) => {
+  await open(page, './#/setup/ishin')
+  await page.getByTestId('ishin-size-4').click()
+  await page.getByTestId('ishin-n-5').click()
+  await page.getByTestId('ishin-start').click()
+  for (let k = 0; k < 5; k++) {
+    await page.getByTestId('ishin-go-pick').click()
+    // じゅんばんは オレンジ → ピンク → あお → みどり（ペアが続かない）
+    for (const [j, name] of ['オレンジ', 'ピンク', 'あお', 'みどり'].entries()) {
+      await expect(page.getByTestId('ishin-pass-go')).toContainText(name)
+      await page.getByTestId('ishin-pass-go').click()
+      // ピクルス（オレンジ・あお）は いつも そろう、パドル（ピンク・みどり）は そろわない
+      const choice = j === 0 || j === 2 ? 0 : j === 1 ? 0 : 1
+      await page.getByTestId(`ishin-choice-${choice}`).click()
+      await page.getByTestId('ishin-decide').click()
+    }
+    await expect(page.getByTestId('ishin-reveal')).toBeVisible()
+    await page.getByTestId('ishin-next').click()
+  }
+  await expect(page.getByTestId('ishin-winner')).toContainText('ピクルス')
 })

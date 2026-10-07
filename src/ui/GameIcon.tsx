@@ -388,6 +388,22 @@ const ICONS: Record<GameId, () => ReactNode> = {
       </text>
     </>
   ),
+  ishin: () => (
+    <>
+      <Bg fill="#ffe3ef" />
+      {/* ふたりの おもいが おなじ（ふきだしに おなじ ボール） */}
+      {[26, 70].map((x) => (
+        <g key={x}>
+          <circle cx={x} cy={22} r={13} fill="#fff" stroke={C.dark} strokeWidth={2} />
+          <circle cx={x + (x < 48 ? 6 : -6)} cy={38} r={2.6} fill="#fff" stroke={C.dark} strokeWidth={1.6} />
+          <Ball x={x} y={22} r={7} />
+        </g>
+      ))}
+      <path d="M48 52 c-3 -5 -10 -3 -8 3 c1 3 8 8 8 8 c0 0 7 -5 8 -8 c2 -6 -5 -8 -8 -3 Z" fill="#ff6fae" stroke="#c2185b" strokeWidth={1.4} />
+      <MiniPikuru x={26} y={70} h={34} tilt={6} />
+      <MiniPikuru x={70} y={70} h={34} tilt={-6} />
+    </>
+  ),
 }
 
 export function GameIcon({ game, size = 72 }: { game: GameId; size?: number }) {
