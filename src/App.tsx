@@ -6,6 +6,7 @@ import { NiseGame } from './games/nise/NiseGame'
 import { Collection } from './shell/Collection'
 import { gameById } from './shell/games'
 import { Home } from './shell/Home'
+import { Install } from './shell/Install'
 import { Parents } from './shell/Parents'
 import { Party } from './shell/party/Party'
 import { Play } from './shell/Play'
@@ -16,6 +17,7 @@ import { SoloSetup } from './shell/SoloSetup'
 
 // 開発用の確認ページ（本番のビルドには入らない）
 const DevWear = import.meta.env.DEV ? lazy(() => import('./shell/DevWear')) : null
+const DevGuide = import.meta.env.DEV ? lazy(() => import('./shell/DevGuide')) : null
 
 export default function App() {
   const [page, id] = useRoute()
@@ -33,7 +35,14 @@ export default function App() {
   if (page === 'collection') return <Collection />
   if (page === 'records') return <Records />
   if (page === 'parents') return <Parents />
+  if (page === 'install') return <Install />
   if (page === 'party') return <Party key={id ?? ''} fixed={game?.party ? game.id : undefined} />
+  if (DevGuide && page === 'dev' && id === 'guide')
+    return (
+      <Suspense>
+        <DevGuide />
+      </Suspense>
+    )
   if (DevWear && page === 'dev')
     return (
       <Suspense>

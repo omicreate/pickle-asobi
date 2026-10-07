@@ -54,8 +54,8 @@ const paddles = (page: Page) => page.evaluate(() => (window as unknown as { __ra
 
 test('ホームから2人そろって「じゅんびOK」でラリーが始まる', async ({ page }) => {
   await open(page, './')
-  // ふたりで7つ・ひとりで6つ・おとなも むちゅう5つ・みんなで3つ・じゅんばんモード
-  await expect(page.locator('.game-card')).toHaveCount(22)
+  // ふたりで8つ・ひとりで7つ・おとなも むちゅう5つ・みんなで3つ・じゅんばんモード
+  await expect(page.locator('.game-card')).toHaveCount(24)
   await page.locator('[data-game=rally]').click()
   await expect(page).toHaveURL(/#\/setup\/rally/)
   await page.getByTestId('ready-1').click()
@@ -332,7 +332,7 @@ test('じゅんばんモード：2人で3ラウンド遊ぶと表彰式。おう
     await page.getByTestId('party-next').click() // ラウンドの発表 → 1人目
     for (let p = 0; p < 2; p++) {
       // 小さいほど良い記録のゲーム（反応の時間・ずれ）かどうかは、交代の画面のゲーム名で見る
-      const low = /リアクション|ピタッと/.test((await page.getByTestId('party-go').textContent()) ?? '')
+      const low = /リアクション|ピタッと|ピクルくん さがし/.test((await page.getByTestId('party-go').textContent()) ?? '')
       await page.getByTestId('party-go').click()
       await page.waitForFunction(() => typeof (window as unknown as { __partyFinish?: unknown }).__partyFinish === 'function')
       // いつもオレンジ（1人目）が勝つ記録
@@ -440,7 +440,7 @@ test('じゅんばんモード：チーム戦で遊ぶと、チームの勝ち�
   for (let round = 0; round < 3; round++) {
     await page.getByTestId('party-next').click()
     for (let p = 0; p < 4; p++) {
-      const lowGame = /リアクション|ピタッと/.test((await page.getByTestId('party-go').textContent()) ?? '')
+      const lowGame = /リアクション|ピタッと|ピクルくん さがし/.test((await page.getByTestId('party-go').textContent()) ?? '')
       await page.getByTestId('party-go').click()
       await page.waitForFunction(() => typeof (window as unknown as { __partyFinish?: unknown }).__partyFinish === 'function')
       // チーム0（オレンジ・ピンク）がいつも勝つ記録を入れる
@@ -463,7 +463,7 @@ test('れんだ つなひき：準備画面で 2たい2 を選べる', async ({ 
 
 test('ホーム：どのカードにも ゲームの絵。ひとりで記録を出すと メダルと「また あそぶ」に出る', async ({ page }) => {
   await open(page, './')
-  await expect(page.locator('.game-card .game-icon')).toHaveCount(21)
+  await expect(page.locator('.game-card .game-icon')).toHaveCount(23)
   await page.goto('./#/play/lift')
   await expect(page.getByTestId('lift-canvas')).toBeVisible()
   // 6かい つづいた ことにして、パドルを遠くへ（どうメダルは 5かい）
@@ -657,4 +657,74 @@ test('いしんでんしん 4人：てわたしで2ペアたいせん。そろ�
     await page.getByTestId('ishin-next').click()
   }
   await expect(page.getByTestId('ishin-winner')).toContainText('ピクルス')
+})
+
+test('ピクルくん さがし：ちがう人では進まず、ほんものを押すと場所の名前が出て次へ', async ({ page }) => {
+  await open(page, './#/setup/sagasu')
+  await page.getByTestId('sagasu-mode-wally').click()
+  await page.getByTestId('solo-start').click()
+  await expect(page.getByTestId('sagasu-scene')).toBeVisible()
+  const ids = await page.evaluate(() => {
+    const w = (window as unknown as { __sagasu: { wally: { target: string; scene: { people: { id: string }[] } } } }).__sagasu.wally
+    return { target: w.target, other: w.scene.people.find((p) => p.id !== w.target)!.id }
+  })
+  await page.locator(`[data-testid=sagasu-scene] [data-person=${ids.other}]`).dispatchEvent('pointerdown')
+  await expect(page.getByText('ちがうよ')).toBeVisible()
+  await expect(page.getByText('1 / 5かいめ')).toBeVisible()
+  await page.locator(`[data-testid=sagasu-scene] [data-person=${ids.target}]`).dispatchEvent('pointerdown')
+  await expect(page.getByTestId('sagasu-found')).toContainText(/キッチン|サービスコート|コートの そと/)
+  await expect(page.getByText('2 / 5かいめ')).toBeVisible({ timeout: 4_000 })
+})
+
+test('まちがいさがし：上でも下でも、ちがう所を押すと見つかる。ぜんぶ見つけたら結果', async ({ page }) => {
+  await open(page, './#/setup/sagasu')
+  await page.getByTestId('sagasu-mode-diff').click()
+  await page.getByTestId('solo-start').click()
+  await expect(page.getByTestId('sagasu-b')).toBeVisible()
+  const ids = await page.evaluate(() => (window as unknown as { __sagasu: { diff: { diffs: { id: string }[] } } }).__sagasu.diff.diffs.map((d) => d.id))
+  for (const [i, id] of ids.entries()) {
+    await page.locator(`[data-testid=${i % 2 ? 'sagasu-a' : 'sagasu-b'}] [data-diff=${id}]`).dispatchEvent('pointerdown')
+    if (i < ids.length - 1) await expect(page.getByTestId('sagasu-left')).toContainText(`のこり ${ids.length - i - 1}こ`)
+  }
+  await expect(page.getByText('ぜんぶ みつけた！')).toBeVisible({ timeout: 4_000 })
+})
+
+test('ピクルくん さがし たいせん：先に見つけた人に1点。ちがう人を押すと おてつき', async ({ page }) => {
+  await open(page, './#/play/sagasu2', ['chibi', 'otona'])
+  await expect(page.getByTestId('sagasu-duel-0')).toBeVisible({ timeout: 4_000 })
+  const t = await page.evaluate(() => {
+    const r = (window as unknown as { __sagasuDuel: { rounds: { target: string; scene: { people: { id: string }[] } }[] } }).__sagasuDuel.rounds
+    return { t0: r[0].target, t1: r[1].target, o1: r[1].scene.people.find((p) => p.id !== r[1].target)!.id }
+  })
+  await page.locator(`[data-testid=sagasu-duel-1] [data-person=${t.o1}]`).dispatchEvent('pointerdown')
+  await expect(page.getByText('おてつき！')).toBeVisible()
+  await page.locator(`[data-testid=sagasu-duel-0] [data-person=${t.t0}]`).dispatchEvent('pointerdown')
+  await expect(page.getByText('オレンジが みつけた！').first()).toBeVisible()
+  await expect(page.locator('.score-pill[data-side="0"]')).toContainText('1')
+})
+
+test.describe('インスタの中のブラウザで開いたとき', () => {
+  test.use({
+    userAgent:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 390.0.0.27.105 (iPhone15,2; iOS 18_5; ja_JP; ja; scale=3.00; 1179x2556; 712345678)',
+  })
+  test('ホームの上に おうちの方への案内。方法のページで Safari で開くボタンとリンクのコピー', async ({ page }) => {
+    await open(page, './?src=pb_ig_bio#/')
+    await expect(page.getByTestId('inapp-banner')).toContainText('Instagram')
+    await page.getByTestId('inapp-banner').getByRole('link').click()
+    await expect(page.getByTestId('install-inapp')).toBeVisible()
+    const href = await page.getByTestId('install-open-external').getAttribute('href')
+    expect(href).toMatch(/^x-safari-https:\/\/.+\?src=pb_ig_bio&go=install$/)
+    await expect(page.getByTestId('install-tab-ios')).toHaveAttribute('aria-selected', 'true')
+  })
+})
+
+test('ふつうのブラウザ：案内は出ない。?go=install で開くと方法のページ', async ({ page }) => {
+  await open(page, './#/')
+  await expect(page.locator('.game-card').first()).toBeVisible()
+  await expect(page.getByTestId('inapp-banner')).toHaveCount(0)
+  await page.goto('./?go=install')
+  await expect(page).toHaveURL(/#\/install$/)
+  await expect(page.getByTestId('install-tab-android')).toBeVisible()
+  await expect(page.getByTestId('install-inapp')).toHaveCount(0)
 })

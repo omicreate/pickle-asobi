@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { inAppName, isStandalone } from '../core/browser'
 import { WELCOME_STARS } from '../core/items'
 import { medalCount, takeWelcome, useProgress } from '../core/progress'
 import { MEDAL_MARK, MEDAL_RULES, recordText } from '../core/records'
@@ -14,6 +15,7 @@ import type { GameInfo } from './games'
 import { MissionCard } from './MissionCard'
 import { href } from './route'
 import './home.css'
+import './install.css'
 
 /** ゲーム名：単語の途中で折り返さないよう、区切ってよい所（| の所）でだけ折り返す */
 function CardTitle({ g }: { g: GameInfo }) {
@@ -57,6 +59,8 @@ export function Home() {
   const progress = useProgress()
   const recent = progress.recent.map((id) => gameById(id)).filter((g): g is GameInfo => !!g)
   const [welcome, setWelcome] = useState(false)
+  // インスタなどのアプリの中で開いているときは、ふつうのブラウザで開きなおす案内（おうちの方向け）
+  const [inApp] = useState(() => (isStandalone() ? null : inAppName()))
 
   useEffect(() => {
     if (takeWelcome()) setWelcome(true)
@@ -85,6 +89,17 @@ export function Home() {
           </div>
         </div>
       </header>
+
+      {inApp && (
+        <div className="inapp-banner" data-testid="inapp-banner">
+          <p>
+            おうちの方へ：いま {inApp} の中で開いています。ホーム画面に入れるには、Safari・Chrome で開きなおしてください。
+          </p>
+          <a className="btn btn-small" href="#/install">
+            ほうほう
+          </a>
+        </div>
+      )}
 
       <MissionCard />
 

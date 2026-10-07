@@ -19,6 +19,8 @@ import { JumpGame } from '../games/jump/JumpGame'
 import { LiftGame } from '../games/lift/LiftGame'
 import { Quiz } from '../games/quiz/Quiz'
 import { RallyGame } from '../games/rally/RallyGame'
+import { SagasuDuel } from '../games/sagasu/SagasuDuel'
+import { SagasuGame } from '../games/sagasu/SagasuGame'
 import { TugGame } from '../games/tug/TugGame'
 import { CurlingGame } from '../games/curling/CurlingGame'
 import { LineStopGame } from '../games/linestop/LineStopGame'
@@ -45,7 +47,7 @@ export interface GameProps {
 if (import.meta.env.DEV) (window as unknown as { __setPlayed?: (s: number) => void }).__setPlayed = __setPlayed
 
 /** 手に持って遊ぶゲーム（画面を回さない） */
-export const HANDHELD: GameId[] = ['jump', 'breakout', 'lift', 'catch', 'reaction', 'stop10']
+export const HANDHELD: GameId[] = ['jump', 'breakout', 'lift', 'catch', 'reaction', 'stop10', 'sagasu']
 
 /** ゲームの中身だけ（じゅんばんモードからも使う） */
 export function GameView({ game, round, props }: { game: GameId; round: number; props: GameProps }) {
@@ -69,6 +71,8 @@ export function GameView({ game, round, props }: { game: GameId; round: number; 
       {game === 'serveread' && <ServeReadGame key={round} {...props} />}
       {game === 'reaction' && <ReactionGame key={round} {...props} />}
       {game === 'stop10' && <Stop10Game key={round} {...props} />}
+      {game === 'sagasu' && <SagasuGame key={round} {...props} />}
+      {game === 'sagasu2' && <SagasuDuel key={round} {...props} />}
       {game === 'pikuru' && (
         <RallyGame key={round} kind="versus" cpu mode={settings.rallyRules} target={settings.rallyTarget} scoring={settings.rallyScoring} {...props} />
       )}

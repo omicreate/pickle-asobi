@@ -28,6 +28,7 @@ export const EASY: MissionDef[] = [
   { id: 'play-pikuru', text: 'ピクルくんと ラリーで あそぼう', kind: 'play', need: 1, game: 'pikuru' },
   { id: 'play-reaction', text: 'リアクション ボレーで あそぼう', kind: 'play', need: 1, game: 'reaction' },
   { id: 'play-stop10', text: 'ピタッと 10びょうで あそぼう', kind: 'play', need: 1, game: 'stop10' },
+  { id: 'play-sagasu', text: 'ピクルくん さがしで あそぼう', kind: 'play', need: 1, game: 'sagasu' },
 ]
 
 export const RECORD: MissionDef[] = [
@@ -50,6 +51,7 @@ export const TOGETHER: MissionDef[] = [
   { id: 'curling-1', text: 'キッチン カーリングで しょうぶしよう', kind: 'play', need: 1, game: 'curling' },
   { id: 'serveread-1', text: 'よみあい サーブで しょうぶしよう', kind: 'play', need: 1, game: 'serveread' },
   { id: 'gesture-1', text: 'ジェスチャー ピックルで あそぼう', kind: 'play', need: 1, game: 'gesture' },
+  { id: 'sagasu2-1', text: 'ピクルくん さがし たいせんで しょうぶしよう', kind: 'play', need: 1, game: 'sagasu2' },
   { id: 'ishin-1', text: 'いしんでんしん ダブルスで あそぼう', kind: 'play', need: 1, game: 'ishin' },
 ]
 

@@ -22,6 +22,8 @@ export type GameId =
   | 'nise'
   | 'gesture'
   | 'ishin'
+  | 'sagasu'
+  | 'sagasu2'
 
 export interface GameInfo {
   id: GameId
@@ -117,6 +119,16 @@ export const GAMES: GameInfo[] = [
     players: 2,
   },
   {
+    id: 'sagasu2',
+    title: 'ピクルくん さがし たいせん',
+    wrap: 'ピクルくん さがし|たいせん',
+    tag: 'たいせん',
+    desc: 'さきに ほんものを みつけた ほうが かち',
+    face: 'eh',
+    howto: 'うえと したに、にせものの ピクルくんが いっぱい。さきに ほんものを みつけて タッチした ほうが 1てん。さきに 3てん とったら かち。',
+    players: 2,
+  },
+  {
     id: 'breakout2',
     title: 'ピクルくずし たいせん',
     tag: 'たいせん',
@@ -190,6 +202,20 @@ export const GAMES: GameInfo[] = [
     face: 'ok',
     howto: 'ピクルくんと しょうぶだよ。ゆびで パドルを うごかして、ボールを うちかえそう。',
     players: 1,
+  },
+  {
+    id: 'sagasu',
+    title: 'ピクルくん さがし',
+    wrap: 'ピクルくん|さがし',
+    tag: 'ひとりで',
+    desc: 'ほんものの ピクルくんや、まちがいを さがそう',
+    face: 'think',
+    howto: 'にせものの ピクルくんが いっぱい！ ライムの はちまきと、あたまの つるが ある ほんものを さがして タッチしよう。まちがいさがしも あるよ。',
+    players: 1,
+    party: true,
+    better: 'low',
+    unit: 'びょう',
+    fmt: (v) => `${(v / 1000).toFixed(1)}びょう`,
   },
   {
     id: 'linestop',

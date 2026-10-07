@@ -404,6 +404,32 @@ const ICONS: Record<GameId, () => ReactNode> = {
       <MiniPikuru x={70} y={70} h={34} tilt={-6} />
     </>
   ),
+  sagasu: () => (
+    <>
+      <Bg fill="#cfe8a9" />
+      <MiniPikuru x={18} y={30} h={22} tilt={-8} />
+      <MiniPikuru x={78} y={26} h={22} tilt={8} />
+      <MiniPikuru x={26} y={74} h={22} tilt={4} />
+      <MiniPikuru x={74} y={76} h={22} tilt={-4} />
+      {/* むしめがね */}
+      <circle cx={46} cy={46} r={20} fill="rgba(255,255,255,0.55)" stroke={C.ink} strokeWidth={4} />
+      <MiniPikuru x={46} y={47} h={22} />
+      <path d="M60 60 L80 80" stroke={C.ink} strokeWidth={7} strokeLinecap="round" />
+    </>
+  ),
+  sagasu2: () => (
+    <>
+      <SplitBg />
+      <MiniPikuru x={22} y={24} h={18} tilt={180} />
+      <MiniPikuru x={72} y={22} h={18} tilt={172} />
+      <MiniPikuru x={24} y={74} h={18} />
+      <MiniPikuru x={74} y={72} h={18} tilt={6} />
+      <circle cx={48} cy={48} r={14} fill="rgba(255,255,255,0.6)" stroke={C.ink} strokeWidth={3.4} />
+      <MiniPikuru x={48} y={49} h={15} />
+      <Tap x={74} y={72} color={C.orange} />
+      <Tap x={72} y={22} color={C.blue} />
+    </>
+  ),
 }
 
 export function GameIcon({ game, size = 72 }: { game: GameId; size?: number }) {

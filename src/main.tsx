@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { readGo, watchInstallPrompt } from './core/browser'
 import { countOpen, readSource } from './core/counter'
 import { loadVoices } from './core/speak'
 import { preloadPikuru } from './ui/pikuruArt'
@@ -10,8 +11,10 @@ import '@fontsource/zen-maru-gothic/900.css'
 import './design/base.css'
 
 // どこから来たか（?src=）を読んでアドレスから消し、開いたことを1回だけ数える（共有リンクで ゲームの画面から入ったときも）
+readGo()
 readSource()
 countOpen()
+watchInstallPrompt()
 void loadVoices()
 preloadPikuru()
 

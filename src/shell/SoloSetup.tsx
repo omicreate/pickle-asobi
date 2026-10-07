@@ -70,6 +70,18 @@ export function SoloSetup({ game }: { game: GameInfo }) {
         ))}
       </div>
 
+      {game.id === 'sagasu' && (
+        <div className="solo-options">
+          <div className="seg" role="radiogroup" aria-label="あそびかた">
+            {(['wally', 'diff'] as const).map((m) => (
+              <button key={m} role="radio" aria-checked={settings.sagasuMode === m} onClick={() => setSettings({ sagasuMode: m })} data-testid={`sagasu-mode-${m}`}>
+                {m === 'wally' ? 'さがせ！ピクルくん' : 'まちがいさがし'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {game.id === 'pikuru' && (
         <div className="solo-options">
           <div className="seg" role="radiogroup" aria-label="ルール">

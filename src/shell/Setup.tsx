@@ -29,6 +29,7 @@ const MID_NOTE: Partial<Record<GameId, string>> = {
   linestop: 'ラインに ちかい ほうが かち',
   curling: 'ひとり 4きゅう × 3エンド',
   serveread: '3かい しょうぶ。ラストは 2ばい',
+  sagasu2: 'さきに 3かい みつけたら かち',
 }
 
 export function Setup({ game }: { game: GameInfo }) {
