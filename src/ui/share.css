@@ -95,3 +95,12 @@
   color: var(--ng);
   font-size: 14px;
 }
+
+/* 保存のしかた（端末ごと） */
+.share-hint {
+  font-weight: 700;
+  color: var(--ink, #12302b);
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+}

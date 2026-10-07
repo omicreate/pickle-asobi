@@ -311,6 +311,38 @@ test('ポンポン リフティング：パドルを外すと終わり、結果�
   await expect(page.getByTestId('parent-gate')).toBeVisible()
   await page.locator('[data-testid=parent-gate] button[data-answer]').click()
   await expect(page.getByTestId('share-sheet').locator('img.share-img')).toBeVisible({ timeout: 8_000 })
+  // 保存のしかたは端末しだい。どの端末でも やり方の文が出る
+  await expect(page.getByTestId('share-hint')).not.toBeEmpty()
+})
+
+test.describe('きねんカードの保存：iPhone は「写真に保存」（共有の画面から）', () => {
+  test.use({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1' })
+  test('ダウンロードのリンクは出さず、共有の画面に画像だけを渡す', async ({ page }) => {
+    await page.addInitScript(() => {
+      // 共有の画面を まねる（渡されたものを記録する）
+      const w = window as unknown as { __shared?: { files: number; text?: string } }
+      Object.defineProperty(navigator, 'canShare', { value: () => true, configurable: true })
+      Object.defineProperty(navigator, 'share', {
+        value: async (d: { files?: File[]; text?: string }) => {
+          w.__shared = { files: d.files?.length ?? 0, text: d.text }
+        },
+        configurable: true,
+      })
+    })
+    await open(page, './#/play/lift')
+    await page.evaluate(() => {
+      const s = (window as unknown as { __lift: { paddle: { x: number; y: number } } }).__lift
+      s.paddle.x = 90
+      s.paddle.y = 140
+    })
+    await page.getByTestId('share-btn').click({ timeout: 10_000 })
+    await page.locator('[data-testid=parent-gate] button[data-answer]').click()
+    await expect(page.getByTestId('share-save')).toHaveText('写真に保存', { timeout: 8_000 })
+    await expect(page.locator('[data-testid=share-sheet] a[download]')).toHaveCount(0)
+    await page.getByTestId('share-save').click()
+    expect(await page.evaluate(() => (window as unknown as { __shared: { files: number; text?: string } }).__shared)).toEqual({ files: 1 })
+    await expect(page.getByTestId('share-hint')).toContainText('画像を保存')
+  })
 })
 
 test('ボールキャッチ：指を動かすと かごが ついてくる', async ({ page }) => {
