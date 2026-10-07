@@ -24,6 +24,10 @@ export default defineConfig({
   // GitHub Pages（https://omicreate.github.io/pickle-asobi/）配信のためのベースパス
   base: '/pickle-asobi/',
   plugins: [react(), counterCsp()],
+  build: {
+    // 小さい書体ファイルを data: URI にしない（CSP の font-src 'self' で読めなくなるため。ファイルのまま配る）
+    assetsInlineLimit: (file) => (/\.(woff2?|ttf|otf)$/.test(file) ? false : undefined),
+  },
   test: {
     environment: 'node',
     // e2e/ は Playwright（npm run test:e2e）で動かす
