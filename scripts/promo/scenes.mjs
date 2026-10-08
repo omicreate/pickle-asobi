@@ -1,8 +1,31 @@
 // SNS の紹介（リール動画・画像）の台本。日本語版と英語版。
 // say は読み上げ用（日本語はかなで読みを固定）、title・sub は画面の文字。phones は scripts/promo/shots.mjs で撮った画面の名前。
-// 数や説明は アプリの中身と合わせる（ミニゲームの数は src/shell/games.ts の GAMES の数）。
+// 数や説明は アプリの中身と合わせる（ミニゲームの数は src/shell/games.ts の GAMES から数える）。
+import { readFileSync } from 'node:fs'
 
-export const GAME_COUNT = 23
+// games.ts は i18n を読むので node から import できない。GAMES の中の id: を数える（src/shell/promo.test.ts で GAMES.length と合わせて確かめる）
+const gamesSrc = readFileSync(new URL('../../src/shell/games.ts', import.meta.url), 'utf8')
+export const GAME_COUNT = gamesSrc.slice(gamesSrc.indexOf('export const GAMES')).match(/^ {4}id: '/gm)?.length ?? 0
+if (!GAME_COUNT) throw new Error('src/shell/games.ts の GAMES が 読めない')
+
+// 読み上げ用の本数（10〜99）。日本語は「にじゅう さんぼん」と区切る（続けると声が かすれる）
+const JA_TENS = ['', 'じゅう', 'にじゅう', 'さんじゅう', 'よんじゅう', 'ごじゅう', 'ろくじゅう', 'ななじゅう', 'はちじゅう', 'きゅうじゅう']
+const JA_HON = ['', 'いっぽん', 'にほん', 'さんぼん', 'よんほん', 'ごほん', 'ろっぽん', 'ななほん', 'はっぽん', 'きゅうほん']
+const EN_TENS = ['', 'Ten', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+const EN_ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+const EN_TEENS = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+function split(n) {
+  if (!Number.isInteger(n) || n < 10 || n > 99) throw new Error(`読み上げの本数は 10〜99 まで（${n}）`)
+  return [Math.floor(n / 10), n % 10]
+}
+export function jaHon(n) {
+  const [t, o] = split(n)
+  return o ? `${JA_TENS[t]} ${JA_HON[o]}` : `${JA_TENS[t].replace(/う$/, '')}っぽん`
+}
+export function enCount(n) {
+  const [t, o] = split(n)
+  return t === 1 ? EN_TEENS[o] : o ? `${EN_TENS[t]}-${EN_ONES[o]}` : EN_TENS[t]
+}
 
 export const PROMO = {
   ja: {
@@ -58,10 +81,9 @@ export const PROMO = {
       {
         id: 'grid',
         layout: 'grid',
-        title: 'ミニゲーム 23本',
+        title: `ミニゲーム ${GAME_COUNT}本`,
         chips: ['無料', 'インストール不要', '電波がなくてもOK', '広告なし', '英語版も！'],
-        // 「にじゅうさんぼん」と続けると声が かすれるので、区切って読ませる
-        say: 'ミニゲームが にじゅう さんぼん。むりょうで、えいごばんも できたよ！',
+        say: `ミニゲームが ${jaHon(GAME_COUNT)}。むりょうで、えいごばんも できたよ！`,
         min: 3.6,
       },
       {
@@ -93,7 +115,7 @@ export const PROMO = {
       levels: {
         title: 'レベルは 1人ずつ',
         sub: 'ちびっこ・キッズ・おとな・せんしゅ\n子どもは 球がゆっくり・パドルが大きい',
-        grid: 'ミニゲーム 23本',
+        grid: `ミニゲーム ${GAME_COUNT}本`,
         rule: 'ルールは USA Pickleball 公式ルールブックにもとづいています',
         foot: '英語の端末なら 英語で ひらきます',
       },
@@ -152,9 +174,9 @@ export const PROMO = {
       {
         id: 'grid',
         layout: 'grid',
-        title: '23 mini-games',
+        title: `${GAME_COUNT} mini-games`,
         chips: ['Free', 'No install', 'Works offline', 'No ads', 'English & Japanese'],
-        say: 'Twenty-three mini-games. Free, no ads, works offline.',
+        say: `${enCount(GAME_COUNT)} mini-games. Free, no ads, works offline.`,
         min: 3.6,
       },
       {
@@ -185,7 +207,7 @@ export const PROMO = {
       levels: {
         title: 'Everyone picks\ntheir own level',
         sub: 'Tiny, Kids, Adult, Player\nSlower balls and bigger paddles for kids',
-        grid: '23 mini-games',
+        grid: `${GAME_COUNT} mini-games`,
         rule: 'Rules based on the USA Pickleball Official Rulebook',
         foot: 'Opens in English on English-language phones',
       },

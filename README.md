@@ -148,7 +148,7 @@ node scripts/promo/shots.mjs        # 画面を撮る（スマホ 390×844 を3�
 node scripts/promo/build.mjs        # リール（縦 1080×1920・ナレーションつき）と画像3枚（1080×1350）。ja / en だけも可
 ```
 
-台本は `scripts/promo/scenes.mjs`（ゲームの数や説明はアプリに合わせる）。ナレーションは ElevenLabs（日本語 いろはうた・英語 Sarah、速さ1.1）で、`out/promo/voice/` にためて二度課金しない。数字の読みがかすれることがあるので、作ったら文字起こしで確かめる（例：「にじゅう さんぼん」と区切る）。
+台本は `scripts/promo/scenes.mjs`（説明はアプリに合わせる。ゲームの数と読みは `src/shell/games.ts` から数える）。ナレーションは ElevenLabs（日本語 いろはうた・英語 Sarah、速さ1.1）で、`out/promo/voice/` にためて二度課金しない。数字の読みがかすれることがあるので、作ったら文字起こしで確かめる（例：「にじゅう さんぼん」と区切る）。
 
 ## License / 権利
 
