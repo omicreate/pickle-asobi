@@ -149,3 +149,10 @@ node scripts/promo/build.mjs        # リール（縦 1080×1920・ナレーシ�
 ```
 
 台本は `scripts/promo/scenes.mjs`（ゲームの数や説明はアプリに合わせる）。ナレーションは ElevenLabs（日本語 いろはうた・英語 Sarah、速さ1.1）で、`out/promo/voice/` にためて二度課金しない。数字の読みがかすれることがあるので、作ったら文字起こしで確かめる（例：「にじゅう さんぼん」と区切る）。
+
+## License / 権利
+
+- **Code:** MIT — see [LICENSE](LICENSE).
+- **Characters, artwork, audio, questions and other content:** © 2026 omicreate, all rights reserved — see [NOTICE.md](NOTICE.md).
+
+コードは MIT ライセンスで自由に使えます。キャラクター・絵・音声・問題などの中身は対象外です（[NOTICE.md](NOTICE.md)）。
