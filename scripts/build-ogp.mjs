@@ -11,7 +11,10 @@ await page.addInitScript(() => {
 })
 await page.goto('http://localhost:5180/pickle-asobi/')
 await page.waitForTimeout(1000)
-await page.evaluate(() => {
+// 本数は ホームに並ぶ ゲームのカードから数える（じゅんばんモードは のぞく）。games.ts に足しても ずれない
+const count = await page.evaluate(() => new Set([...document.querySelectorAll('.game-card[data-game]')].map((a) => a.dataset.game).filter((id) => id !== 'party')).size)
+if (!count) throw new Error('ゲームのカードが 見つからない')
+await page.evaluate((count) => {
   const pick = ['rally', 'tug', 'quiz', 'jump', 'curling', 'serveread']
   const icons = pick.map((id) => {
     const svg = document.querySelector(`.game-card[data-game=${id}] .game-icon`).cloneNode(true)
@@ -26,13 +29,13 @@ await page.evaluate(() => {
     <div style="position:relative;display:flex;flex-direction:column;gap:18px">
       <div style="font-size:30px;font-weight:900;color:#c4570f">親子・なかまで 1台を かこんで</div>
       <div style="font-size:76px;font-weight:900;line-height:1.05;color:#2e5a1c;white-space:nowrap">ピクルくんとあそぼ</div>
-      <div style="font-size:30px;font-weight:900">ピックルボールの ミニゲーム 18本</div>
+      <div style="font-size:30px;font-weight:900">ピックルボールの ミニゲーム ${count}本</div>
       <div style="display:flex;gap:14px;margin-top:6px">${icons}</div>
       <div style="font-size:22px;font-weight:700;color:#4f6a5f">むりょう・インストール いらず・ひとりでも みんなでも</div>
     </div>`
   document.body.appendChild(box)
-})
+}, count)
 await page.waitForTimeout(600)
 await page.screenshot({ path: `${OUT}/ogp.png` })
 await browser.close()
-console.log('ok')
+console.log(`ok（ミニゲーム ${count}本）`)
