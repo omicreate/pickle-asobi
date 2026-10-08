@@ -126,3 +126,15 @@ npm run voice:en         # まだ無い英語のセリフだけ作る
 - ホームの上に「おうちの方へ：いま Instagram の中で開いています」と出し、`#/install`（ホーム画面に入れる方法）へ案内する（`src/core/browser.ts`）
 - `#/install`：「Safari で ひらく」（`x-safari-https`）／「Chrome で ひらく」（intent）・リンクのコピー・iPhone と Android の手順の図（`src/ui/installArt.tsx`）。開きなおしたブラウザでは `?go=install` で同じページが開き、`?src=` も引きつぐ
 - 説明動画（縦 1080×1920・約60秒・ピクルくんの声）：開発サーバーを 5180 番で起動して `node scripts/build-guide-video.mjs`（台本 `src/shell/guideScenes.ts`、画面 `#/dev/guide`。ffmpeg は となりの pb-studio のものを使う。出力は `out/`）
+
+## SNS の紹介（リール動画・画像）
+
+アプリの本物の画面を使って、Instagram・Threads 用の紹介を日本語版・英語版で作る（出力は `out/promo/dist/`。投稿はしない）。
+
+```bash
+npm run dev -- --port 5180          # 開発サーバー（別のターミナルで）
+node scripts/promo/shots.mjs        # 画面を撮る（スマホ 390×844 を3倍・日本語と英語）
+node scripts/promo/build.mjs        # リール（縦 1080×1920・ナレーションつき）と画像3枚（1080×1350）。ja / en だけも可
+```
+
+台本は `scripts/promo/scenes.mjs`（ゲームの数や説明はアプリに合わせる）。ナレーションは ElevenLabs（日本語 いろはうた・英語 Sarah、速さ1.1）で、`out/promo/voice/` にためて二度課金しない。数字の読みがかすれることがあるので、作ったら文字起こしで確かめる（例：「にじゅう さんぼん」と区切る）。
