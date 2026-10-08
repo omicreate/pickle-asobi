@@ -28,7 +28,10 @@ function detect(): Lang {
   }
 }
 
-export const LANG: Lang = typeof window === 'undefined' ? 'ja' : detect()
+/** ブラウザの外（テスト・声づくりのスクリプト）は日本語。scripts/build-voice.mjs --lang en は globalThis.__PICKLE_LANG__ で英語にする */
+const outside = (): Lang => ((globalThis as { __PICKLE_LANG__?: Lang }).__PICKLE_LANG__ === 'en' ? 'en' : 'ja')
+
+export const LANG: Lang = typeof window === 'undefined' ? outside() : detect()
 export const isEn = LANG === 'en'
 
 if (typeof document !== 'undefined') {

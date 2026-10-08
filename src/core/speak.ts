@@ -2,14 +2,14 @@
  * 文字が読めない子のために、問題や説明を読み上げる。
  * ElevenLabs で前もって作った声（public/voice/）があればそれを鳴らし、なければ端末の読み上げで読む。
  * 文を配列で渡すと順に読む（クイズの選択肢は並びが毎回変わるので、1つずつの声をつなげる）。
- * 英語のときは、いつも端末の読み上げ（英語の声）で読む（用意した声は日本語だけ）。
+ * 声は ことばごとに用意する（日本語は public/voice/、英語は public/voice/en/）。無いときは端末の読み上げ（そのことばの声）。
  */
 import { getSettings } from './settings'
 import { audioContext } from './sound'
 import { voiceKey } from './voiceKey'
 import { isEn } from '../i18n'
 
-const BASE = `${import.meta.env.BASE_URL}voice/`
+const BASE = `${import.meta.env.BASE_URL}voice/${isEn ? 'en/' : ''}`
 let available: Set<string> | null = null
 const buffers = new Map<string, Promise<AudioBuffer | null>>()
 let current: AudioBufferSourceNode | null = null
@@ -78,7 +78,7 @@ export function speak(text: string | string[]): void {
   const parts = Array.isArray(text) ? text : [text]
   const joined = parts.join(isEn ? '. ' : '。')
   const keys = parts.map(voiceKey)
-  if (isEn || !available || !keys.every((k) => available!.has(k))) {
+  if (!available || !keys.every((k) => available!.has(k))) {
     synth(joined)
     return
   }

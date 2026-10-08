@@ -4,6 +4,8 @@
 const CACHE_PREFIX = "pickle-asobi-";
 const CACHE_NAME = `${CACHE_PREFIX}__VERSION__`;
 const APP_SHELL = __PRECACHE__;
+// 声（ことばごと）。アプリから { type: "voices", lang } が来たら、そのことばの声だけを入れる
+const VOICES = __VOICES__;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -20,6 +22,22 @@ self.addEventListener("activate", (event) => {
       )
   );
   self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  const data = event.data || {};
+  const list = data.type === "voices" ? VOICES[data.lang] : null;
+  if (!list) return;
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const missing = [];
+      for (const url of list) if (!(await cache.match(url))) missing.push(url);
+      // 少しずつ入れる（1つ失敗しても、ほかは入れる）
+      for (let i = 0; i < missing.length; i += 8) {
+        await Promise.all(missing.slice(i, i + 8).map((url) => cache.add(url).catch(() => {})));
+      }
+    })
+  );
 });
 
 self.addEventListener("fetch", (event) => {

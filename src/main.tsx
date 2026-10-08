@@ -4,6 +4,7 @@ import App from './App'
 import { readGo, watchInstallPrompt } from './core/browser'
 import { countOpen, readSource } from './core/counter'
 import { loadVoices } from './core/speak'
+import { LANG } from './i18n'
 import { preloadPikuru } from './ui/pikuruArt'
 // 書体はアプリに同梱する（電波のない場所でも同じ見た目にするため）
 import '@fontsource/zen-maru-gothic/700.css'
@@ -31,5 +32,7 @@ document.addEventListener('gesturestart', (e) => e.preventDefault())
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {})
+    // いまのことばの声だけを、電波がなくても鳴るように入れてもらう
+    navigator.serviceWorker.ready.then((reg) => reg.active?.postMessage({ type: 'voices', lang: LANG })).catch(() => {})
   })
 }

@@ -2,7 +2,8 @@
 //   node scripts/build-voice.mjs --dry     … 作るセリフと文字数（＝料金の目安）を出すだけ。API は呼ばない
 //   node scripts/build-voice.mjs           … まだ無いセリフだけ作る（同じ文は二度課金しない）
 //   node scripts/build-voice.mjs --prune   … 一覧から消えたセリフの mp3 を消す
-// 鍵と声は .env（git に入れない）：ELEVENLABS_API_KEY / ELEVENLABS_VOICE_ID / ELEVENLABS_MODEL（既定 eleven_v4）
+//   --lang en をつけると英語のセリフ（public/voice/en/）。声は ELEVENLABS_VOICE_ID_EN
+// 鍵と声は .env（git に入れない）：ELEVENLABS_API_KEY / ELEVENLABS_VOICE_ID / ELEVENLABS_VOICE_ID_EN / ELEVENLABS_MODEL（既定 eleven_v4）
 // 鍵がこちらの .env に無ければ ../pb-studio/.env の ELEVENLABS_API_KEY を使う
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync, mkdirSync } from 'node:fs'
 import { createServer } from 'vite'
@@ -12,6 +13,9 @@ const path = (rel) => new URL(rel, root).pathname.replace(/^\/([A-Z]:)/, '$1')
 const args = process.argv.slice(2)
 const dry = args.includes('--dry')
 const prune = args.includes('--prune')
+const en = args.includes('--lang') && args[args.indexOf('--lang') + 1] === 'en'
+// アプリのことば（src/i18n）は、ブラウザの外では この印を見る
+if (en) globalThis.__PICKLE_LANG__ = 'en'
 
 // .env を読む（値は表示しない）
 const env = { ...process.env }
@@ -41,7 +45,7 @@ const { voiceKey } = await server.ssrLoadModule('/src/core/voiceKey.ts')
 await server.close()
 
 const lines = allVoiceLines()
-const outDir = path('public/voice/')
+const outDir = path(en ? 'public/voice/en/' : 'public/voice/')
 mkdirSync(outDir, { recursive: true })
 const todo = lines.filter((t) => !existsSync(`${outDir}${voiceKey(t)}.mp3`))
 const chars = (xs) => xs.reduce((n, t) => n + [...t].length, 0)
@@ -51,10 +55,10 @@ if (dry) {
   for (const t of todo) console.log(`  ${voiceKey(t)}  ${t}`)
 } else if (todo.length) {
   const key = env.ELEVENLABS_API_KEY
-  const voice = env.ELEVENLABS_VOICE_ID
+  const voice = en ? env.ELEVENLABS_VOICE_ID_EN : env.ELEVENLABS_VOICE_ID
   const model = env.ELEVENLABS_MODEL || 'eleven_v4'
   if (!key || !voice) {
-    console.error('.env に ELEVENLABS_API_KEY と ELEVENLABS_VOICE_ID を書いてください（.env.example を参照）')
+    console.error(`.env に ELEVENLABS_API_KEY と ${en ? 'ELEVENLABS_VOICE_ID_EN' : 'ELEVENLABS_VOICE_ID'} を書いてください（.env.example を参照）`)
     process.exit(1)
   }
   const settings = {
@@ -89,4 +93,4 @@ if (prune) {
 }
 const ready = [...keep].filter((k) => existsSync(`${outDir}${k}.mp3`))
 writeFileSync(`${outDir}index.json`, JSON.stringify(ready))
-console.log(`public/voice/index.json：${ready.length} 件`)
+console.log(`${en ? 'public/voice/en/' : 'public/voice/'}index.json：${ready.length} 件`)

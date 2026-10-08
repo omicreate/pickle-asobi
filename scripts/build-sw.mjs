@@ -46,15 +46,25 @@ const shell = [
   "./icon-maskable-512.png",
   "./apple-touch-icon.png",
   ...list("pikuru/"),
-  ...list("voice/").filter((f) => f.endsWith(".mp3") || f.endsWith(".json")),
   ...assets,
 ];
 
-const version = createHash("sha256").update(shell.join("\n")).digest("hex").slice(0, 10);
+// 声は ことばごと（日本語 voice/・英語 voice/en/）。アプリが開いたときに いまのことばを知らせ、その声だけを入れる
+// （英語の人が日本語の声を、日本語の人が英語の声を ダウンロードしないように）
+const voiceFiles = (dir) => list(dir).filter((f) => f.endsWith(".mp3") || f.endsWith(".json"));
+const voices = { ja: voiceFiles("voice/"), en: voiceFiles("voice/en/") };
+
+const version = createHash("sha256")
+  .update([...shell, ...voices.ja, ...voices.en].join("\n"))
+  .digest("hex")
+  .slice(0, 10);
 const swPath = new URL("sw.js", dist);
 const sw = readFileSync(swPath, "utf8")
   .replaceAll("__VERSION__", version)
-  .replaceAll("__PRECACHE__", JSON.stringify(shell, null, 2));
+  .replaceAll("__PRECACHE__", JSON.stringify(shell, null, 2))
+  .replaceAll("__VOICES__", JSON.stringify(voices));
 writeFileSync(swPath, sw);
 const bytes = shell.filter((f) => f.startsWith("./assets/")).reduce((n, f) => n + statSync(new URL(f.slice(2), dist)).size, 0);
-console.log(`sw.js: version=${version}, precache=${shell.length} files（書体 ${neededFonts.size} 個、assets 合計 ${(bytes / 1e6).toFixed(1)}MB）`);
+console.log(
+  `sw.js: version=${version}, precache=${shell.length} files（書体 ${neededFonts.size} 個、assets 合計 ${(bytes / 1e6).toFixed(1)}MB）、声 日本語 ${voices.ja.length}・英語 ${voices.en.length}`,
+);

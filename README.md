@@ -70,7 +70,7 @@
 - 太字が文の途中にある文は `**…**` を入れて1つの文のまま訳し、`<Rich text={t('…')} />` で出す（ことばで太字の位置が変わるため）
 - 英語の表：データの文（ゲーム名・あそびかた・問題・お題・ミッションなど）は `node scripts/i18n-dump.mjs <group>` で並べて訳し、画面の文は `src/i18n/en/ui.ts`。もれは `node scripts/i18n-keys.mjs` で探す（テスト `src/i18n/en.test.ts` も、もれ・{0} の数・日本語の残りを確かめる）
 - 日本語の文を直したら、英語の表の鍵も直す（テストが落ちて気づける）
-- 英語のときの声は端末の読み上げ（en-US）。ElevenLabs の声は日本語だけ
+- 英語のときの声は ElevenLabs の英語の声（`public/voice/en/`）。mp3 が無い文は端末の読み上げ（en-US）
 - 英語の単位：ラリーのルール文は フィート（メートル）
 
 ## 使い方
@@ -97,6 +97,15 @@ npm run voice            # まだ無いセリフだけ作る
 ```
 
 セリフの一覧は `src/core/voiceLines.ts`（ゲームの説明・こども向けクイズ・決まり文句）。問題を直すと次の `npm run voice` で声も追いつく。
+
+英語の声は `public/voice/en/`（声は ElevenLabs の公開ライブラリの「Sarah - Fun, Open-minded and Youthful」、`.env` の `ELEVENLABS_VOICE_ID_EN`。モデルは日本語と同じ eleven_v4）。英語の文を直したら：
+
+```bash
+npm run voice:en:dry     # 英語で作るセリフと文字数
+npm run voice:en         # まだ無い英語のセリフだけ作る
+```
+
+声は ことばごとに保存する：Service Worker は声を最初の一覧（事前キャッシュ）に入れず、アプリが開いたときに知らせる いまのことば（`{ type: 'voices', lang }`）の声だけを入れる。英語の人が日本語の声を、日本語の人が英語の声をダウンロードしない（`scripts/build-sw.mjs`・`public/sw.js`）。
 
 ## 画像
 
