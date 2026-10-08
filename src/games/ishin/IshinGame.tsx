@@ -160,7 +160,7 @@ export function IshinGame() {
   const ps = players(size)
   const q = qs[qi]
   const bestKey = `${deck}-${n}`
-  usePlayClock(phase === 'setup' || help || rest)
+  const clock = usePlayClock(phase === 'setup' || help || rest)
 
   useEffect(() => save('ishin-setup', { size, style, deck, n }), [size, style, deck, n])
   useEffect(
@@ -224,7 +224,9 @@ export function IshinGame() {
       }
     }
     setRewards(recordPlay({ type: 'finish', game: 'ishin', value: size === 2 ? scores[0] : undefined, two: true }))
-    countFinish('ishin')
+    // val：2人＝そろった数、4人＝なし
+    countFinish('ishin', { sec: clock.current, val: size === 2 ? scores[0] : undefined })
+    clock.current = 0
     sfx.fanfare()
     speak(PHRASES.ishinEnd)
     setPhase('final')

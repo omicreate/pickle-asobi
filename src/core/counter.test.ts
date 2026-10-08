@@ -43,3 +43,19 @@ describe('遊びすぎの声かけ', () => {
     expect(breakDue(20)).toBe(false)
   })
 })
+
+describe('最後まで遊んだときの数（難しさの調整用）', () => {
+  it('レベル・秒数・記録は 形が合うものだけ送る', async () => {
+    const { cleanFinish, lowerWon } = await import('./counter')
+    expect(cleanFinish({ lv: 'kids', sec: 42.4, val: 12 })).toEqual({ lv: 'kids', sec: '42', val: '12' })
+    expect(cleanFinish({ lv: 'kids-senshu' })).toEqual({ lv: 'kids-senshu' })
+    expect(cleanFinish({ lv: 'hacker', sec: -1, val: Number.NaN })).toEqual({})
+    expect(cleanFinish({ sec: 999999 })).toEqual({ sec: '36000' })
+    // ふたり：レベルの低い方（下の キッズ）が勝ったら1
+    expect(lowerWon(['kids', 'otona'], 0)).toBe(1)
+    expect(lowerWon(['kids', 'otona'], 1)).toBe(0)
+    expect(lowerWon(['senshu', 'chibi'], 1)).toBe(1)
+    expect(lowerWon(['kids', 'kids'], 0)).toBeUndefined()
+    expect(lowerWon(['kids', 'otona'], null)).toBeUndefined()
+  })
+})

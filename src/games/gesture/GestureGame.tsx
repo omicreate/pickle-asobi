@@ -62,7 +62,7 @@ export function GestureGame() {
 
   const players = PARTY_COLORS.slice(0, count)
   const bestKey = `${deck}-${time}`
-  usePlayClock(phase === 'setup' || paused || help || rest)
+  const clock = usePlayClock(phase === 'setup' || paused || help || rest)
 
   useEffect(() => save('gesture-setup', { count, deck, time }), [count, deck, time])
   useEffect(() => () => stopSpeaking(), [])
@@ -108,7 +108,8 @@ export function GestureGame() {
       setNewBest(prev > 0)
     }
     setRewards(recordPlay({ type: 'finish', game: 'gesture', value: total, two: true }))
-    countFinish('gesture')
+    countFinish('gesture', { sec: clock.current, val: total })
+    clock.current = 0
     sfx.fanfare()
     speak(PHRASES.gestFinal)
     setPhase('final')

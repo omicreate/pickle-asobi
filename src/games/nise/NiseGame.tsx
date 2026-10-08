@@ -99,7 +99,7 @@ export function NiseGame() {
   const [, setTick] = useState(0)
 
   const players = PARTY_COLORS.slice(0, count)
-  usePlayClock(phase === 'setup' || paused || help || rest)
+  const clock = usePlayClock(phase === 'setup' || paused || help || rest)
 
   useEffect(() => save('nise-setup', { count, deck, talk, vote }), [count, deck, talk, vote])
   useEffect(() => () => stopSpeaking(), [])
@@ -204,7 +204,9 @@ export function NiseGame() {
     setGained(got)
     setStars((s) => s.map((v, i) => v + (got[i] ?? 0)))
     setRewards(recordPlay({ type: 'finish', game: 'nise', two: true }))
-    countFinish('nise')
+    // val：みんなが見やぶったら1
+    countFinish('nise', { sec: clock.current, val: o.winner === 'minna' ? 1 : 0 })
+    clock.current = 0
     sfx.fanfare()
     speak(o.how === 'reverse' ? PHRASES.niseReverse : o.winner === 'minna' ? PHRASES.niseMinnaWin : PHRASES.niseWin)
     setPhase('result')

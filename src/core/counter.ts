@@ -15,7 +15,7 @@ import { getSettings } from './settings'
 export const COUNTER_URL: string = site.counterUrl
 export const PUBLIC_URL: string = site.publicUrl
 /** アプリの版（集計で、直した前後を見分ける） */
-export const APP_VERSION = '0.15'
+export const APP_VERSION = '0.15.1'
 
 export type CountEvent = 'open' | 'start' | 'finish' | 'share'
 
@@ -75,18 +75,43 @@ function standalone(): boolean {
   }
 }
 
+/**
+ * 最後まで遊んだときに いっしょに送る数（難しさの調整に使う。どれも匿名の数だけ）
+ * - lv：レベル（ひとり＝chibi など、ふたり＝下の人-上の人）
+ * - sec：遊んだ秒数（止めていた時間は数えない）
+ * - val：ひとり＝記録（点・回数・m・ミリ秒）、ふたり＝レベルの低い方が勝ったら1・高い方なら0（同じレベル・引き分けは無し）
+ */
+export interface FinishInfo {
+  lv?: string
+  sec?: number
+  val?: number
+}
+
+const LV = '(chibi|kids|otona|senshu)'
+const LV_RE = new RegExp(`^${LV}(-${LV})?$`)
+
+/** 送ってよい形にそろえる（形がちがうものは送らない） */
+export function cleanFinish(info: FinishInfo = {}): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (info.lv && LV_RE.test(info.lv)) out.lv = info.lv
+  if (typeof info.sec === 'number' && Number.isFinite(info.sec) && info.sec >= 0) out.sec = String(Math.min(36000, Math.round(info.sec)))
+  if (typeof info.val === 'number' && Number.isFinite(info.val) && Math.abs(info.val) < 1e7) out.val = String(Math.round(info.val * 100) / 100)
+  return out
+}
+
 /** 送り先の URL（送らないときは null） */
-export function countUrl(ev: CountEvent, game = ''): string | null {
+export function countUrl(ev: CountEvent, game = '', extra: Record<string, string> = {}): string | null {
   if (counterStatus() !== 'on') return null
   const q = new URLSearchParams({ app: 'pickle-asobi', ev, v: APP_VERSION })
   if (game) q.set('game', game)
   if (src) q.set('src', src)
   if (ev === 'open') q.set('pwa', standalone() ? '1' : '0')
+  for (const [k, v] of Object.entries(extra)) q.set(k, v)
   return `${COUNTER_URL}?${q}`
 }
 
-function send(ev: CountEvent, game = ''): void {
-  const url = countUrl(ev, game)
+function send(ev: CountEvent, game = '', extra: Record<string, string> = {}): void {
+  const url = countUrl(ev, game, extra)
   if (!url) return
   try {
     // sendBeacon は本文なしの POST。受け口（GAS の doPost）は URL の引数だけを読む
@@ -111,9 +136,19 @@ export function countGame(id: string): void {
   send('start', id)
 }
 
-/** ゲームを最後まで遊んだ（結果の画面が出た） */
-export function countFinish(id: string): void {
-  send('finish', id)
+/** ゲームを最後まで遊んだ（結果の画面が出た）。レベル・秒数・記録も（FinishInfo） */
+export function countFinish(id: string, info?: FinishInfo): void {
+  send('finish', id, cleanFinish(info))
+}
+
+/** ふたりのゲーム：レベルの低い方が勝ったら1、高い方なら0（同じレベル・引き分けは undefined） */
+export function lowerWon(levels: readonly string[], winner: 0 | 1 | null | undefined): number | undefined {
+  const order = ['chibi', 'kids', 'otona', 'senshu']
+  const a = order.indexOf(levels[0])
+  const b = order.indexOf(levels[1])
+  if (a < 0 || b < 0 || a === b || winner === null || winner === undefined) return undefined
+  const lower = a < b ? 0 : 1
+  return winner === lower ? 1 : 0
 }
 
 /** きねんカードを共有した・保存した */
