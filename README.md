@@ -94,6 +94,8 @@ npm run test:e2e   # スマホ・タブレットの大きさで2人同時のタ�
 npm run build      # dist/ に出力（sw.js に事前キャッシュの一覧を埋め込む）
 ```
 
+依存を足す・上げるときは `npx npm@10 install`（CI と同じ npm 10）で package-lock.json を更新する。lock がずれていると公開の CI が `npm ci` で止まる。
+
 実機で試すとき：`npx vite --host` で起動して、同じ Wi-Fi のスマホ・タブレットから `http://<PCのIP>:5173/pickle-asobi/` を開く。
 
 ## 声（ElevenLabs）
