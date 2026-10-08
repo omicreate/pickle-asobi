@@ -1,5 +1,17 @@
 # ピクルくんとあそぼ
 
+**Play with Pikuru** — pickleball party games for one phone or tablet.
+Put the device on a table and two players play face to face, or play solo against Pikuru. Each player picks their own level (little kids → competitive players), so kids and adults can play together.
+
+- **Play:** https://omicreate.github.io/pickle-asobi/?lang=en (free, no install, works offline)
+- **Languages:** English / Japanese (follows your device; switch with 🌐)
+- **Stack:** React + TypeScript + Vite, PWA. Tests run on every push before deploying to GitHub Pages.
+- **Privacy:** records stay on your device. Only anonymous play counts are sent, never with Do Not Track / GPC on, and parents can turn them off.
+
+*The rest of this README is in Japanese.*
+
+---
+
 スマホやタブレット1台で遊ぶピックルボールのミニゲーム集。遊び方は3つ：**むかいあう**（机に置いて2人で上下から同時に）、**ひとりで**、**てわたし**（1台を順番に回す。にせピクルくん・ジェスチャー・いしんでんしん・じゅんばんモード）。ゲームによっては遊び方を選べる。
 子ども同士・親子・選手同士で遊べるよう、**レベルは1人ずつ選ぶ**（ちびっこ／キッズ／おとな／せんしゅ）。
 アプリストアには出さず、Web ページを「ホーム画面に追加」して使う（PWA・オフライン可）。
@@ -7,7 +19,6 @@
 
 - 公開先：https://omicreate.github.io/pickle-asobi/ （`main` に push すると、GitHub Actions がテストを通してから公開する）
 - 大人向けの「ピックルボールIQ」アプリとは別。共通なのはピクルくんと色だけ
-- 企画・レビュー・改善バックログ：Vault の `PickleballIQ/アプリ/ピクルくんとあそぼ.md`
 
 ## ゲーム
 
@@ -61,7 +72,7 @@
 - **リンクの印**：Instagram のプロフィール `?src=pb_ig_bio`、Threads `?src=pb_th_bio`、ソフトテニスIQから `?src=pb_st_cross`、きねんカード `?src=share`（そのゲームの準備画面に直接入る）
 - **おうちの方へ**（`#/parents`、保護者の確認つき）：この端末の記録（ゲームごとの回数）・集計の説明とオンオフ・アプリの紹介・記録を消す
 
-ルールの根拠は USA Pickleball 公式ルールブック 2026 と、Vault の知識カード（`根拠/知識カード.md` の PBK）。問題や判定のコードに PBK 番号を書いてある。
+ルールの根拠は USA Pickleball 公式ルールブック 2026 と、それを項目ごとに整理した知識カード（PBK）。問題や判定のコードに PBK 番号を書いてある。
 
 ## ことば（日本語・英語）
 
