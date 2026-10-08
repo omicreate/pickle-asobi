@@ -27,6 +27,8 @@ jobs:
       - run: npm ci || npm install --no-audit --no-fund
       # テストが通らないときは公開しない
       - run: npm test
+      # ビルドの中で OGP 画像（dist/ogp.png）を撮るので、ブラウザを入れる
+      - run: npx playwright install --with-deps chromium
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

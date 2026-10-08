@@ -1,16 +1,23 @@
-// OGP 画像（public/ogp.png・1200×630）を作る。開発サーバー（npm run dev -- --port 5180）を起動してから node scripts/build-ogp.mjs public
-// OGP 画像（1200×630）を作る：アプリの画面に重ねて描き、同梱の書体で撮る
+// OGP 画像（dist/ogp.png・1200×630）を作る。npm run build の中で、vite build のあとに動く
+// ビルドした dist/ を vite preview で開き、アプリの画面に重ねて描いて、同梱の書体で撮る
+import { fileURLToPath } from 'node:url'
+import { preview } from 'vite'
 import { chromium } from '@playwright/test'
-const OUT = process.argv[2]
+const server = await preview({ preview: { port: 0, host: '127.0.0.1', open: false }, logLevel: 'warn' })
+const URL_ = server.resolvedUrls.local[0]
+const OUT = new URL('../dist/', import.meta.url)
 const browser = await chromium.launch()
-const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 })
+// 日本語の端末として開く（CI は英語の端末）。まだ sw.js に一覧を埋めこむ前なので、サービスワーカーは止めておく
+const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1, locale: 'ja-JP', serviceWorkers: 'block' })
 const page = await ctx.newPage()
 await page.addInitScript(() => {
   localStorage.setItem('pickle-asobi:settings', JSON.stringify({ sound: false, speak: false }))
   localStorage.setItem('pickle-asobi:progress', JSON.stringify({ stars: 3, owned: [], wear: {}, plays: {}, days: [], mission: { day: 'x', progress: [0,0,0], done: [false,false,false], bonus: false }, cleared: 0, parties: 0, best: {}, medals: {}, recent: [] }))
 })
-await page.goto('http://localhost:5180/pickle-asobi/')
-await page.waitForTimeout(1000)
+await page.goto(URL_)
+await page.waitForSelector('.game-card[data-game]')
+await page.evaluate(() => document.fonts.ready)
+await page.waitForTimeout(500)
 // 本数は ホームに並ぶ ゲームのカードから数える（じゅんばんモードは のぞく）。games.ts に足しても ずれない
 const count = await page.evaluate(() => new Set([...document.querySelectorAll('.game-card[data-game]')].map((a) => a.dataset.game).filter((id) => id !== 'party')).size)
 if (!count) throw new Error('ゲームのカードが 見つからない')
@@ -35,7 +42,9 @@ await page.evaluate((count) => {
     </div>`
   document.body.appendChild(box)
 }, count)
-await page.waitForTimeout(600)
-await page.screenshot({ path: `${OUT}/ogp.png` })
+await page.evaluate(() => Promise.all([...document.images].map((img) => img.decode())).then(() => document.fonts.ready))
+await page.waitForTimeout(300)
+await page.screenshot({ path: fileURLToPath(new URL('ogp.png', OUT)) })
 await browser.close()
-console.log(`ok（ミニゲーム ${count}本）`)
+await server.close()
+console.log(`ogp.png: ミニゲーム ${count}本`)

@@ -122,7 +122,7 @@ npm run voice:en         # まだ無い英語のセリフだけ作る
 
 `art/` のピクルくんの原画から、表情4つとアイコンを作る：`npm run art`
 
-リンクを貼ったときの画像（OGP、`public/ogp.png`）は、開発サーバーを 5180 番で起動してから `node scripts/build-ogp.mjs public`
+リンクを貼ったときの画像（OGP、`dist/ogp.png`）は、`npm run build` のたびに `scripts/build-ogp.mjs` が作る（ビルドした画面を vite preview で開いて撮る。ミニゲームの数はホームのカードから数える。Playwright の Chromium が要る）
 
 ## 方針
 
