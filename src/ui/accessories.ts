@@ -6,20 +6,21 @@
  * 小物は「ヘッドバンドの幅＝1」の大きさで描くので、どの絵・どの大きさでも同じ見た目になる。
  */
 import type { CutArt } from './pikuruArt'
+import { t } from '../i18n'
 
 export type Slot = 'head' | 'eyes' | 'neck' | 'side' | 'aura'
 
 export const ACCESSORIES = {
-  'party-hat': { label: 'パーティー ぼうし', slot: 'head' },
-  ribbon: { label: 'リボン', slot: 'head' },
-  crown: { label: 'おうかん', slot: 'head' },
-  glasses: { label: 'まるめがね', slot: 'eyes' },
-  sunglasses: { label: 'サングラス', slot: 'eyes' },
-  'star-glasses': { label: 'ほしの めがね', slot: 'eyes' },
-  bowtie: { label: 'ちょうネクタイ', slot: 'neck' },
-  medal: { label: 'きんメダル', slot: 'neck' },
-  flower: { label: 'おはな', slot: 'side' },
-  aura: { label: 'キラキラ', slot: 'aura' },
+  'party-hat': { label: t('パーティー ぼうし'), slot: 'head' },
+  ribbon: { label: t('リボン'), slot: 'head' },
+  crown: { label: t('おうかん'), slot: 'head' },
+  glasses: { label: t('まるめがね'), slot: 'eyes' },
+  sunglasses: { label: t('サングラス'), slot: 'eyes' },
+  'star-glasses': { label: t('ほしの めがね'), slot: 'eyes' },
+  bowtie: { label: t('ちょうネクタイ'), slot: 'neck' },
+  medal: { label: t('きんメダル'), slot: 'neck' },
+  flower: { label: t('おはな'), slot: 'side' },
+  aura: { label: t('キラキラ'), slot: 'aura' },
 } satisfies Record<string, { label: string; slot: Slot }>
 
 export type AccessoryId = keyof typeof ACCESSORIES

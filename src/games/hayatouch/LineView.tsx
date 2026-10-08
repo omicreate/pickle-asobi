@@ -1,6 +1,7 @@
 /** ラインジャッジの拡大図（線と球のあと）。単位は cm */
 import { BALL_R, LINE_W, REGION_NAME } from './lineJudge'
 import type { LineCase, Region } from './lineJudge'
+import { t } from '../../i18n'
 
 const FILL: Record<Region, string> = {
   court: '#2f5d9a',
@@ -18,7 +19,7 @@ const H = 19
 export function LineView({ c }: { c: LineCase }) {
   const cy = H / 2 + 1
   return (
-    <svg className="line-view" viewBox={`${X0} 0 ${X1 - X0} ${H}`} role="img" aria-label={`${c.scene}の ${c.line}。ボールの あと`}>
+    <svg className="line-view" viewBox={`${X0} 0 ${X1 - X0} ${H}`} role="img" aria-label={t('{0}の {1}。ボールの あと', [c.scene, c.line])}>
       <rect x={X0} y={0} width={-X0} height={H} fill={FILL[c.a]} />
       <rect x={LINE_W} y={0} width={X1 - LINE_W} height={H} fill={FILL[c.b]} />
       <rect x={0} y={0} width={LINE_W} height={H} fill="#ffffff" />

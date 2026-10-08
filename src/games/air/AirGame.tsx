@@ -20,6 +20,7 @@ import type { Face } from '../../ui/Pikuru'
 import { PikuruCut } from '../../ui/pikuruArt'
 import { aim, BALL_R, createAir, FIELD_H, FIELD_W, goalWidth, stepAir, TARGET } from './air'
 import type { AirState } from './air'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -97,7 +98,7 @@ export function AirGame({ levels, paused, onRestart }: Props) {
             setScore(ev.score)
             setFace('ok')
             speak(ev.scorer === 0 ? PHRASES.point0 : PHRASES.point1)
-            setNotice({ title: 'ゴール！', sub: `${SIDE_NAME[ev.scorer]}の てん`, faces: [ev.scorer === 0 ? 'ok' : 'oops', ev.scorer === 1 ? 'ok' : 'oops'] })
+            setNotice({ title: t('ゴール！'), sub: t('{0}の てん', [SIDE_NAME[ev.scorer]]), faces: [ev.scorer === 0 ? 'ok' : 'oops', ev.scorer === 1 ? 'ok' : 'oops'] })
             noticeTimer.current = 1.4
             break
           case 'over':
@@ -162,8 +163,8 @@ export function AirGame({ levels, paused, onRestart }: Props) {
       <Notice data={notice} />
       {over !== null && (
         <Result
-          title={(side) => (side === over ? 'かち！ やったね' : 'おしい！')}
-          sub={(side) => `${score[side]} たい ${score[side === 0 ? 1 : 0]}（${TARGET}てん とったら かち）`}
+          title={(side) => (side === over ? t('かち！ やったね') : t('おしい！'))}
+          sub={(side) => t('{0} たい {1}（{2}てん とったら かち）', [score[side], score[side === 0 ? 1 : 0], TARGET])}
           face={(side) => (side === over ? 'ok' : 'oops')}
           onAgain={onRestart}
         />

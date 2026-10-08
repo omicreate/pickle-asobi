@@ -6,6 +6,7 @@ import { ACCESSORIES } from '../ui/accessories'
 import type { AccessoryId } from '../ui/accessories'
 import { DESIGNS, SHAPES } from '../ui/paddleArt'
 import type { DesignId, PaddleShape } from '../ui/paddleArt'
+import { t } from '../i18n'
 
 export type ItemKind = 'design' | 'shape' | 'wear'
 
@@ -24,11 +25,11 @@ export interface Item {
 }
 
 export const SPECIAL_TEXT: Record<Special, string> = {
-  stamps7: 'スタンプを 7こ あつめる',
-  stamps14: 'スタンプを 14こ あつめる',
-  party: 'じゅんばんモードを さいごまで あそぶ',
-  missions10: 'ミッションを 10こ クリア',
-  medals9: 'メダルを 9こ あつめる（どう1・ぎん2・きん3）',
+  stamps7: t('スタンプを 7こ あつめる'),
+  stamps14: t('スタンプを 14こ あつめる'),
+  party: t('じゅんばんモードを さいごまで あそぶ'),
+  missions10: t('ミッションを 10こ クリア'),
+  medals9: t('メダルを 9こ あつめる（どう1・ぎん2・きん3）'),
 }
 
 const DESIGN_PRICE: Record<DesignId, number | Special> = {

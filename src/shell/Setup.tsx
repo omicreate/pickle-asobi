@@ -16,6 +16,7 @@ import { Pikuru } from '../ui/Pikuru'
 import type { GameId, GameInfo } from './games'
 import { href } from './route'
 import './setup.css'
+import { t as tr } from '../i18n'
 
 /** 何点先取か（ラリーポイント制） */
 const TARGETS = [5, 7, 11]
@@ -23,13 +24,13 @@ const TARGETS = [5, 7, 11]
 const PADDLE_GAMES: GameId[] = ['rally', 'dink', 'breakout2', 'air']
 /** まんなかの帯の ひとこと */
 const MID_NOTE: Partial<Record<GameId, string>> = {
-  dink: 'ふたりで きょうりょく！',
-  breakout2: 'じかんは 90びょう',
-  air: 'さきに 5てん とったら かち',
-  linestop: 'ラインに ちかい ほうが かち',
-  curling: 'ひとり 4きゅう × 3エンド',
-  serveread: '3かい しょうぶ。ラストは 2ばい',
-  sagasu2: 'さきに 3かい みつけたら かち',
+  dink: tr('ふたりで きょうりょく！'),
+  breakout2: tr('じかんは 90びょう'),
+  air: tr('さきに 5てん とったら かち'),
+  linestop: tr('ラインに ちかい ほうが かち'),
+  curling: tr('ひとり 4きゅう × 3エンド'),
+  serveread: tr('3かい しょうぶ。ラストは 2ばい'),
+  sagasu2: tr('さきに 3かい みつけたら かち'),
 }
 
 export function Setup({ game }: { game: GameInfo }) {
@@ -90,7 +91,7 @@ export function Setup({ game }: { game: GameInfo }) {
               <span className={`side-chip side-chip-${side}`}>{SIDE_NAME[side]}</span>
               <span className="setup-game">{game.title}</span>
               {usesPaddle && (
-                <button className="paddle-btn" aria-label="パドルを えらぶ" data-testid={`paddle-btn-${side}`} onClick={() => setPicker(side)}>
+                <button className="paddle-btn" aria-label={tr('パドルを えらぶ')} data-testid={`paddle-btn-${side}`} onClick={() => setPicker(side)}>
                   <PaddleIcon look={settings.paddles[side]} size={40} />
                 </button>
               )}
@@ -99,13 +100,13 @@ export function Setup({ game }: { game: GameInfo }) {
               <div className="setup-nolevel">
                 <Pikuru face="think" size={56} />
                 <p>
-                  レベルの ちがいは ないよ。
+                  {tr('レベルの ちがいは ないよ。')}
                   <br />
-                  {settings.srStyle === 'pass' ? 'てわたし：ひとりずつ がめんを みて えらぶよ。あいてには みせないでね。' : 'むかいあう：あいてが えらぶ あいだは めを とじてね。'}
+                  {settings.srStyle === 'pass' ? tr('てわたし：ひとりずつ がめんを みて えらぶよ。あいてには みせないでね。') : tr('むかいあう：あいてが えらぶ あいだは めを とじてね。')}
                 </p>
               </div>
             ) : (
-            <div className="level-grid" role="radiogroup" aria-label="レベル">
+            <div className="level-grid" role="radiogroup" aria-label={tr('レベル')}>
               {LEVELS.map((lv) => (
                 <button
                   key={lv}
@@ -125,7 +126,7 @@ export function Setup({ game }: { game: GameInfo }) {
             </div>
             )}
             <button className={`btn ready-btn ${ready[side] ? 'is-ready' : 'btn-go'}`} aria-pressed={ready[side]} data-testid={`ready-${side}`} onClick={() => toggleReady(side)}>
-              {ready[side] ? 'まってるよ…' : 'じゅんび OK！'}
+              {ready[side] ? tr('まってるよ…') : tr('じゅんび OK！')}
             </button>
           </div>
           {picker === side && <PaddlePicker value={settings.paddles[side]} onChange={(look) => setPaddle(side, look)} onClose={() => setPicker(null)} />}
@@ -133,69 +134,69 @@ export function Setup({ game }: { game: GameInfo }) {
       ))}
 
       <div className="setup-mid">
-        <a className="btn btn-small" href="#/" aria-label="もどる">
+        <a className="btn btn-small" href="#/" aria-label={tr('もどる')}>
           ←
         </a>
         {game.id === 'rally' ? (
           <div className="setup-rows">
-            <div className="seg" role="radiogroup" aria-label="ルール">
+            <div className="seg" role="radiogroup" aria-label={tr('ルール')}>
               {(['easy', 'real'] as const).map((m) => (
                 <button key={m} role="radio" aria-checked={settings.rallyRules === m} onClick={() => setSettings({ rallyRules: m })}>
-                  {m === 'easy' ? 'かんたん' : 'ほんかく'}
+                  {m === 'easy' ? tr('かんたん') : tr('ほんかく')}
                 </button>
               ))}
             </div>
             <div className="setup-row">
               {settings.rallyRules === 'real' && (
-                <div className="seg" role="radiogroup" aria-label="てんの かぞえかた">
+                <div className="seg" role="radiogroup" aria-label={tr('てんの かぞえかた')}>
                   {(['sideout', 'rally'] as const).map((m) => (
                     <button key={m} role="radio" aria-checked={settings.rallyScoring === m} onClick={() => setSettings({ rallyScoring: m })}>
-                      {m === 'sideout' ? 'サイドアウト' : 'ラリー'}
+                      {m === 'sideout' ? tr('サイドアウト') : tr('ラリー')}
                     </button>
                   ))}
                 </div>
               )}
               <button
                 className="btn btn-small target-btn"
-                aria-label={`${settings.rallyTarget}てん とったら かち（おすと かわる）`}
+                aria-label={tr('{0}てん とったら かち（おすと かわる）', [settings.rallyTarget])}
                 onClick={() => setSettings({ rallyTarget: TARGETS[(TARGETS.indexOf(settings.rallyTarget) + 1) % TARGETS.length] })}
               >
-                {settings.rallyTarget}てん
+                {tr('{0}てん', [settings.rallyTarget])}
               </button>
             </div>
           </div>
         ) : game.id === 'serveread' ? (
           <div className="setup-rows">
-            <div className="seg" role="radiogroup" aria-label="あそびかた">
+            <div className="seg" role="radiogroup" aria-label={tr('あそびかた')}>
               {(['face', 'pass'] as const).map((m) => (
                 <button key={m} role="radio" aria-checked={settings.srStyle === m} onClick={() => setSettings({ srStyle: m })} data-testid={`sr-style-${m}`}>
-                  {m === 'face' ? 'むかいあう' : 'てわたし'}
+                  {m === 'face' ? tr('むかいあう') : tr('てわたし')}
                 </button>
               ))}
             </div>
-            <div className="seg" role="radiogroup" aria-label="えらぶ じかん">
+            <div className="seg" role="radiogroup" aria-label={tr('えらぶ じかん')}>
               {PICK_TIMES.map((t) => (
                 <button key={t} role="radio" aria-checked={settings.srTime === t} onClick={() => setSettings({ srTime: t })}>
-                  {t}びょう
+                  {tr('{0}びょう', [t])}
                 </button>
               ))}
             </div>
           </div>
         ) : game.id === 'tug' ? (
-          <div className="seg" role="radiogroup" aria-label="なんにんずつ">
+          <div className="seg" role="radiogroup" aria-label={tr('なんにんずつ')}>
             {([false, true] as const).map((t) => (
               <button key={String(t)} role="radio" aria-checked={settings.tugTeam === t} onClick={() => setSettings({ tugTeam: t })} data-testid={t ? 'tug-team' : 'tug-solo'}>
-                {t ? '2たい2（チーム）' : '1たい1'}
+                {t ? tr('2たい2（チーム）') : tr('1たい1')}
               </button>
             ))}
           </div>
         ) : (
           <div className="setup-mid-note">
             <Pikuru face={game.face} size={40} />
-            {MID_NOTE[game.id] ?? 'レベルに あわせた もんだいが でるよ'}
+            {MID_NOTE[game.id] ?? tr('レベルに あわせた もんだいが でるよ')}
           </div>
         )}
-        <button className="btn btn-small mid-btn-help" aria-label="あそびかた・ルール" onClick={() => setHelp(true)}>
+        <button className="btn btn-small mid-btn-help" aria-label={tr('あそびかた・ルール')} onClick={() => setHelp(true)}>
           ？
         </button>
       </div>

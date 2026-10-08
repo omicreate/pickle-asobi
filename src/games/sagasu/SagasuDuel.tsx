@@ -18,6 +18,7 @@ import type { WallyRound } from './sagasu'
 import { ZONE_PHRASE } from './SagasuGame'
 import { SceneSvg, TargetCard } from './SceneSvg'
 import './sagasu.css'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -46,7 +47,7 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
   /** このラウンドで見つけた人（見つけたら次のラウンドまで止める） */
   const [winner, setWinner] = useState<Side | null>(null)
   const [over, setOver] = useState<Side | null>(null)
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'よーい', big: true })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: t('よーい'), big: true })
   const ready = useRef(1.2)
   const frozen = useRef<[number, number]>([0, 0])
   /** おてつきの わけ（どこが ちがったか） */
@@ -92,7 +93,7 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
     setScore(next)
     setWinner(side)
     speak(ZONE_PHRASE[r.zone])
-    setNotice({ title: `${SIDE_NAME[side]}が みつけた！`, sub: `${ZONE_NAME[r.zone]}に いたよ`, faces: side === 0 ? ['ok', 'oops'] : ['oops', 'ok'] })
+    setNotice({ title: t('{0}が みつけた！', [SIDE_NAME[side]]), sub: t('{0}に いたよ', [ZONE_NAME[r.zone]]), faces: side === 0 ? ['ok', 'oops'] : ['oops', 'ok'] })
     window.setTimeout(() => {
       if (next[side] >= DUEL_WIN) {
         sfx.fanfare()
@@ -107,7 +108,7 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
       setWinner(null)
       frozen.current = [0, 0]
       ready.current = 1.2
-      setNotice({ title: 'よーい', big: true })
+      setNotice({ title: t('よーい'), big: true })
     }, 2000)
   }
 
@@ -119,8 +120,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
             <header className="sagasu-duel-head">
               <span className={`side-chip side-chip-${side}`}>{SIDE_NAME[side]}</span>
               <TargetCard size={38} />
-              <b>ほんものは どこ？</b>
-              <span className="sagasu-duel-no">{no + 1}かいめ</span>
+              <b>{t('ほんものは どこ？')}</b>
+              <span className="sagasu-duel-no">{t('{0}かいめ', [no + 1])}</span>
             </header>
             <div className="sagasu-duel-field">
               {ready.current <= 0 || winner !== null ? (
@@ -135,7 +136,7 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
               ) : null}
               {frozen.current[side] > 0 && (
                 <div className="sagasu-freeze">
-                  おてつき！
+                  {t('おてつき！')}
                   {why[side] && <small>{why[side]}</small>}
                 </div>
               )}
@@ -147,8 +148,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
       <Notice data={notice} />
       {over !== null && (
         <Result
-          title={(side) => (side === over ? 'かち！ みつけ めいじん' : 'おしい！')}
-          sub={(side) => `${score[side]} たい ${score[side === 0 ? 1 : 0]}`}
+          title={(side) => (side === over ? t('かち！ みつけ めいじん') : t('おしい！'))}
+          sub={(side) => t('{0} たい {1}', [score[side], score[side === 0 ? 1 : 0]])}
           face={(side) => (side === over ? 'ok' : 'oops')}
           onAgain={onRestart}
         />

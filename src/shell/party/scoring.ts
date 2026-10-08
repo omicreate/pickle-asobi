@@ -8,6 +8,7 @@
  */
 import type { Level } from '../../core/players'
 import type { GameId } from '../games'
+import { t } from '../../i18n'
 
 export interface PartyPlayer {
   name: string
@@ -78,6 +79,6 @@ export const defaultTeams = (n: number) => Array.from({ length: n }, (_, i) => i
 
 /** チーム戦の名前と色 */
 export const TEAMS = [
-  { name: 'ピクルス', color: '#4d8f2a' },
-  { name: 'パドル', color: '#2f5d9a' },
+  { name: t('ピクルス'), color: '#4d8f2a' },
+  { name: t('パドル'), color: '#2f5d9a' },
 ] as const

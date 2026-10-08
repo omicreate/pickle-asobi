@@ -8,6 +8,7 @@
  * 座標は横 w（=100）× 縦 h の論理単位。人は (x, y) が体の中心、s が高さ。
  */
 import type { Level } from '../../core/players'
+import { t } from '../../i18n'
 
 export type Band = 'lime' | 'orange' | 'blue' | 'pink' | 'white' | 'yellow'
 export type Hat = 'red' | 'blue'
@@ -66,7 +67,7 @@ export interface Scene {
 }
 
 export type Zone = 'kitchen' | 'service' | 'outside'
-export const ZONE_NAME: Record<Zone, string> = { kitchen: 'キッチン', service: 'サービスコート', outside: 'コートの そと' }
+export const ZONE_NAME: Record<Zone, string> = { kitchen: t('キッチン'), service: t('サービスコート'), outside: t('コートの そと') }
 
 export const KITCHEN_COLOR = '#3d8f7a'
 export const BALL_COLORS = ['#d4f03c', '#ff8a3d', '#ffffff']
@@ -117,12 +118,12 @@ function shuffle<T>(xs: T[], rand: () => number): T[] {
 
 /** にせものが ほんものと どこが ちがうか（まちがえて押したときに見せる。いちばん目立つものから1つ） */
 export function whyNot(look: Look): string | null {
-  if (look.hat) return 'ぼうしを かぶってるよ'
-  if (look.glasses) return 'めがねを かけてるよ'
-  if (look.mustache) return 'ひげが あるよ'
-  if (look.band !== 'lime') return 'はちまきの いろが ちがうよ'
-  if (!look.stem) return 'あたまに つるが ないよ'
-  if (look.body !== 'green') return 'からだの いろが ちがうよ'
+  if (look.hat) return t('ぼうしを かぶってるよ')
+  if (look.glasses) return t('めがねを かけてるよ')
+  if (look.mustache) return t('ひげが あるよ')
+  if (look.band !== 'lime') return t('はちまきの いろが ちがうよ')
+  if (!look.stem) return t('あたまに つるが ないよ')
+  if (look.body !== 'green') return t('からだの いろが ちがうよ')
   return null
 }
 
@@ -234,15 +235,15 @@ export interface Diff {
 }
 
 export const DIFF_LABEL: Record<DiffKind, string> = {
-  band: 'はちまきの いろ',
-  glasses: 'めがね',
-  stem: 'あたまの つる',
-  hat: 'ぼうし',
-  remove: 'なくなった もの',
-  color: 'ものの いろ',
-  add: 'ふえた ボール',
-  kitchen: 'キッチンの いろ',
-  net: 'ネット',
+  band: t('はちまきの いろ'),
+  glasses: t('めがね'),
+  stem: t('あたまの つる'),
+  hat: t('ぼうし'),
+  remove: t('なくなった もの'),
+  color: t('ものの いろ'),
+  add: t('ふえた ボール'),
+  kitchen: t('キッチンの いろ'),
+  net: t('ネット'),
 }
 
 export interface DiffRound {
@@ -311,7 +312,7 @@ export function makeDiff(level: Level, w: number, h: number, rand: () => number 
   const addCand: Cand = () => {
     const pos = place(rand, w, h, s * 0.4, placed, 1.2)
     if (!pos) return false
-    b.things = [...b.things, { id: 'added', kind: 'ball', x: pos.x, y: pos.y, s: s * 0.4, color: BALL_COLORS[0], rot: 0 }]
+    b.things = [...b.things, { id: `added${diffs.length}`, kind: 'ball', x: pos.x, y: pos.y, s: s * 0.4, color: BALL_COLORS[0], rot: 0 }]
     placed.push({ x: pos.x, y: pos.y, r: s * 0.3 })
     add({ kind: 'add', x: pos.x, y: pos.y, r: minR })
     return true

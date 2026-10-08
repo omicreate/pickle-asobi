@@ -5,6 +5,7 @@ import { sfx } from '../core/sound'
 import { DESIGNS, drawPaddleArt, SHAPES } from './paddleArt'
 import type { DesignId, PaddleLook, PaddleShape } from './paddleArt'
 import './picker.css'
+import { t } from '../i18n'
 
 /** 正方形の中に、パドルをななめ（先が右上）に描く */
 export function PaddleIcon({ look, size = 64, className }: { look: PaddleLook; size?: number; className?: string }) {
@@ -25,7 +26,7 @@ export function PaddleIcon({ look, size = 64, className }: { look: PaddleLook; s
     const shift = (faceLen * shape.grip) / 2
     drawPaddleArt(ctx, { x: size / 2 + Math.cos(a) * shift, y: size / 2 + Math.sin(a) * shift, faceLen, angle: a, look })
   }, [look, size])
-  return <canvas ref={ref} className={className} style={{ width: size, height: size }} role="img" aria-label={`${DESIGNS[look.design].label}の パドル（${SHAPES[look.shape].label}）`} />
+  return <canvas ref={ref} className={className} style={{ width: size, height: size }} role="img" aria-label={t('{0}の パドル（{1}）', [DESIGNS[look.design].label, SHAPES[look.shape].label])} />
 }
 
 /** 持っている色・もよう と かたち から えらぶ */
@@ -38,15 +39,15 @@ export function PaddlePicker({ value, onChange, onClose }: { value: PaddleLook; 
     onChange(look)
   }
   return (
-    <div className="picker" role="dialog" aria-label="パドルを えらぶ" data-testid="paddle-picker">
+    <div className="picker" role="dialog" aria-label={t('パドルを えらぶ')} data-testid="paddle-picker">
       <div className="picker-head">
         <PaddleIcon look={value} size={56} />
-        <span className="picker-title">パドルを えらぶ</span>
+        <span className="picker-title">{t('パドルを えらぶ')}</span>
         <button className="btn btn-small btn-go" onClick={onClose}>
           OK
         </button>
       </div>
-      <div className="picker-grid" role="radiogroup" aria-label="いろ・もよう">
+      <div className="picker-grid" role="radiogroup" aria-label={t('いろ・もよう')}>
         {designs.map((d) => (
           <button key={d} className="picker-item" role="radio" aria-checked={value.design === d} onClick={() => pick({ ...value, design: d })}>
             <PaddleIcon look={{ design: d, shape: value.shape }} size={44} />
@@ -55,7 +56,7 @@ export function PaddlePicker({ value, onChange, onClose }: { value: PaddleLook; 
         ))}
       </div>
       {shapes.length > 1 && (
-        <div className="picker-grid picker-shapes" role="radiogroup" aria-label="かたち">
+        <div className="picker-grid picker-shapes" role="radiogroup" aria-label={t('かたち')}>
           {shapes.map((s) => (
             <button key={s} className="picker-item" role="radio" aria-checked={value.shape === s} onClick={() => pick({ ...value, shape: s })}>
               <PaddleIcon look={{ design: value.design, shape: s }} size={44} />
@@ -65,7 +66,7 @@ export function PaddlePicker({ value, onChange, onClose }: { value: PaddleLook; 
         </div>
       )}
       <a className="picker-more" href="#/collection">
-        ⭐ ほしで あたらしい パドルと こうかん →
+        {t('⭐ ほしで あたらしい パドルと こうかん →')}
       </a>
     </div>
   )

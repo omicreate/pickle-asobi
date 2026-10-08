@@ -1,3 +1,4 @@
+import { t } from '../../i18n'
 /**
  * ラインジャッジのお題（純粋関数）。ラインの近くに落ちた球のあとを拡大して見せ、イン／アウトを答える。
  * 根拠：USA Pickleball 公式ルールブック 2026
@@ -31,13 +32,13 @@ export interface LineCase {
 export type Region = 'court' | 'out' | 'kitchen' | 'service' | 'target' | 'other-service'
 
 export const REGION_NAME: Record<Region, string> = {
-  court: 'コート',
-  out: 'コートのそと',
-  kitchen: 'キッチン',
-  service: 'サービスコート',
+  court: t('コート'),
+  out: t('コートのそと'),
+  kitchen: t('キッチン'),
+  service: t('サービスコート'),
   /** センターラインのサーブ：入れるべき対角のサービスコートと、そのとなり */
-  target: 'ねらうコート',
-  'other-service': 'となりのコート',
+  target: t('ねらうコート'),
+  'other-service': t('となりのコート'),
 }
 
 /** 球が線に触れているか */
@@ -83,15 +84,15 @@ export function makeLineCase(hard: boolean, rand: () => number = Math.random): L
 
   switch (kind) {
     case 'side':
-      return build('court', 'out', 'ラリー', 'サイドライン', 'in', 'out', 'ラインに すこしでも ふれたら イン', 'ラインに ふれていないので アウト', 'PBK-0029')
+      return build('court', 'out', t('ラリー'), t('サイドライン'), 'in', 'out', t('ラインに すこしでも ふれたら イン'), t('ラインに ふれていないので アウト'), 'PBK-0029')
     case 'base':
-      return build('court', 'out', 'ラリー', 'ベースライン', 'in', 'out', 'ラインに すこしでも ふれたら イン', 'ラインに ふれていないので アウト', 'PBK-0029')
+      return build('court', 'out', t('ラリー'), t('ベースライン'), 'in', 'out', t('ラインに すこしでも ふれたら イン'), t('ラインに ふれていないので アウト'), 'PBK-0029')
     case 'kitchen-serve':
-      return build('kitchen', 'service', 'サーブ', 'キッチンライン', 'out', 'in', 'サーブが キッチンラインに ふれたら フォルト', 'キッチンラインを こえているので イン', 'PBK-0021')
+      return build('kitchen', 'service', t('サーブ'), t('キッチンライン'), 'out', 'in', t('サーブが キッチンラインに ふれたら フォルト'), t('キッチンラインを こえているので イン'), 'PBK-0021')
     case 'kitchen-rally':
-      return build('kitchen', 'service', 'ラリー', 'キッチンライン', 'in', 'in', 'ラリー中は キッチン（ライン）に おちても イン', 'ラリー中は キッチンラインの まわりは どこでも イン', 'PBK-0021')
+      return build('kitchen', 'service', t('ラリー'), t('キッチンライン'), 'in', 'in', t('ラリー中は キッチン（ライン）に おちても イン'), t('ラリー中は キッチンラインの まわりは どこでも イン'), 'PBK-0021')
     case 'center-serve':
       // 球は「となりの コート」の側から近づく。線に触れればイン、離れていれば となりの サービスコートなので フォルト
-      return build('target', 'other-service', 'サーブ', 'センターライン', 'in', 'out', 'センターラインも ねらう サービスコートの いちぶ。イン', 'となりの サービスコートに おちたので フォルト', 'PBK-0010・0029')
+      return build('target', 'other-service', t('サーブ'), t('センターライン'), 'in', 'out', t('センターラインも ねらう サービスコートの いちぶ。イン'), t('となりの サービスコートに おちたので フォルト'), t('PBK-0010・0029'))
   }
 }

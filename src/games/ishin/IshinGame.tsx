@@ -35,6 +35,7 @@ import '../../shell/setup.css'
 import '../../shell/party/party.css'
 import '../nise/nise.css'
 import './ishin.css'
+import { t } from '../../i18n'
 
 type Phase = 'setup' | 'ask' | 'pass' | 'pick' | 'face' | 'reveal' | 'final'
 type Style = 'face' | 'pass'
@@ -112,18 +113,18 @@ function RevealBody({ q, picks, size, small = false }: { q: IQuestion; picks: Pi
               <Answer who={pr[1]} q={q} pick={picks[pr[1]]} small={small} />
             </div>
             <p className="ishin-verdict" data-testid="ishin-verdict">
-              {ok ? 'いしんでんしん！ +1' : 'おしい！'}
+              {ok ? t('いしんでんしん！ +1') : t('おしい！')}
             </p>
           </div>
         )
       })}
       {q.tip ? (
         <div className="nise-tip">
-          <b>まめちしき</b>
+          <b>{t('まめちしき')}</b>
           <p>{q.tip}</p>
         </div>
       ) : (
-        pairs.some((pr) => !isMatch(picks, pr)) && <p className="party-note">どうして それに したか、はなしてみよう。</p>
+        pairs.some((pr) => !isMatch(picks, pr)) && <p className="party-note">{t('どうして それに したか、はなしてみよう。')}</p>
       )}
     </div>
   )
@@ -251,24 +252,24 @@ export function IshinGame() {
     return (
       <main className="party ishin">
         <header className="party-head">
-          <a className="btn btn-small" href="#/" aria-label="もどる">
+          <a className="btn btn-small" href="#/" aria-label={t('もどる')}>
             ←
           </a>
-          <h1 className="party-title">いしんでんしん ダブルス</h1>
+          <h1 className="party-title">{t('いしんでんしん ダブルス')}</h1>
         </header>
         <div className="party-intro">
           <PikuruCut art="ok" height={92} />
-          <p>おなじ しつもんに、ペアの ふたりが こっそり こたえるよ。おなじ こたえなら「いしんでんしん！」 せいかいは ないよ。</p>
-          <button className="btn btn-small" aria-label="せつめいを よみあげる" onClick={() => speak(PHRASES.ishinIntro)}>
+          <p>{t('おなじ しつもんに、ペアの ふたりが こっそり こたえるよ。おなじ こたえなら「いしんでんしん！」 せいかいは ないよ。')}</p>
+          <button className="btn btn-small" aria-label={t('せつめいを よみあげる')} onClick={() => speak(PHRASES.ishinIntro)}>
             🗣️
           </button>
         </div>
 
-        <h2 className="party-label">なんにんで あそぶ？</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="にんずう">
+        <h2 className="party-label">{t('なんにんで あそぶ？')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={t('にんずう')}>
           {I_SIZES.map((s) => (
             <button key={s} role="radio" aria-checked={size === s} onClick={() => setSize(s)} data-testid={`ishin-size-${s}`}>
-              {s === 2 ? '2にん（ペアで きょうりょく）' : '4にん（2ペアで たいせん）'}
+              {s === 2 ? t('2にん（ペアで きょうりょく）') : t('4にん（2ペアで たいせん）')}
             </button>
           ))}
         </div>
@@ -289,26 +290,26 @@ export function IshinGame() {
           ))}
         </div>
 
-        <h2 className="party-label">あそびかた</h2>
+        <h2 className="party-label">{t('あそびかた')}</h2>
         {size === 2 ? (
           <>
-            <div className="seg party-seg" role="radiogroup" aria-label="あそびかた">
+            <div className="seg party-seg" role="radiogroup" aria-label={t('あそびかた')}>
               {(['face', 'pass'] as const).map((m) => (
                 <button key={m} role="radio" aria-checked={style === m} onClick={() => setStyle(m)} data-testid={`ishin-style-${m}`}>
-                  {m === 'face' ? 'むかいあう' : 'てわたし'}
+                  {m === 'face' ? t('むかいあう') : t('てわたし')}
                 </button>
               ))}
             </div>
             <p className="party-note">
-              {style === 'face' ? 'つくえに おいて、うえと したから いっせいに えらぶよ。あいての がめんは みないでね。' : '1だいを わたしあって、ひとりずつ こっそり えらぶよ。'}
+              {style === 'face' ? t('つくえに おいて、うえと したから いっせいに えらぶよ。あいての がめんは みないでね。') : t('1だいを わたしあって、ひとりずつ こっそり えらぶよ。')}
             </p>
           </>
         ) : (
-          <p className="party-note">4にんは てわたしで あそぶよ。じゅんばんは オレンジ → ピンク → あお → みどり。</p>
+          <p className="party-note">{t('4にんは てわたしで あそぶよ。じゅんばんは オレンジ → ピンク → あお → みどり。')}</p>
         )}
 
-        <h2 className="party-label">しつもん</h2>
-        <div className="seg party-seg nise-decks" role="radiogroup" aria-label="しつもん">
+        <h2 className="party-label">{t('しつもん')}</h2>
+        <div className="seg party-seg nise-decks" role="radiogroup" aria-label={t('しつもん')}>
           {I_DECKS.map((d) => (
             <button key={d} role="radio" aria-checked={deck === d} onClick={() => setDeck(d)} data-testid={`ishin-deck-${d}`}>
               <b>{I_DECK_INFO[d].label}</b>
@@ -317,25 +318,25 @@ export function IshinGame() {
           ))}
         </div>
 
-        <h2 className="party-label">もんだいの かず</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="もんだいの かず">
+        <h2 className="party-label">{t('もんだいの かず')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={t('もんだいの かず')}>
           {I_COUNTS.map((k) => (
             <button key={k} role="radio" aria-checked={n === k} onClick={() => setN(k)} data-testid={`ishin-n-${k}`}>
-              {k}もん
+              {t('{0}もん', [k])}
             </button>
           ))}
         </div>
         {size === 2 && best[bestKey] !== undefined && (
           <p className="party-note">
-            じこベスト：{n}もん中 {best[bestKey]}もん そろった（{I_DECK_INFO[deck].label}）
+            {t('じこベスト：{0}もん中 {1}もん そろった（{2}）', [n, best[bestKey], I_DECK_INFO[deck].label])}
           </p>
         )}
 
         <button className="btn solo-help" onClick={() => setHelp(true)}>
-          ？ あそびかた・ルールを みる
+          {t('？ あそびかた・ルールを みる')}
         </button>
         <button className="btn btn-go party-start" onClick={start} data-testid="ishin-start">
-          はじめる！
+          {t('はじめる！')}
         </button>
         {help && <HowToSheet game="ishin" onClose={() => setHelp(false)} fixed />}
       </main>
@@ -355,7 +356,7 @@ export function IshinGame() {
                   <header className="ishin-half-head">
                     <span className={`side-chip side-chip-${side}`}>{PARTY_COLORS[side].name}</span>
                     <span className="ishin-count">
-                      {qi + 1} / {qs.length}もん
+                      {t('{0} / {1}もん', [qi + 1, qs.length])}
                     </span>
                   </header>
                   <p className="ishin-prompt">{q.prompt}</p>
@@ -364,9 +365,9 @@ export function IshinGame() {
                   ) : (
                     <div className="ishin-wait">
                       <PikuruCut art="think" height={72} />
-                      <p>えらんだ！ あいてを まってね</p>
+                      <p>{t('えらんだ！ あいてを まってね')}</p>
                       <button className="btn btn-small" onClick={() => facePick(side, undefined)}>
-                        えらびなおす
+                        {t('えらびなおす')}
                       </button>
                     </div>
                   )}
@@ -379,7 +380,7 @@ export function IshinGame() {
                 <div className="ishin-half-inner">
                   <RevealBody q={q} picks={final} size={size} small />
                   <button className="btn btn-go" onClick={next} data-testid="ishin-next">
-                    {qi + 1 < qs.length ? 'つぎの しつもん' : 'けっか'}
+                    {qi + 1 < qs.length ? t('つぎの しつもん') : t('けっか')}
                   </button>
                 </div>
               )}
@@ -399,7 +400,7 @@ export function IshinGame() {
       {phase === 'ask' && q && (
         <section className="party-card" data-testid="ishin-ask">
           <p className="party-round">
-            {qi + 1} / {qs.length}もん
+            {t('{0} / {1}もん', [qi + 1, qs.length])}
           </p>
           <p className="ishin-prompt">{q.prompt}</p>
           <ul className="ishin-preview">
@@ -411,7 +412,7 @@ export function IshinGame() {
             ))}
           </ul>
           <div className="party-actions">
-            <button className="btn btn-small" aria-label="しつもんを よみあげる" onClick={() => speak(q.prompt)}>
+            <button className="btn btn-small" aria-label={t('しつもんを よみあげる')} onClick={() => speak(q.prompt)}>
               🗣️
             </button>
             <button
@@ -424,7 +425,7 @@ export function IshinGame() {
               }}
               data-testid="ishin-go-pick"
             >
-              こっそり えらぶ
+              {t('こっそり えらぶ')}
             </button>
           </div>
         </section>
@@ -434,9 +435,9 @@ export function IshinGame() {
         <Handoff
           name={p.name}
           color={p.color}
-          sub={`${qi + 1} / ${qs.length}もん`}
-          note={`${p.name}の ひとに わたしてね。ほかの ひとは みないでね！`}
-          go={`${p.name}だけで えらぶ（タッチ）`}
+          sub={t('{0} / {1}もん', [qi + 1, qs.length])}
+          note={t('{0}の ひとに わたしてね。ほかの ひとは みないでね！', [p.name])}
+          go={t('{0}だけで えらぶ（タッチ）', [p.name])}
           onGo={() => {
             unlockAudio()
             stopSpeaking()
@@ -480,7 +481,7 @@ export function IshinGame() {
             }}
             data-testid="ishin-decide"
           >
-            {sel === null ? 'えらんでね' : 'これに きめた！'}
+            {sel === null ? t('えらんでね') : t('これに きめた！')}
           </button>
         </section>
       )}
@@ -488,11 +489,11 @@ export function IshinGame() {
       {phase === 'reveal' && q && history.length > 0 && (
         <section className="party-card party-wide" data-testid="ishin-reveal">
           <p className="party-round">
-            {qi + 1} / {qs.length}もん
+            {t('{0} / {1}もん', [qi + 1, qs.length])}
           </p>
           <RevealBody q={q} picks={history[history.length - 1]} size={size} />
           <button className="btn btn-go" onClick={next} data-testid="ishin-next">
-            {qi + 1 < qs.length ? 'つぎの しつもん' : 'けっか'}
+            {qi + 1 < qs.length ? t('つぎの しつもん') : t('けっか')}
           </button>
         </section>
       )}
@@ -504,18 +505,18 @@ export function IshinGame() {
           </div>
           {size === 2 ? (
             <>
-              <p className="party-round">{qs.length}もん中</p>
+              <p className="party-round">{t('{0}もん中', [qs.length])}</p>
               <p className="party-value" data-testid="ishin-score">
                 {scores[0]}
-                <small>もん そろった！</small>
+                <small>{t('もん そろった！')}</small>
               </p>
               <p className="ishin-rating">{rating(scores[0], qs.length)}</p>
-              {newBest && <p className="party-top">じこベスト こうしん！</p>}
+              {newBest && <p className="party-top">{t('じこベスト こうしん！')}</p>}
             </>
           ) : (
             <>
               <h2 className="party-game" data-testid="ishin-winner">
-                {scores[0] === scores[1] ? 'ひきわけ！' : `チーム「${TEAMS[scores[0] > scores[1] ? 0 : 1].name}」の かち！`}
+                {scores[0] === scores[1] ? t('ひきわけ！') : t('チーム「{0}」の かち！', [TEAMS[scores[0] > scores[1] ? 0 : 1].name])}
               </h2>
               <div className="party-teams">
                 {TEAMS.map((tm, k) => (
@@ -523,7 +524,7 @@ export function IshinGame() {
                     <span className="party-team" style={{ background: tm.color }}>
                       {tm.name}
                     </span>
-                    <b>{scores[k]}もん</b>
+                    <b>{t('{0}もん', [scores[k]])}</b>
                   </div>
                 ))}
               </div>
@@ -540,15 +541,15 @@ export function IshinGame() {
           <RewardList rewards={rewards} />
           <div className="party-actions">
             <button className="btn btn-go" onClick={start} data-testid="ishin-again">
-              もういちど
+              {t('もういちど')}
             </button>
             <button className="btn" onClick={() => setPhase('setup')}>
-              にんずう・しつもんを かえる
+              {t('にんずう・しつもんを かえる')}
             </button>
             <a className="btn" href="#/">
-              おわる
+              {t('おわる')}
             </a>
-            <button className="btn result-share" aria-label="きねんカード（おうちの人と いっしょに）" onClick={() => setShare(true)} data-testid="share-btn">
+            <button className="btn result-share" aria-label={t('きねんカード（おうちの人と いっしょに）')} onClick={() => setShare(true)} data-testid="share-btn">
               📸
             </button>
           </div>
@@ -556,7 +557,7 @@ export function IshinGame() {
       )}
 
       {phase !== 'pass' && phase !== 'pick' && (
-        <button className="btn btn-small nise-help" aria-label="あそびかた・ルール" onClick={() => setHelp(true)}>
+        <button className="btn btn-small nise-help" aria-label={t('あそびかた・ルール')} onClick={() => setHelp(true)}>
           ？
         </button>
       )}
@@ -566,9 +567,9 @@ export function IshinGame() {
           fixed
           card={{
             game: 'ishin',
-            gameTitle: 'いしんでんしん ダブルス',
-            title: size === 2 ? `${qs.length}もん中 ${scores[0]}もん そろった！` : scores[0] === scores[1] ? 'ひきわけ！' : `チーム「${TEAMS[scores[0] > scores[1] ? 0 : 1].name}」の かち！`,
-            sub: size === 2 ? rating(scores[0], qs.length) : `2ペア たいせん・${I_DECK_INFO[deck].label}`,
+            gameTitle: t('いしんでんしん ダブルス'),
+            title: size === 2 ? t('{0}もん中 {1}もん そろった！', [qs.length, scores[0]]) : scores[0] === scores[1] ? t('ひきわけ！') : t('チーム「{0}」の かち！', [TEAMS[scores[0] > scores[1] ? 0 : 1].name]),
+            sub: size === 2 ? rating(scores[0], qs.length) : t('2ペア たいせん・{0}', [I_DECK_INFO[deck].label]),
             face: 'ok',
             wear: getProgress().wear,
           }}

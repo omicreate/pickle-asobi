@@ -23,6 +23,7 @@ import { PikuruCut } from '../../ui/pikuruArt'
 import { choose, createSr, currentStep, FINAL_MULT, finishStep, isFinal, REVEAL_TIME, ROUNDS, SPOT_LABEL, SPOT_POINTS, SPOTS, stepSr, TAUNTS, toggleDouble } from './serveread'
 import type { ServeResult, Spot, SrEvent, SrState } from './serveread'
 import './serveread.css'
+import { t as tr } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -57,7 +58,7 @@ export function ServeReadGame({ paused, onRestart }: Props) {
   /** てわたしの幕（次に選ぶ人の色）。幕の間は時間を止める */
   const [curtain, setCurtain] = useState(false)
   const [, setTick] = useState(0)
-  const [notice, setNotice] = useState<NoticeData | null>({ title: `${ROUNDS}かい しょうぶ！`, sub: `さいごの ラウンドは とくてん ${FINAL_MULT}ばい`, face: 'think' })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: tr('{0}かい しょうぶ！', [ROUNDS]), sub: tr('さいごの ラウンドは とくてん {0}ばい', [FINAL_MULT]), face: 'think' })
   const [over, setOver] = useState<Side | null>(null)
   const [taunt, setTaunt] = useState(0)
   const noticeTimer = useRef(2.4)
@@ -78,7 +79,7 @@ export function ServeReadGame({ paused, onRestart }: Props) {
             const final = ev.step.side === game.server && game.serveNo === 0 && ev.final
             speak(final ? PHRASES.srFinal : turnLine(SIDE_NAME[ev.step.side]))
           } else if (ev.step.kind === 'first' && ev.step.side === game.server && game.serveNo === 0 && ev.final) {
-            setNotice({ title: 'ファイナル ラウンド！', sub: `とくてん ${FINAL_MULT}ばい！ ぎゃくてんの チャンス`, face: 'eh' })
+            setNotice({ title: tr('ファイナル ラウンド！'), sub: tr('とくてん {0}ばい！ ぎゃくてんの チャンス', [FINAL_MULT]), face: 'eh' })
             noticeTimer.current = 2
             speak(PHRASES.srFinal)
           } else if (ev.step.kind === 'last' && ev.step.side === game.server) {
@@ -155,7 +156,7 @@ export function ServeReadGame({ paused, onRestart }: Props) {
             {SIDE_NAME[0]} {game.score[0]}
           </span>
           <span className="sr-round">
-            {game.round > ROUNDS ? 'サドンデス' : `ラウンド ${game.round}/${ROUNDS}`}
+            {game.round > ROUNDS ? tr('サドンデス') : tr('ラウンド {0}/{1}', [game.round, ROUNDS])}
             {final && <b className="sr-final">×{FINAL_MULT}</b>}
           </span>
           <span className="sr-pass-score" style={{ background: SIDE_COLOR[1] }}>
@@ -167,9 +168,9 @@ export function ServeReadGame({ paused, onRestart }: Props) {
             <Handoff
               name={SIDE_NAME[picker]}
               color={SIDE_COLOR[picker]}
-              sub={`${game.server === picker ? 'サーブ（ねらう ところ）' : 'レシーブ（まつ ところ）'}${final ? `・とくてん ${FINAL_MULT}ばい！` : ''}`}
-              note={`${SIDE_NAME[picker]}の ひとに わたしてね。わたす ときの ゆさぶり：💬 ${TAUNTS[taunt]}`}
-              go={`${SIDE_NAME[picker]}だけで みる（タッチ）`}
+              sub={`${game.server === picker ? tr('サーブ（ねらう ところ）') : tr('レシーブ（まつ ところ）')}${final ? tr('・とくてん {0}ばい！', [FINAL_MULT]) : ''}`}
+              note={tr('{0}の ひとに わたしてね。わたす ときの ゆさぶり：💬 {1}', [SIDE_NAME[picker], TAUNTS[taunt]])}
+              go={tr('{0}だけで みる（タッチ）', [SIDE_NAME[picker]])}
               onGo={() => {
                 unlockAudio()
                 sfx.tick()
@@ -207,8 +208,8 @@ export function ServeReadGame({ paused, onRestart }: Props) {
         {over !== null && (
           <Result
             single
-            title={() => `${SIDE_NAME[over]}の かち！ よみの てんさい`}
-            sub={() => `${SIDE_NAME[0]} ${game.score[0]} たい ${game.score[1]} ${SIDE_NAME[1]}`}
+            title={() => tr('{0}の かち！ よみの てんさい', [SIDE_NAME[over]])}
+            sub={() => tr('{0} {1} たい {2} {3}', [SIDE_NAME[0], game.score[0], game.score[1], SIDE_NAME[1]])}
             face={() => 'ok'}
             onAgain={onRestart}
             extra={<Summary results={game.results} />}
@@ -226,10 +227,10 @@ export function ServeReadGame({ paused, onRestart }: Props) {
             <header className="sr-head" hidden={over !== null}>
               <span className={`side-chip side-chip-${side}`}>{SIDE_NAME[side]}</span>
               <span className="sr-round">
-                {game.round > ROUNDS ? 'サドンデス' : `ラウンド ${game.round}/${ROUNDS}`}
+                {game.round > ROUNDS ? tr('サドンデス') : tr('ラウンド {0}/{1}', [game.round, ROUNDS])}
                 {final && <b className="sr-final">×{FINAL_MULT}</b>}
               </span>
-              <span className="sr-serve">{game.server === side ? 'サーブ' : 'レシーブ'}</span>
+              <span className="sr-serve">{game.server === side ? tr('サーブ') : tr('レシーブ')}</span>
             </header>
             {game.phase === 'pick' && step?.side === side && (
               <PickPanel
@@ -263,8 +264,8 @@ export function ServeReadGame({ paused, onRestart }: Props) {
       <Notice data={notice} />
       {over !== null && (
         <Result
-          title={(side) => (side === over ? 'かち！ よみの てんさい' : 'おしい！')}
-          sub={(side) => `${game.score[side]} たい ${game.score[side === 0 ? 1 : 0]}`}
+          title={(side) => (side === over ? tr('かち！ よみの てんさい') : tr('おしい！'))}
+          sub={(side) => tr('{0} たい {1}', [game.score[side], game.score[side === 0 ? 1 : 0]])}
           face={(side) => (side === over ? 'ok' : 'oops')}
           onAgain={onRestart}
           extra={<Summary results={game.results} />}
@@ -276,7 +277,7 @@ export function ServeReadGame({ paused, onRestart }: Props) {
 
 function Timer({ left, total }: { left: number; total: number }) {
   return (
-    <div className="sr-timer" aria-label={`のこり ${Math.ceil(left)}びょう`}>
+    <div className="sr-timer" aria-label={tr('のこり {0}びょう', [Math.ceil(left)])}>
       <i style={{ width: `${Math.max(0, Math.min(1, left / total)) * 100}%` }} data-low={left <= 5 || undefined} />
       <span>{Math.max(0, Math.ceil(left))}</span>
     </div>
@@ -303,24 +304,24 @@ function PickPanel({
   const total = last ? 8 : game.pickTime
   return (
     <div className="sr-pick" data-testid={`sr-pick-${side}`}>
-      <p className="sr-title">{last ? 'さいごの チャンス！ かえる？' : serving ? 'どこを ねらう？（こっそり）' : 'どこで まつ？（こっそり）'}</p>
-      <div className="sr-buttons" role="radiogroup" aria-label={serving ? 'ねらう ところ' : 'まつ ところ'}>
+      <p className="sr-title">{last ? tr('さいごの チャンス！ かえる？') : serving ? tr('どこを ねらう？（こっそり）') : tr('どこで まつ？（こっそり）')}</p>
+      <div className="sr-buttons" role="radiogroup" aria-label={serving ? tr('ねらう ところ') : tr('まつ ところ')}>
         {SPOTS.map((spot) => (
           <button key={spot} className="sr-btn" role="radio" aria-checked={mine === spot} data-testid={`sr-${side}-${spot}`} onPointerDown={() => onChoose(spot)}>
             <SpotIcon spot={spot} />
             <span>{SPOT_LABEL[spot]}</span>
-            <small>{SPOT_POINTS[spot] * (isFinal(game) ? FINAL_MULT : 1)}てん</small>
+            <small>{tr('{0}てん', [SPOT_POINTS[spot] * (isFinal(game) ? FINAL_MULT : 1)])}</small>
           </button>
         ))}
       </div>
       <div className="sr-row">
         {!game.doubleUsed[side] && (
           <button className="sr-double" aria-pressed={game.doubleNow[side]} onPointerDown={onDouble} data-testid={`sr-double-${side}`}>
-            2ばい カード{game.doubleNow[side] ? ' つかう！' : ''}
+            {tr('2ばい カード')}{game.doubleNow[side] ? tr(' つかう！') : ''}
           </button>
         )}
         <button className="btn btn-go sr-done" disabled={!mine} onPointerDown={onDone} data-testid={`sr-done-${side}`}>
-          {last ? (mine ? 'これで けってい！' : 'えらんでね') : mine ? 'きめた！' : 'えらんでね'}
+          {last ? (mine ? tr('これで けってい！') : tr('えらんでね')) : mine ? tr('きめた！') : tr('えらんでね')}
         </button>
       </div>
       <Timer left={game.left} total={total} />
@@ -334,9 +335,9 @@ function WaitPanel({ game, picker, last, taunt }: { game: SrState; picker: Side;
       <PikuruCut art="oops" height={84} />
       <div>
         <p className="sr-title">
-          {SIDE_NAME[picker]}が {last ? 'さいごの まよい中…' : 'えらんでいるよ'}
+          {tr('{0}が', [SIDE_NAME[picker]])}{' '}{last ? tr('さいごの まよい中…') : tr('えらんでいるよ')}
         </p>
-        <p className="sr-close">めを とじてね！ はなしかけるのは OK</p>
+        <p className="sr-close">{tr('めを とじてね！ はなしかけるのは OK')}</p>
         <p className="sr-taunt">💬 {taunt}</p>
       </div>
       <Timer left={game.left} total={last ? 8 : game.pickTime} />
@@ -367,25 +368,25 @@ function RevealPanel({ r, t, side }: { r: ServeResult; t: number; side: Side }) 
       <canvas ref={ref} style={{ width: W, height: H }} />
       <div className="sr-picks">
         <span style={{ color: SIDE_COLOR[r.server] }}>
-          サーブ：{SPOT_LABEL[r.serve]}
-          {r.auto[r.server] ? '（じかんぎれ）' : ''}
+          {tr('サーブ：{0}', [SPOT_LABEL[r.serve]])}
+          {r.auto[r.server] ? tr('（じかんぎれ）') : ''}
         </span>
         <span style={{ color: SIDE_COLOR[r.receiver] }}>
-          レシーブ：{t >= 0.4 ? SPOT_LABEL[r.wait] : '？'}
-          {t >= 0.4 && r.auto[r.receiver] ? '（じかんぎれ）' : ''}
+          {tr('レシーブ：{0}', [t >= 0.4 ? SPOT_LABEL[r.wait] : '？'])}
+          {t >= 0.4 && r.auto[r.receiver] ? tr('（じかんぎれ）') : ''}
         </span>
       </div>
       {t >= T_TEXT && (
         <p className="sr-big" data-read={r.read || undefined}>
-          {r.read ? 'よんだ！ リターン！' : 'サービスエース！'}
+          {r.read ? tr('よんだ！ リターン！') : tr('サービスエース！')}
         </p>
       )}
       {t >= T_POINTS && (
         <p className="sr-points" data-mine={mine || undefined}>
           {SIDE_NAME[r.gainer]} +{r.points}
-          {r.final && <b>ファイナル×{FINAL_MULT}</b>}
-          {r.doubles[r.gainer] && <b>2ばい カード！</b>}
-          {r.doubles[r.gainer === 0 ? 1 : 0] && <em>（{SIDE_NAME[r.gainer === 0 ? 1 : 0]}の 2ばいカードは むだに…）</em>}
+          {r.final && <b>{tr('ファイナル×{0}', [FINAL_MULT])}</b>}
+          {r.doubles[r.gainer] && <b>{tr('2ばい カード！')}</b>}
+          {r.doubles[r.gainer === 0 ? 1 : 0] && <em>{tr('（{0}の 2ばいカードは むだに…）', [SIDE_NAME[r.gainer === 0 ? 1 : 0]])}</em>}
         </p>
       )}
     </div>
@@ -480,12 +481,12 @@ function Summary({ results }: { results: ServeResult[] }) {
     <ul className="sr-summary">
       {rounds.map((rd) => (
         <li key={rd}>
-          <b>{rd > ROUNDS ? 'サドンデス' : `ラウンド${rd}`}</b>
+          <b>{rd > ROUNDS ? tr('サドンデス') : tr('ラウンド{0}', [rd])}</b>
           {results
             .filter((r) => r.round === rd)
             .map((r, i) => (
               <span key={i} style={{ color: SIDE_COLOR[r.gainer] }}>
-                {r.read ? 'よんだ' : 'エース'} +{r.points}
+                {r.read ? tr('よんだ') : tr('エース')} +{r.points}
               </span>
             ))}
         </li>

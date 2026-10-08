@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 /**
  * パドルの絵。ピクルくんの原画（ブランド/ピクルくん）のパドルと同じ形で描く：
  * 角の丸い面・内側の明るい縁・濃い緑の輪郭・握り・握りの端のキャップ。
@@ -39,10 +40,10 @@ export interface ShapeInfo {
  * ながめ：17×7インチ（43.2×17.8cm、握り14cm）。ひろめ：15.25×8.75インチ（38.7×22.2cm、握り12.1cm）。
  */
 export const SHAPES: Record<PaddleShape, ShapeInfo> = {
-  std: { label: 'スタンダード', size: 'ながさ 41cm・はば 20cm', ratio: FACE_RATIO, grip: GRIP_RATIO, corner: 0.36, faceCm: 28 },
-  long: { label: 'ながめ', size: 'ながさ 43cm・はば 18cm', ratio: 17.8 / 29.2, grip: 14 / 29.2, corner: 0.36, faceCm: 29.2 },
-  wide: { label: 'ひろめ', size: 'ながさ 39cm・はば 22cm', ratio: 22.2 / 26.6, grip: 12.1 / 26.6, corner: 0.3, faceCm: 26.6 },
-  round: { label: 'まるがた', size: 'ながさ 41cm・はば 20cm', ratio: FACE_RATIO, grip: GRIP_RATIO, corner: 0.5, faceCm: 28 },
+  std: { label: t('スタンダード'), size: t('ながさ 41cm・はば 20cm'), ratio: FACE_RATIO, grip: GRIP_RATIO, corner: 0.36, faceCm: 28 },
+  long: { label: t('ながめ'), size: t('ながさ 43cm・はば 18cm'), ratio: 17.8 / 29.2, grip: 14 / 29.2, corner: 0.36, faceCm: 29.2 },
+  wide: { label: t('ひろめ'), size: t('ながさ 39cm・はば 22cm'), ratio: 22.2 / 26.6, grip: 12.1 / 26.6, corner: 0.3, faceCm: 26.6 },
+  round: { label: t('まるがた'), size: t('ながさ 41cm・はば 20cm'), ratio: FACE_RATIO, grip: GRIP_RATIO, corner: 0.5, faceCm: 28 },
 }
 
 export type Pattern = 'plain' | 'dots' | 'stripe' | 'star' | 'heart' | 'band' | 'rainbow' | 'gold'
@@ -56,21 +57,21 @@ export interface Design {
 
 /** パドルの色と もよう */
 export const DESIGNS = {
-  orange: { label: 'オレンジ', base: '#ff8a3d', pattern: 'plain' },
-  blue: { label: 'あお', base: '#3d9be9', pattern: 'plain' },
-  lime: { label: 'ライム', base: '#d4f03c', pattern: 'plain' },
-  red: { label: 'あか', base: '#e5533d', pattern: 'plain' },
-  dots: { label: 'みずたま', base: '#ff7eb6', pattern: 'dots', accent: '#ffffff' },
-  stripe: { label: 'しましま', base: '#12302b', pattern: 'stripe', accent: '#d4f03c' },
-  star: { label: 'ほし', base: '#8b5cf6', pattern: 'star', accent: '#ffd84d' },
-  heart: { label: 'ハート', base: '#ffffff', pattern: 'heart', accent: '#ff5d8f' },
-  pikuru: { label: 'ピクルくん モデル', base: '#6bb33f', pattern: 'band', accent: '#d4f03c' },
-  rainbow: { label: 'にじいろ', base: '#ff8a3d', pattern: 'rainbow' },
-  gold: { label: 'きんいろ', base: '#f5c400', pattern: 'gold' },
-  ocean: { label: 'うみ', base: '#3d9be9', pattern: 'stripe', accent: '#ffffff' },
-  sakura: { label: 'さくら', base: '#ffc2d9', pattern: 'heart', accent: '#ff5d8f' },
-  yozora: { label: 'よぞら', base: '#24497a', pattern: 'star', accent: '#ffd84d' },
-  champion: { label: 'チャンピオン', base: '#12302b', pattern: 'star', accent: '#f5c400' },
+  orange: { label: t('オレンジ'), base: '#ff8a3d', pattern: 'plain' },
+  blue: { label: t('あお'), base: '#3d9be9', pattern: 'plain' },
+  lime: { label: t('ライム'), base: '#d4f03c', pattern: 'plain' },
+  red: { label: t('あか'), base: '#e5533d', pattern: 'plain' },
+  dots: { label: t('みずたま'), base: '#ff7eb6', pattern: 'dots', accent: '#ffffff' },
+  stripe: { label: t('しましま'), base: '#12302b', pattern: 'stripe', accent: '#d4f03c' },
+  star: { label: t('ほし'), base: '#8b5cf6', pattern: 'star', accent: '#ffd84d' },
+  heart: { label: t('ハート'), base: '#ffffff', pattern: 'heart', accent: '#ff5d8f' },
+  pikuru: { label: t('ピクルくん モデル'), base: '#6bb33f', pattern: 'band', accent: '#d4f03c' },
+  rainbow: { label: t('にじいろ'), base: '#ff8a3d', pattern: 'rainbow' },
+  gold: { label: t('きんいろ'), base: '#f5c400', pattern: 'gold' },
+  ocean: { label: t('うみ'), base: '#3d9be9', pattern: 'stripe', accent: '#ffffff' },
+  sakura: { label: t('さくら'), base: '#ffc2d9', pattern: 'heart', accent: '#ff5d8f' },
+  yozora: { label: t('よぞら'), base: '#24497a', pattern: 'star', accent: '#ffd84d' },
+  champion: { label: t('チャンピオン'), base: '#12302b', pattern: 'star', accent: '#f5c400' },
 } satisfies Record<string, Design>
 
 export type DesignId = keyof typeof DESIGNS

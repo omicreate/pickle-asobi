@@ -13,10 +13,11 @@
  * 点が入るのはサーブ側だけ（サイドアウト方式。PBK-0004）の本物のルールとはちがう、読み合いの遊び。
  */
 import type { Side } from '../../core/players'
+import { t } from '../../i18n'
 
 export type Spot = 'wide' | 'center' | 'body'
 export const SPOTS: Spot[] = ['wide', 'center', 'body']
-export const SPOT_LABEL: Record<Spot, string> = { wide: 'そと', center: 'まんなか', body: 'からだ' }
+export const SPOT_LABEL: Record<Spot, string> = { wide: t('そと'), center: t('まんなか'), body: t('からだ') }
 /** ねらった所の点（読まれなければサーブ側、読まれたらレシーブ側に入る） */
 export const SPOT_POINTS: Record<Spot, number> = { wide: 3, center: 2, body: 1 }
 export const ROUNDS = 3
@@ -245,14 +246,14 @@ export function stepSr(s: SrState, dt: number, rand: () => number = Math.random)
 
 /** 相手が選んでいるあいだの「ゆさぶり」のヒント（話しかけてよい） */
 export const TAUNTS = [
-  '「そとに うつって もう きめてるよ」と いってみよう',
-  '「さっきと おなじ ところかもね」と いってみよう',
-  'あいての かおを じーっと みてみよう',
-  '「2ばい カード、つかっちゃおうかな」と いってみよう',
-  '「まんなかが すきなんだよね」と はなしてみよう',
-  'わざと むずかしい かおを してみよう',
-  '「からだは ねらわないよ」と いってみよう',
-  'あいての くせを おもいだそう',
-  '「つぎで ぎゃくてん するからね」と いってみよう',
-  'わらって、なにも いわないで みよう',
+  t('「そとに うつって もう きめてるよ」と いってみよう'),
+  t('「さっきと おなじ ところかもね」と いってみよう'),
+  t('あいての かおを じーっと みてみよう'),
+  t('「2ばい カード、つかっちゃおうかな」と いってみよう'),
+  t('「まんなかが すきなんだよね」と はなしてみよう'),
+  t('わざと むずかしい かおを してみよう'),
+  t('「からだは ねらわないよ」と いってみよう'),
+  t('あいての くせを おもいだそう'),
+  t('「つぎで ぎゃくてん するからね」と いってみよう'),
+  t('わらって、なにも いわないで みよう'),
 ]

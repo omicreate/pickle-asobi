@@ -5,6 +5,7 @@
  * 場は幅100・高さ160。かごは下にあり、指で左右に動かす。
  */
 import type { Level } from '../../core/players'
+import { t } from '../../i18n'
 
 export const FIELD_W = 100
 export const FIELD_H = 160
@@ -20,13 +21,13 @@ export type ItemKind = 'pickle' | 'gold' | 'tennis' | 'soccer' | 'basket' | 'bas
 export const GOOD: ItemKind[] = ['pickle', 'gold']
 
 export const ITEM_NAME: Record<ItemKind, string> = {
-  pickle: 'ピックルボール',
-  gold: 'きんの ピックルボール',
-  tennis: 'テニスボール',
-  soccer: 'サッカーボール',
-  basket: 'バスケットボール',
-  baseball: 'やきゅうの ボール',
-  shuttle: 'バドミントンの シャトル',
+  pickle: t('ピックルボール'),
+  gold: t('きんの ピックルボール'),
+  tennis: t('テニスボール'),
+  soccer: t('サッカーボール'),
+  basket: t('バスケットボール'),
+  baseball: t('やきゅうの ボール'),
+  shuttle: t('バドミントンの シャトル'),
 }
 
 export interface CatchLevel {

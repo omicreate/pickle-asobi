@@ -23,6 +23,7 @@ import { PikuruCut } from '../../ui/pikuruArt'
 import { BALL_R, createLift, FIELD_H, FIELD_W, GRAVITY, LIFT_LEVEL, movePaddle, stepLift } from './lift'
 import type { LiftState } from './lift'
 import './lift.css'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -47,7 +48,7 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
   const [count, setCount] = useState(0)
   const [lives, setLives] = useState(game.lives)
   const [face, setFace] = useState<Face>('think')
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'かげの ところで うけてね', face: 'think', only: 0 })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: t('かげの ところで うけてね'), face: 'think', only: 0 })
   const [over, setOver] = useState<{ count: number; best: number } | null>(null)
 
   const view = useMemo(() => {
@@ -84,7 +85,7 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
           if (ev.count % 10 === 0) {
             sfx.ok()
             setFace('ok')
-            setNotice({ title: `${ev.count}かい！`, sub: 'すごい！', face: 'ok', only: 0 })
+            setNotice({ title: t('{0}かい！', [ev.count]), sub: t('すごい！'), face: 'ok', only: 0 })
             noticeTimer.current = 1.2
           } else if (ev.count % 10 === 2) setFace('think')
         } else if (ev.type === 'drop') {
@@ -93,7 +94,7 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
         } else if (ev.type === 'again') {
           setLives(ev.lives)
           setFace('think')
-          setNotice({ title: 'もう いちど！', sub: `のこり ${ev.lives}かい・かずは つづきから`, face: 'think', only: 0 })
+          setNotice({ title: t('もう いちど！'), sub: t('のこり {0}かい・かずは つづきから', [ev.lives]), face: 'think', only: 0 })
           noticeTimer.current = 1.4
         } else if (ev.type === 'over') {
           sfx.fanfare()
@@ -141,12 +142,12 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
       />
       <div className="lift-hud">
         <PikuruCut art={face} height={52} />
-        <span className="lift-count" aria-label={`${count}かい`}>
+        <span className="lift-count" aria-label={t('{0}かい', [count])}>
           {count}
-          <small>かい</small>
+          <small>{t('かい')}</small>
         </span>
         {game.lives > 0 && LIFT_LEVEL[level].lives > 1 && !contest && (
-          <span className="lift-lives" aria-label={`のこり ${lives}かい`}>
+          <span className="lift-lives" aria-label={t('のこり {0}かい', [lives])}>
             {'❤️'.repeat(Math.max(0, lives))}
           </span>
         )}
@@ -155,8 +156,8 @@ export function LiftGame({ levels, paused, onRestart }: Props) {
       {over && !contest && (
         <Result
           single
-          title={() => (LIFT_LEVEL[level].lives > 1 && !contest ? `ぜんぶで ${over.count}かい！` : `${over.count}かい つづいた！`)}
-          sub={() => (over.count >= over.best && over.count > 0 ? 'さいこう きろく！' : `さいこうは ${over.best}かい（${LEVEL_INFO[level].label}）`)}
+          title={() => (LIFT_LEVEL[level].lives > 1 && !contest ? t('ぜんぶで {0}かい！', [over.count]) : t('{0}かい つづいた！', [over.count]))}
+          sub={() => (over.count >= over.best && over.count > 0 ? t('さいこう きろく！') : t('さいこうは {0}かい（{1}）', [over.best, LEVEL_INFO[level].label]))}
           face={() => (over.count >= over.best && over.count > 0 ? 'ok' : 'eh')}
           onAgain={onRestart}
         />

@@ -15,6 +15,7 @@ import { makeCard, shareText } from './shareCard'
 import type { CardData } from './shareCard'
 import { ParentGate } from './ParentGate'
 import './share.css'
+import { t } from '../i18n'
 
 type Step = 'gate' | 'making' | 'ready' | 'error'
 
@@ -68,48 +69,48 @@ export function ShareSheet({ card, onClose, flipped = false, fixed = false }: { 
       await navigator.share({ files: [file] })
       countShare(card.game ?? '')
     } catch (e) {
-      if ((e as Error)?.name !== 'AbortError') setNote('うまく いかないときは、画像を長押しして「"写真"に保存」を選んでください。')
+      if ((e as Error)?.name !== 'AbortError') setNote(t('うまく いかないときは、画像を長押しして「"写真"に保存」を選んでください。'))
     }
   }
 
   const hint = saveByShare
-    ? '「写真に保存」を押して、出てきたメニューの「画像を保存」を選んでください。'
+    ? t('「写真に保存」を押して、出てきたメニューの「画像を保存」を選んでください。')
     : saveByDownload
-      ? '保存した画像は「ダウンロード」に入ります。保存できないときは、画像を長押ししてください。'
+      ? t('保存した画像は「ダウンロード」に入ります。保存できないときは、画像を長押ししてください。')
       : inApp
-        ? `${inApp} の中では保存できないことがあります。画像を長押しして保存するか、Safari・Chrome で開きなおしてください。`
-        : '画像を長押しして「"写真"に保存」を選んでください。'
+        ? t('{0} の中では保存できないことがあります。画像を長押しして保存するか、Safari・Chrome で開きなおしてください。', [t(inApp)])
+        : t('画像を長押しして「"写真"に保存」を選んでください。')
 
   return (
     <div className={`share-backdrop ${fixed ? 'share-backdrop-fixed' : ''}`} onClick={onClose}>
       <div className="share-sheet" data-flipped={flipped || undefined} onClick={(e) => e.stopPropagation()} data-testid="share-sheet">
         {step === 'gate' && <ParentGate onPass={() => setStep('making')} onCancel={onClose} />}
-        {step === 'making' && <p className="share-wait">カードを つくっています…</p>}
-        {step === 'error' && <p className="share-wait">カードを つくれませんでした。</p>}
+        {step === 'making' && <p className="share-wait">{t('カードを つくっています…')}</p>}
+        {step === 'error' && <p className="share-wait">{t('カードを つくれませんでした。')}</p>}
         {step === 'ready' && url && (
           <>
-            <h2 className="share-title">きねんカード</h2>
+            <h2 className="share-title">{t('きねんカード')}</h2>
             <img className="share-img" src={url} alt={`${card.gameTitle} ${card.title}`} />
-            <p className="share-note">名前や顔写真は入っていません。共有先は保護者の方が選んでください。</p>
+            <p className="share-note">{t('名前や顔写真は入っていません。共有先は保護者の方が選んでください。')}</p>
             <div className="share-actions">
               {canShare && (
                 <button className="btn btn-go" onClick={share}>
-                  シェアする
+                  {t('シェアする')}
                 </button>
               )}
               {saveByShare && (
                 <button className="btn" onClick={saveToPhotos} data-testid="share-save">
-                  写真に保存
+                  {t('写真に保存')}
                 </button>
               )}
               {saveByDownload && (
                 <a className="btn" href={url} download="pickle-asobi.png" onClick={() => countShare(card.game ?? '')} data-testid="share-save">
-                  画像を保存
+                  {t('画像を保存')}
                 </a>
               )}
               {inApp && (
                 <a className="btn" href="#/install" onClick={onClose}>
-                  Safari・Chrome で ひらく
+                  {t('Safari・Chrome で ひらく')}
                 </a>
               )}
             </div>
@@ -120,7 +121,7 @@ export function ShareSheet({ card, onClose, flipped = false, fixed = false }: { 
         )}
         {step !== 'gate' && (
           <button className="btn btn-quiet" onClick={onClose}>
-            とじる
+            {t('とじる')}
           </button>
         )}
       </div>

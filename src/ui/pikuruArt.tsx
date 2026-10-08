@@ -8,16 +8,17 @@ import { getProgress, useProgress } from '../core/progress'
 import { ART_SIZE, drawWear, setGlow } from './accessories'
 import type { Wear } from './accessories'
 import type { Face } from './Pikuru'
+import { t } from '../i18n'
 
 export type CutArt = Face | 'full' | 'run'
 
 const ALT: Record<CutArt, string> = {
-  think: 'かんがえる ピクルくん',
-  ok: 'よろこぶ ピクルくん',
-  eh: 'おどろく ピクルくん',
-  oops: 'ドンマイの ピクルくん',
-  full: 'ピクルくん',
-  run: 'はしる ピクルくん',
+  think: t('かんがえる ピクルくん'),
+  ok: t('よろこぶ ピクルくん'),
+  eh: t('おどろく ピクルくん'),
+  oops: t('ドンマイの ピクルくん'),
+  full: t('ピクルくん'),
+  run: t('はしる ピクルくん'),
 }
 
 const src = (art: CutArt) => `${import.meta.env.BASE_URL}pikuru/cut-${art}.png`

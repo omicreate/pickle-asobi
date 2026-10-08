@@ -17,6 +17,7 @@ import { PikuruCut } from '../../ui/pikuruArt'
 import { createRx, secText, stepRx, tapRx, totals, TRIES } from './reaction'
 import type { RxEvent, RxState } from './reaction'
 import './reaction.css'
+import { t as tr } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -103,16 +104,16 @@ export function ReactionGame({ levels, paused, onRestart }: Props) {
         </span>
       </div>
       <div className="rx-machine">
-        <span>ピクルマシン</span>
+        <span>{tr('ピクルマシン')}</span>
       </div>
       <div className="rx-center">
-        {game.phase === 'ready' && <p className="rx-msg">ボールが きたら すぐ タップ！</p>}
-        {game.phase === 'wait' && <p className="rx-msg rx-dim">まだだよ…</p>}
-        {game.phase === 'fake' && <div className="rx-ball rx-fake" aria-label="フェイント" />}
-        {game.phase === 'go' && <div className="rx-ball" aria-label="ボール" />}
+        {game.phase === 'ready' && <p className="rx-msg">{tr('ボールが きたら すぐ タップ！')}</p>}
+        {game.phase === 'wait' && <p className="rx-msg rx-dim">{tr('まだだよ…')}</p>}
+        {game.phase === 'fake' && <div className="rx-ball rx-fake" aria-label={tr('フェイント')} />}
+        {game.phase === 'go' && <div className="rx-ball" aria-label={tr('ボール')} />}
         {game.phase === 'shown' && game.last && (
           <p className="rx-last" data-kind={game.last.kind}>
-            {game.last.kind === 'foul' ? 'フライング！' : game.last.kind === 'slow' ? 'おそい！' : secText(game.last.ms)}
+            {game.last.kind === 'foul' ? tr('フライング！') : game.last.kind === 'slow' ? tr('おそい！') : secText(game.last.ms)}
           </p>
         )}
       </div>
@@ -126,17 +127,17 @@ export function ReactionGame({ levels, paused, onRestart }: Props) {
       {over && !contest && (
         <Result
           single
-          title={() => `へいきん ${secText(over.avg)}`}
+          title={() => tr('へいきん {0}', [secText(over.avg)])}
           sub={() =>
-            (LEVEL_INFO[level].pressDelay ? `ハンデこみ ${secText(over.score)}。` : '') +
-            (over.score <= over.best ? 'さいこう きろく！' : `さいこうは ${secText(over.best)}（${LEVEL_INFO[level].label}）`)
+            (LEVEL_INFO[level].pressDelay ? tr('ハンデこみ {0}。', [secText(over.score)]) : '') +
+            (over.score <= over.best ? tr('さいこう きろく！') : tr('さいこうは {0}（{1}）', [secText(over.best), LEVEL_INFO[level].label]))
           }
           face={() => (over.score <= over.best ? 'ok' : 'eh')}
           onAgain={onRestart}
         />
       )}
       <span className="sr-only" aria-live="polite">
-        {t.avg ? `へいきん ${secText(t.avg)}` : ''}
+        {t.avg ? tr('へいきん {0}', [secText(t.avg)]) : ''}
       </span>
     </div>
   )

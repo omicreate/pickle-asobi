@@ -21,6 +21,7 @@ import { drawPikuruArt } from '../../ui/pikuruArt'
 import { BASKET_Y, CATCH_LEVEL, CONTEST_TIME, createCatch, FIELD_H, FIELD_W, ITEM_NAME, ITEM_R, moveBasket, stepCatch } from './catch'
 import type { CatchState, Item, ItemKind } from './catch'
 import '../lift/lift.css'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -33,11 +34,11 @@ const HUD = 64
 
 /** まちがえたときの ひとこと（見分けかた） */
 const WHY: Partial<Record<ItemKind, string>> = {
-  tennis: 'けが はえていて、あなが ないよ',
-  soccer: 'ピックルボールより ずっと おおきいよ',
-  basket: 'ピックルボールより ずっと おおきいよ',
-  baseball: 'ぬいめが あって、あなが ないよ',
-  shuttle: 'はねで とぶよ',
+  tennis: t('けが はえていて、あなが ないよ'),
+  soccer: t('ピックルボールより ずっと おおきいよ'),
+  basket: t('ピックルボールより ずっと おおきいよ'),
+  baseball: t('ぬいめが あって、あなが ないよ'),
+  shuttle: t('はねで とぶよ'),
 }
 
 export function CatchGame({ levels, paused, onRestart }: Props) {
@@ -52,7 +53,7 @@ export function CatchGame({ levels, paused, onRestart }: Props) {
   const faceTimer = useRef(0)
   const [hud, setHud] = useState({ score: 0, lives: game.lives, time: Math.ceil(game.timeLimit) })
   const [face, setFace] = useState<Face>('think')
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'あなの ある ボールを とろう', face: 'think', only: 0 })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: t('あなの ある ボールを とろう'), face: 'think', only: 0 })
   const [over, setOver] = useState<{ score: number; caught: number; best: number } | null>(null)
   const faceRef = useRef<Face>('think')
   faceRef.current = face
@@ -98,7 +99,7 @@ export function CatchGame({ levels, paused, onRestart }: Props) {
           case 'good':
             if (ev.kind === 'gold') {
               sfx.ok()
-              setNotice({ title: 'きんの ボール！', sub: '+3てん', face: 'ok', only: 0 })
+              setNotice({ title: t('きんの ボール！'), sub: t('+3てん'), face: 'ok', only: 0 })
               noticeTimer.current = 1
             } else sfx.pop(0.6)
             react('ok', 0.6)
@@ -107,7 +108,7 @@ export function CatchGame({ levels, paused, onRestart }: Props) {
             sfx.ng()
             react('oops', 1.2)
             if (ev.lives > 0) {
-              setNotice({ title: `${ITEM_NAME[ev.kind]}は ちがうよ！`, sub: WHY[ev.kind], face: 'oops', only: 0 })
+              setNotice({ title: t('{0}は ちがうよ！', [ITEM_NAME[ev.kind]]), sub: WHY[ev.kind], face: 'oops', only: 0 })
               noticeTimer.current = 1.6
             }
             break
@@ -162,29 +163,29 @@ export function CatchGame({ levels, paused, onRestart }: Props) {
         onContextMenu={(e) => e.preventDefault()}
       />
       <div className="catch-hud">
-        <span className="jump-lives" aria-label={`ライフ ${hud.lives}`} style={{ fontSize: 18, letterSpacing: -2 }}>
+        <span className="jump-lives" aria-label={t('ライフ {0}', [hud.lives])} style={{ fontSize: 18, letterSpacing: -2 }}>
           {'❤️'.repeat(Math.max(0, hud.lives))}
         </span>
-        <span className="catch-time" aria-label={`のこり ${hud.time}びょう`}>
+        <span className="catch-time" aria-label={t('のこり {0}びょう', [hud.time])}>
           ⏱ {hud.time}
         </span>
         <span className="catch-score" style={{ marginLeft: 'auto', fontSize: 32 }}>
           {hud.score}
-          <small>てん</small>
+          <small>{t('てん')}</small>
         </span>
       </div>
       <Notice data={notice} />
       {over && !contest && (
         <Result
           single
-          title={() => `${over.score}てん！`}
+          title={() => t('{0}てん！', [over.score])}
           sub={() =>
-            `ピックルボールを ${over.caught}こ とったよ。` +
-            (over.score >= over.best && over.score > 0 ? 'さいこう きろく！' : `さいこうは ${over.best}てん（${LEVEL_INFO[level].label}）`)
+            t('ピックルボールを {0}こ とったよ。', [over.caught]) +
+            (over.score >= over.best && over.score > 0 ? t('さいこう きろく！') : t('さいこうは {0}てん（{1}）', [over.best, LEVEL_INFO[level].label]))
           }
           face={() => (over.score >= over.best && over.score > 0 ? 'ok' : 'eh')}
           onAgain={onRestart}
-          extra={<p className="result-sub">あなが あいているのが ピックルボール！</p>}
+          extra={<p className="result-sub">{t('あなが あいているのが ピックルボール！')}</p>}
         />
       )}
     </div>

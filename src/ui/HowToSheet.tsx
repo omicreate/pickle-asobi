@@ -9,6 +9,7 @@ import type { GameId } from '../shell/games'
 import { HOWTO, howtoSpeech } from '../shell/howto'
 import { PikuruCut } from './pikuruArt'
 import './howto.css'
+import { t } from '../i18n'
 
 export function HowToSheet({
   game,
@@ -36,64 +37,64 @@ export function HowToSheet({
         className="howto-sheet"
         role="dialog"
         aria-modal="true"
-        aria-label={`${info.title}の あそびかた`}
+        aria-label={t('{0}の あそびかた', [info.title])}
         data-flipped={flipped || undefined}
         onClick={(e) => e.stopPropagation()}
       >
         <header className="howto-head">
           <PikuruCut art="think" height={64} className="howto-pikuru" />
           <div className="howto-title">
-            <span className="howto-eyebrow">あそびかた・ルール</span>
+            <span className="howto-eyebrow">{t('あそびかた・ルール')}</span>
             <h2>{info.title}</h2>
           </div>
-          <button className="btn btn-small" aria-label="とじる" data-testid="howto-close" onClick={onClose}>
+          <button className="btn btn-small" aria-label={t('とじる')} data-testid="howto-close" onClick={onClose}>
             ✕
           </button>
         </header>
 
         <div className="howto-tools">
           <button className="btn btn-small" onClick={() => speak(howtoSpeech(game))}>
-            🗣️ よみあげ
+            {t('🗣️ よみあげ')}
           </button>
           {canFlip && (
             <button className="btn btn-small" onClick={() => setFlipped((f) => !f)}>
-              🔄 むきを かえる
+              {t('🔄 むきを かえる')}
             </button>
           )}
         </div>
 
         <div className="howto-body">
-          <h3>あそびかた</h3>
+          <h3>{t('あそびかた')}</h3>
           <ul>
             {h.play.map((t) => (
               <li key={t}>{t}</li>
             ))}
           </ul>
-          <h3>ルールと はんてい</h3>
+          <h3>{t('ルールと はんてい')}</h3>
           <ul>
             {h.rules.map((t) => (
               <li key={t}>{t}</li>
             ))}
           </ul>
-          <h3>レベルの ちがい</h3>
+          <h3>{t('レベルの ちがい')}</h3>
           <ul>
             {h.levels.map((t) => (
               <li key={t}>{t}</li>
             ))}
           </ul>
           <details className="howto-detail">
-            <summary>おうちの方へ（くわしいルール）</summary>
+            <summary>{t('おうちの方へ（くわしいルール）')}</summary>
             <ul>
               {h.detail.map((t) => (
                 <li key={t}>{t}</li>
               ))}
             </ul>
-            <p className="howto-source">ルールは USA Pickleball 公式ルールブック（2026年版）にもとづいています。かっこの中の PBK-番号 は、根拠にした知識カードの番号です。</p>
+            <p className="howto-source">{t('ルールは USA Pickleball 公式ルールブック（2026年版）にもとづいています。かっこの中の PBK-番号 は、根拠にした知識カードの番号です。')}</p>
           </details>
         </div>
 
         <button className="btn btn-go howto-back" onClick={onClose}>
-          あそびに もどる
+          {t('あそびに もどる')}
         </button>
       </section>
     </div>

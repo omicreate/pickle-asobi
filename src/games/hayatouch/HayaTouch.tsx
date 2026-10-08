@@ -22,6 +22,7 @@ import { LineView } from './LineView'
 import { makeLineCase } from './lineJudge'
 import type { LineCase } from './lineJudge'
 import './hayatouch.css'
+import { t as tr } from '../../i18n'
 
 const TARGET = 5
 const TIMEOUT = 6000
@@ -66,7 +67,7 @@ export function HayaTouch({ levels, paused, onRestart }: Props) {
   const [feintOn, setFeintOn] = useState(false)
   const [presses, setPresses] = useState<Press[]>([])
   const [score, setScore] = useState<[number, number]>([0, 0])
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'よーい', big: true })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: tr('よーい'), big: true })
   const [winner, setWinner] = useState<Side | null>(null)
 
   const t = useRef(0)
@@ -100,7 +101,7 @@ export function HayaTouch({ levels, paused, onRestart }: Props) {
         if (on !== feintOn) setFeintOn(on)
         // 2人ともお手つきなら、このラウンドはやり直し
         if (pressRef.current.length >= 2) {
-          setNotice({ title: 'ふたりとも おてつき', sub: 'もういちど', face: 'eh' })
+          setNotice({ title: tr('ふたりとも おてつき'), sub: tr('もういちど'), face: 'eh' })
           t.current = -0.6
           setPhase('result')
           break
@@ -139,7 +140,7 @@ export function HayaTouch({ levels, paused, onRestart }: Props) {
     setPhase('result')
     if (w === null) {
       sfx.ng()
-      setNotice({ title: 'こんどは ひきわけ', sub: 'つぎの もんだいへ', face: 'eh' })
+      setNotice({ title: tr('こんどは ひきわけ'), sub: tr('つぎの もんだいへ'), face: 'eh' })
       return
     }
     sfx.ok()
@@ -149,7 +150,7 @@ export function HayaTouch({ levels, paused, onRestart }: Props) {
     const faces: NoticeData['faces'] = [undefined, undefined]
     faces[w] = 'ok'
     faces[other(w)] = 'oops'
-    setNotice({ title: `${w === 0 ? 'オレンジ' : 'あお'}の てん！`, faces })
+    setNotice({ title: tr('{0}の てん！', [w === 0 ? tr('オレンジ') : tr('あお')]), faces })
     if (next[w] >= TARGET) setWinner(w)
   }
 
@@ -196,8 +197,8 @@ export function HayaTouch({ levels, paused, onRestart }: Props) {
       {phase !== 'over' && <Notice data={notice} />}
       {phase === 'over' && winner !== null && (
         <Result
-          title={(side) => (side === winner ? 'かち！ はやかったね' : 'おしい！')}
-          sub={(side) => `${score[side]} たい ${score[other(side)]}`}
+          title={(side) => (side === winner ? tr('かち！ はやかったね') : tr('おしい！'))}
+          sub={(side) => tr('{0} たい {1}', [score[side], score[other(side)]])}
           face={(side) => (side === winner ? 'ok' : 'oops')}
           onAgain={onRestart}
         />
@@ -209,11 +210,11 @@ export function HayaTouch({ levels, paused, onRestart }: Props) {
 type FlashState = 'wait' | 'feint' | 'go' | 'done' | 'locked'
 
 const FLASH_TEXT: Record<FlashState, string> = {
-  wait: 'みどりに なったら タッチ',
-  feint: 'まだだよ！',
-  go: 'タッチ！',
-  done: 'タッチ した！',
-  locked: 'おてつき…',
+  wait: tr('みどりに なったら タッチ'),
+  feint: tr('まだだよ！'),
+  go: tr('タッチ！'),
+  done: tr('タッチ した！'),
+  locked: tr('おてつき…'),
 }
 
 /** 合図をするピクルくんの表情 */
@@ -239,8 +240,8 @@ function LinePad({ c, phase, chosen, onAnswer }: { c: LineCase | null; phase: Ph
     return (
       <div className="line-pad line-pad-wait">
         <PikuruCut art={phase === 'result' ? 'ok' : 'think'} height={110} />
-        <div className="line-wait-text">ライン ジャッジ</div>
-        <div className="line-wait-sub">ボールの あとを みて、イン？ アウト？</div>
+        <div className="line-wait-text">{tr('ライン ジャッジ')}</div>
+        <div className="line-wait-sub">{tr('ボールの あとを みて、イン？ アウト？')}</div>
       </div>
     )
   }
@@ -254,18 +255,18 @@ function LinePad({ c, phase, chosen, onAnswer }: { c: LineCase | null; phase: Ph
       <LineView c={c} />
       {reveal ? (
         <div className="line-explain">
-          こたえ：<b>{c.answer === 'in' ? 'イン' : 'アウト'}</b>　{c.explain}
+          {tr('こたえ：')}<b>{c.answer === 'in' ? tr('イン') : tr('アウト')}</b>　{c.explain}
         </div>
       ) : (
         <div className="line-buttons">
           {(['in', 'out'] as const).map((a) => (
             <button key={a} className="btn line-btn" data-answer={a} disabled={!!chosen} aria-pressed={chosen ? undefined : false} onPointerDown={() => onAnswer(a)}>
-              {a === 'in' ? 'イン' : 'アウト'}
+              {a === 'in' ? tr('イン') : tr('アウト')}
             </button>
           ))}
         </div>
       )}
-      {chosen && !reveal && <div className="line-mark">{chosen.correct ? '○ せいかい' : '× ちがうよ'}</div>}
+      {chosen && !reveal && <div className="line-mark">{chosen.correct ? tr('○ せいかい') : tr('× ちがうよ')}</div>}
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { drawPaddleArt } from './paddleArt'
 import type { PaddleLook } from './paddleArt'
 import { drawPikuruArt, loadPikuru } from './pikuruArt'
 import type { CutArt } from './pikuruArt'
+import { t } from '../i18n'
 
 export interface CardData {
   /** ゲームの id（共有のリンクで、そのゲームの じゅんびの画面を開く）。じゅんばんモードは 'party' */
@@ -27,7 +28,7 @@ export interface CardData {
 const SIZE = 1080
 const FONT = "'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif"
 
-export const HASHTAGS = '#ピクルくんとあそぼ #ピックルボール'
+export const HASHTAGS = t('#ピクルくんとあそぼ #ピックルボール')
 
 /**
  * 共有のリンク：受け取った人が そのゲームを すぐ遊べるように、じゅんびの画面を開く。
@@ -40,8 +41,8 @@ export function shareLink(game?: string): string {
 
 /** 共有するときの文（公開URLで開いているときだけ URL をつける） */
 export function shareText(d: Pick<CardData, 'gameTitle' | 'title' | 'game' | 'challenge'>): string {
-  const dare = d.challenge ? ' この きろくに ちょうせんしてね！' : ''
-  return `「${d.gameTitle}」で ${d.title}${dare} ${HASHTAGS}${onPublicSite() ? `\n${shareLink(d.game)}` : ''}`
+  const dare = d.challenge ? t(' この きろくに ちょうせんしてね！') : ''
+  return t('「{0}」で {1}{2} {3}{4}', [d.gameTitle, d.title, dare, HASHTAGS, onPublicSite() ? `\n${shareLink(d.game)}` : ''])
 }
 
 /** 分かち書き（スペース）のところで折り返す */
@@ -99,7 +100,7 @@ export async function makeCard(d: CardData): Promise<Blob> {
   ctx.textBaseline = 'alphabetic'
   ctx.textAlign = 'left'
   ctx.font = `900 50px ${FONT}`
-  const nameW = ctx.measureText('ピクルくんとあそぼ').width
+  const nameW = ctx.measureText(t('ピクルくんとあそぼ')).width
   ctx.beginPath()
   ctx.roundRect(56, 52, nameW + 64, 92, 46)
   ctx.fillStyle = '#d4f03c'
@@ -108,7 +109,7 @@ export async function makeCard(d: CardData): Promise<Blob> {
   ctx.strokeStyle = '#2e5a1c'
   ctx.stroke()
   ctx.fillStyle = '#2e5a1c'
-  ctx.fillText('ピクルくんとあそぼ', 88, 116)
+  ctx.fillText(t('ピクルくんとあそぼ'), 88, 116)
   const date = d.date ?? new Date()
   ctx.textAlign = 'right'
   ctx.fillStyle = '#4f6a5f'

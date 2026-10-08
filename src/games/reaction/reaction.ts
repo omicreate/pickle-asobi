@@ -8,6 +8,7 @@
  */
 import { LEVEL_INFO } from '../../core/players'
 import type { Level } from '../../core/players'
+import { t } from '../../i18n'
 
 export const TRIES = 5
 export const FOUL_MS = 1000
@@ -124,4 +125,4 @@ export function stepRx(s: RxState, dt: number, rand: () => number = Math.random)
 }
 
 /** ms を「0.245びょう」の形に */
-export const secText = (ms: number) => `${(ms / 1000).toFixed(3)}びょう`
+export const secText = (ms: number) => t('{0}びょう', [(ms / 1000).toFixed(3)])

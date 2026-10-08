@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 /**
  * あそぶ人のレベルと、レベルごとの手加減。
  * レベルは1人ずつ選ぶ。親と子が同じゲームで、手加減なしで勝負できるようにするための表。
@@ -34,9 +35,9 @@ export interface LevelInfo {
 
 export const LEVEL_INFO: Record<Level, LevelInfo> = {
   chibi: {
-    label: 'ちびっこ',
+    label: t('ちびっこ'),
     mark: '🐣',
-    hint: '3〜6さい',
+    hint: t('3〜6さい'),
     paddleWidth: 2.6,
     ballSpeed: 0.45,
     assist: 0.55,
@@ -47,9 +48,9 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
     quizMax: 1,
   },
   kids: {
-    label: 'キッズ',
+    label: t('キッズ'),
     mark: '🧒',
-    hint: 'しょうがくせい',
+    hint: t('しょうがくせい'),
     paddleWidth: 2.0,
     ballSpeed: 0.6,
     assist: 0.2,
@@ -60,9 +61,9 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
     quizMax: 2,
   },
   otona: {
-    label: 'おとな',
+    label: t('おとな'),
     mark: '🧑',
-    hint: 'はじめての人',
+    hint: t('はじめての人'),
     paddleWidth: 1.4,
     ballSpeed: 0.8,
     assist: 0,
@@ -73,9 +74,9 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
     quizMax: 2,
   },
   senshu: {
-    label: 'せんしゅ',
+    label: t('せんしゅ'),
     mark: '🏆',
-    hint: 'ピックルボールをしている人',
+    hint: t('ピックルボールをしている人'),
     paddleWidth: 1.1,
     ballSpeed: 0.95,
     assist: 0,
@@ -87,7 +88,7 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
   },
 }
 
-export const SIDE_NAME: Record<Side, string> = { 0: 'オレンジ', 1: 'あお' }
+export const SIDE_NAME: Record<Side, string> = { 0: t('オレンジ'), 1: t('あお') }
 export const SIDE_COLOR: Record<Side, string> = { 0: '#ff8a3d', 1: '#3d9be9' }
 
 export const other = (s: Side): Side => (s === 0 ? 1 : 0)

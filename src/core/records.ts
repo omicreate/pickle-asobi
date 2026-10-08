@@ -5,6 +5,7 @@
  */
 import type { GameId } from '../shell/games'
 import { LEVEL_INFO, LEVELS } from './players'
+import { t } from '../i18n'
 
 export type MedalLevel = 0 | 1 | 2 | 3
 
@@ -29,7 +30,7 @@ export const MEDAL_RULES: Partial<Record<GameId, MedalRule>> = {
 }
 
 export const MEDAL_GAMES = Object.keys(MEDAL_RULES) as GameId[]
-export const MEDAL_NAME = ['', 'どう', 'ぎん', 'きん'] as const
+export const MEDAL_NAME = ['', t('どう'), t('ぎん'), t('きん')] as const
 export const MEDAL_MARK = ['', '🥉', '🥈', '🥇'] as const
 /** メダルを とったときの ほし（きんは 2こ） */
 export const MEDAL_STARS = [0, 1, 1, 2] as const
@@ -58,20 +59,20 @@ export const pikuruValue = (level: (typeof LEVELS)[number]) => LEVELS.indexOf(le
 export function recordText(game: GameId, v: number): string {
   switch (game) {
     case 'pikuru':
-      return `${LEVEL_INFO[LEVELS[Math.max(0, Math.min(3, v - 1))]].label}で かった`
+      return t('{0}で かった', [LEVEL_INFO[LEVELS[Math.max(0, Math.min(3, v - 1))]].label])
     case 'reaction':
-      return `${(v / 1000).toFixed(3)}びょう`
+      return t('{0}びょう', [(v / 1000).toFixed(3)])
     case 'stop10':
-      return `ずれ ${(v / 1000).toFixed(2)}びょう`
+      return t('ずれ {0}びょう', [(v / 1000).toFixed(2)])
     case 'jump':
       return `${v}m`
     case 'lift':
     case 'dink':
-      return `${v}かい`
+      return t('{0}かい', [v])
     case 'target':
-      return `${v}きゅう`
+      return t('{0}きゅう', [v])
     default:
-      return `${v}てん`
+      return t('{0}てん', [v])
   }
 }
 

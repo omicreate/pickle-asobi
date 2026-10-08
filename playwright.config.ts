@@ -13,6 +13,8 @@ export default defineConfig({
   fullyParallel: true,
   use: {
     baseURL: base,
+    // ことばは端末の設定で決まるので、ふだんのテストは日本語の端末にする（英語は english.spec.ts で ?lang=en）
+    locale: 'ja-JP',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

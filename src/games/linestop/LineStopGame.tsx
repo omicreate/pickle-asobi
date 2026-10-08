@@ -18,6 +18,7 @@ import type { NoticeData } from '../../ui/GameUI'
 import { drawPikuruArt } from '../../ui/pikuruArt'
 import { BALL_R, callText, CONTACT, createLs, LINE, LINE_W, ROUNDS_TO_WIN, stepLs, stopBall } from './linestop'
 import type { Call, LsState } from './linestop'
+import { t as tr } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -36,7 +37,7 @@ export function LineStopGame({ levels, paused, onRestart }: Props) {
   const game = useMemo<LsState>(() => createLs(levels), [levels])
   const noticeTimer = useRef(0)
   const [wins, setWins] = useState<[number, number]>([0, 0])
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'ラインの ぎりぎりで ストップ！', sub: 'こえたら アウト', face: 'think' })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: tr('ラインの ぎりぎりで ストップ！'), sub: tr('こえたら アウト'), face: 'think' })
   const [over, setOver] = useState<Side | null>(null)
 
   useEffect(() => {
@@ -75,13 +76,13 @@ export function LineStopGame({ levels, paused, onRestart }: Props) {
             setWins(ev.wins)
             if (w === null) {
               sfx.bounce()
-              setNotice({ title: 'ひきわけ', sub: `${callText(ev.calls[0])}・${callText(ev.calls[1])}`, face: 'think' })
+              setNotice({ title: tr('ひきわけ'), sub: tr('{0}・{1}', [callText(ev.calls[0]), callText(ev.calls[1])]), face: 'think' })
             } else {
               sfx.ok()
               speak(w === 0 ? PHRASES.point0 : PHRASES.point1)
               setNotice({
-                title: `${SIDE_NAME[w]}の かち！`,
-                sub: `${SIDE_NAME[0]} ${callText(ev.calls[0])}・${SIDE_NAME[1]} ${callText(ev.calls[1])}`,
+                title: tr('{0}の かち！', [SIDE_NAME[w]]),
+                sub: tr('{0} {1}・{2} {3}', [SIDE_NAME[0], callText(ev.calls[0]), SIDE_NAME[1], callText(ev.calls[1])]),
                 faces: [w === 0 ? 'ok' : 'oops', w === 1 ? 'ok' : 'oops'],
               })
             }
@@ -122,8 +123,8 @@ export function LineStopGame({ levels, paused, onRestart }: Props) {
       <Notice data={notice} />
       {over !== null && (
         <Result
-          title={(side) => (side === over ? 'かち！ ナイスジャッジ' : 'おしい！')}
-          sub={(side) => `${wins[side]} たい ${wins[side === 0 ? 1 : 0]}（さきに ${ROUNDS_TO_WIN}かい）`}
+          title={(side) => (side === over ? tr('かち！ ナイスジャッジ') : tr('おしい！'))}
+          sub={(side) => tr('{0} たい {1}（さきに {2}かい）', [wins[side], wins[side === 0 ? 1 : 0], ROUNDS_TO_WIN])}
           face={(side) => (side === over ? 'ok' : 'oops')}
           onAgain={onRestart}
         />
@@ -172,9 +173,9 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
   ctx.fillStyle = '#ffffff'
-  ctx.fillText('ベースライン', cx, Y(LINE + LINE_W) + 4)
+  ctx.fillText(tr('ベースライン'), cx, Y(LINE + LINE_W) + 4)
   ctx.fillStyle = 'rgba(255,255,255,0.5)'
-  ctx.fillText('アウト', cx, Y(LINE + 30))
+  ctx.fillText(tr('アウト'), cx, Y(LINE + 30))
 
   // ボール（本物の大きさの比率）
   const lane = s.lanes[side]
@@ -215,7 +216,7 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.font = `900 12px 'Zen Maru Gothic', sans-serif`
   ctx.textBaseline = 'top'
   // 2行に分け、画面の はしで 切れないように 中心を内側へ寄せる
-  const notes = ['ルーペ', 'あかい てん＝じめん']
+  const notes = [tr('ルーペ'), tr('あかい てん＝じめん')]
   const half = Math.max(...notes.map((t) => ctx.measureText(t).width)) / 2
   const nx = Math.min(lcx, w - half - 6)
   notes.forEach((t, i) => ctx.fillText(t, nx, lcy + lr + 4 + i * 15))
@@ -230,13 +231,13 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.textBaseline = 'middle'
   ctx.fillStyle = SIDE_COLOR[side]
   ctx.font = `900 22px 'Zen Maru Gothic', sans-serif`
-  const msg = call ? resultText(call, lane.byTap) : s.phase === 'roll' ? 'タップで ストップ！' : s.phase === 'ready' ? 'じゅんび…' : ''
+  const msg = call ? resultText(call, lane.byTap) : s.phase === 'roll' ? tr('タップで ストップ！') : s.phase === 'ready' ? tr('じゅんび…') : ''
   ctx.fillText(msg, (w + 84) / 2, hh - bottom / 2 - 6, w - 96)
 }
 
 function resultText(c: Call, byTap: boolean): string {
   const t = callText(c)
-  return byTap ? t : `とまった：${t}`
+  return byTap ? t : tr('とまった：{0}', [t])
 }
 
 function ball(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {

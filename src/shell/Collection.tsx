@@ -16,11 +16,12 @@ import type { DesignId, PaddleShape } from '../ui/paddleArt'
 import { PikuruCut } from '../ui/pikuruArt'
 import './setup.css'
 import './collection.css'
+import { t } from '../i18n'
 
 const TABS: { kind: ItemKind; label: string }[] = [
-  { kind: 'wear', label: 'ピクルくん' },
-  { kind: 'design', label: 'パドルの いろ' },
-  { kind: 'shape', label: 'パドルの かたち' },
+  { kind: 'wear', label: t('ピクルくん') },
+  { kind: 'design', label: t('パドルの いろ') },
+  { kind: 'shape', label: t('パドルの かたち') },
 ]
 
 export function Collection() {
@@ -65,20 +66,20 @@ export function Collection() {
   return (
     <main className="collection">
       <header className="col-head">
-        <a className="btn btn-small" href="#/" aria-label="もどる">
+        <a className="btn btn-small" href="#/" aria-label={t('もどる')}>
           ←
         </a>
-        <h1 className="col-title">きせかえ</h1>
-        <span className="star-pill" aria-label={`ほし ${progress.stars}こ`} data-testid="stars">
+        <h1 className="col-title">{t('きせかえ')}</h1>
+        <span className="star-pill" aria-label={t('ほし {0}こ', [progress.stars])} data-testid="stars">
           ⭐ {progress.stars}
         </span>
       </header>
 
-      <section className="col-preview" aria-label="いまの すがた">
+      <section className="col-preview" aria-label={t('いまの すがた')}>
         <PikuruCut art="full" height={170} />
         <div className="col-preview-paddle">
           <PaddleIcon look={mine} size={96} />
-          <span>じぶんの パドル</span>
+          <span>{t('じぶんの パドル')}</span>
         </div>
       </section>
 
@@ -108,9 +109,9 @@ export function Collection() {
                 <ItemArt item={item} mine={mine} />
                 <span className="col-label">{item.label}</span>
                 <span className="col-status">
-                  {have ? (on ? (item.kind === 'wear' ? 'つけてる ✓' : 'つかってる ✓') : item.kind === 'wear' ? 'つける' : 'つかう') : item.special ? `🔒 ${SPECIAL_TEXT[item.special]}` : `⭐ ${item.price}`}
+                  {have ? (on ? (item.kind === 'wear' ? t('つけてる ✓') : t('つかってる ✓')) : item.kind === 'wear' ? t('つける') : t('つかう')) : item.special ? `🔒 ${SPECIAL_TEXT[item.special]}` : `⭐ ${item.price}`}
                 </span>
-                {!have && item.special && specialMet(item.special, progress) && <span className="col-status">もうすぐ！</span>}
+                {!have && item.special && specialMet(item.special, progress) && <span className="col-status">{t('もうすぐ！')}</span>}
               </button>
             </li>
           )
@@ -119,27 +120,27 @@ export function Collection() {
 
       {tab === 'shape' && (
         <p className="col-note">
-          パドルの かたちは、ほんものの ルールの おおきさ（ながさ＋はばが 61cm まで・ながさは 43cm まで）に あわせているよ。どの かたちでも、ゲームの つよさは おなじ。
+          {t('パドルの かたちは、ほんものの ルールの おおきさ（ながさ＋はばが 61cm まで・ながさは 43cm まで）に あわせているよ。どの かたちでも、ゲームの つよさは おなじ。')}
         </p>
       )}
-      {tab !== 'shape' && <p className="col-note">ほしは、きょうの ミッションを クリアすると もらえるよ。ゲームの つよさは かわらないよ。</p>}
+      {tab !== 'shape' && <p className="col-note">{t('ほしは、きょうの ミッションを クリアすると もらえるよ。ゲームの つよさは かわらないよ。')}</p>}
 
       {ask && (
         <div className="col-ask-backdrop" onClick={() => setAsk(null)}>
-          <div className="col-ask" role="dialog" aria-label="こうかん" onClick={(e) => e.stopPropagation()}>
+          <div className="col-ask" role="dialog" aria-label={t('こうかん')} onClick={(e) => e.stopPropagation()}>
             <ItemArt item={ask} mine={mine} big />
             <p className="col-ask-text">
-              ⭐{ask.price} と「{ask.label}」を こうかんする？
+              {t('⭐{0} と「{1}」を こうかんする？', [ask.price, ask.label])}
             </p>
             {progress.stars < ask.price ? (
-              <p className="col-ask-short">ほしが あと {ask.price - progress.stars}こ たりないよ</p>
+              <p className="col-ask-short">{t('ほしが あと {0}こ たりないよ', [ask.price - progress.stars])}</p>
             ) : (
               <button className="btn btn-go" onClick={() => trade(ask)} data-testid="trade">
-                こうかんする！
+                {t('こうかんする！')}
               </button>
             )}
             <button className="btn btn-quiet" onClick={() => setAsk(null)}>
-              やめる
+              {t('やめる')}
             </button>
           </div>
         </div>

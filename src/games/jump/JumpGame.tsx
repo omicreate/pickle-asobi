@@ -19,6 +19,7 @@ import { drawPikuruArt } from '../../ui/pikuruArt'
 import { mulberry32 } from '../../core/rng'
 import { usePlay } from '../../shell/playContext'
 import './jump.css'
+import { t as tr } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -52,7 +53,7 @@ export function JumpGame({ levels, paused, onRestart }: Props) {
   const countdown = useRef(2.4)
   const noticeTimer = useRef(0)
   const [hud, setHud] = useState({ dist: 0, lives: game.lives, jumps: 0, t: 0 })
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'タップで ジャンプ！', sub: '3だんまで とべるよ', face: 'think', only: 0 })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: tr('タップで ジャンプ！'), sub: tr('3だんまで とべるよ'), face: 'think', only: 0 })
   const [over, setOver] = useState<{ dist: number; dodged: number; best: number } | null>(null)
 
   // 1m を何px で描くか（横は見える範囲、縦は3段ジャンプの高さが入るように）
@@ -103,7 +104,7 @@ export function JumpGame({ levels, paused, onRestart }: Props) {
           if (ev.type === 'hit') {
             sfx.ng()
             if (ev.livesLeft > 0) {
-              setNotice({ title: 'いたっ！', sub: `のこり ${ev.livesLeft}`, face: 'oops', only: 0 })
+              setNotice({ title: tr('いたっ！'), sub: tr('のこり {0}', [ev.livesLeft]), face: 'oops', only: 0 })
               noticeTimer.current = 1
             }
           } else if (ev.type === 'dodge') {
@@ -151,24 +152,24 @@ export function JumpGame({ levels, paused, onRestart }: Props) {
         onContextMenu={(e) => e.preventDefault()}
       />
       <div className="jump-hud">
-        <span className="jump-lives" aria-label={`ライフ ${hud.lives}`}>
+        <span className="jump-lives" aria-label={tr('ライフ {0}', [hud.lives])}>
           {'❤️'.repeat(Math.max(0, hud.lives))}
         </span>
-        <span className="jump-dots" aria-label={`ジャンプ のこり ${MAX_JUMPS - hud.jumps}`}>
+        <span className="jump-dots" aria-label={tr('ジャンプ のこり {0}', [MAX_JUMPS - hud.jumps])}>
           {Array.from({ length: MAX_JUMPS }, (_, i) => (
             <i key={i} data-used={i < hud.jumps || undefined} />
           ))}
         </span>
-        {contest && <span className="jump-time">のこり {Math.max(0, Math.ceil(JUMP_CONTEST_TIME - hud.t))}</span>}
+        {contest && <span className="jump-time">{tr('のこり {0}', [Math.max(0, Math.ceil(JUMP_CONTEST_TIME - hud.t))])}</span>}
         <span className="jump-dist">{hud.dist}m</span>
       </div>
       <Notice data={notice} />
       {over && !contest && (
         <Result
           single
-          title={() => `${over.dist}m はしった！`}
+          title={() => tr('{0}m はしった！', [over.dist])}
           sub={() =>
-            `${over.dodged}こ よけたよ。` + (over.dist >= over.best && over.dist > 0 ? 'さいこう きろく！' : `さいこうは ${over.best}m（${LEVEL_INFO[level].label}）`)
+            tr('{0}こ よけたよ。', [over.dodged]) + (over.dist >= over.best && over.dist > 0 ? tr('さいこう きろく！') : tr('さいこうは {0}m（{1}）', [over.best, LEVEL_INFO[level].label]))
           }
           face={() => (over.dist >= over.best ? 'ok' : 'eh')}
           onAgain={onRestart}

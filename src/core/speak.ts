@@ -2,10 +2,12 @@
  * 文字が読めない子のために、問題や説明を読み上げる。
  * ElevenLabs で前もって作った声（public/voice/）があればそれを鳴らし、なければ端末の読み上げで読む。
  * 文を配列で渡すと順に読む（クイズの選択肢は並びが毎回変わるので、1つずつの声をつなげる）。
+ * 英語のときは、いつも端末の読み上げ（英語の声）で読む（用意した声は日本語だけ）。
  */
 import { getSettings } from './settings'
 import { audioContext } from './sound'
 import { voiceKey } from './voiceKey'
+import { isEn } from '../i18n'
 
 const BASE = `${import.meta.env.BASE_URL}voice/`
 let available: Set<string> | null = null
@@ -59,11 +61,11 @@ function synth(text: string): void {
   if (typeof speechSynthesis === 'undefined') return
   try {
     const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'ja-JP'
+    u.lang = isEn ? 'en-US' : 'ja-JP'
     u.rate = 0.95
     u.pitch = 1.1
-    const ja = speechSynthesis.getVoices().find((v) => v.lang.startsWith('ja'))
-    if (ja) u.voice = ja
+    const voice = speechSynthesis.getVoices().find((v) => v.lang.startsWith(isEn ? 'en' : 'ja'))
+    if (voice) u.voice = voice
     speechSynthesis.speak(u)
   } catch {
     // 読み上げできなくても続ける
@@ -74,9 +76,10 @@ export function speak(text: string | string[]): void {
   if (!getSettings().speak) return
   stopSpeaking()
   const parts = Array.isArray(text) ? text : [text]
+  const joined = parts.join(isEn ? '. ' : '。')
   const keys = parts.map(voiceKey)
-  if (!available || !keys.every((k) => available!.has(k))) {
-    synth(parts.join('。'))
+  if (isEn || !available || !keys.every((k) => available!.has(k))) {
+    synth(joined)
     return
   }
   const my = ++token
@@ -85,7 +88,7 @@ export function speak(text: string | string[]): void {
       const buf = await buffer(k)
       if (my !== token) return
       if (!buf) {
-        synth(parts.join('。'))
+        synth(joined)
         return
       }
       await playBuffer(buf)

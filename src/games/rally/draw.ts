@@ -9,6 +9,7 @@ import { drawPaddleArt } from '../../ui/paddleArt'
 import type { PaddleLook } from '../../ui/paddleArt'
 import { drawPikuruArt } from '../../ui/pikuruArt'
 import type { Face } from '../../ui/Pikuru'
+import { t } from '../../i18n'
 
 /**
  * 本物のパドルの大きさ（m）：全長16インチ・幅8インチ、握り5インチ（よくある形）。
@@ -134,7 +135,7 @@ export function drawRally(ctx: CanvasRenderingContext2D, w: number, h: number, v
     ctx.save()
     ctx.translate(X(COURT.W / 2), Y(cy))
     if (side === 1 && !o.solo) ctx.rotate(Math.PI)
-    ctx.fillText('キッチン', 0, 0)
+    ctx.fillText(t('キッチン'), 0, 0)
     ctx.restore()
   }
 
@@ -185,9 +186,9 @@ export function drawRally(ctx: CanvasRenderingContext2D, w: number, h: number, v
       ctx.textBaseline = 'middle'
       ctx.lineWidth = Math.max(3, fs * 0.22)
       ctx.strokeStyle = 'rgba(18, 48, 43, 0.75)'
-      ctx.strokeText('ここを ねらう', zx + zw / 2, zy + zh / 2)
+      ctx.strokeText(t('ここを ねらう'), zx + zw / 2, zy + zh / 2)
       ctx.fillStyle = '#ffffff'
-      ctx.fillText('ここを ねらう', zx + zw / 2, zy + zh / 2)
+      ctx.fillText(t('ここを ねらう'), zx + zw / 2, zy + zh / 2)
     }
     drawMachine(ctx, X, Y, s, o.pikuruFace ?? 'think')
   }
@@ -248,7 +249,7 @@ function drawMachine(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, fac
   ctx.font = `900 ${Math.round(0.3 * s)}px 'Zen Maru Gothic', sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText('ピクルマシン', X(MACHINE.x), Y(MACHINE.y))
+  ctx.fillText(t('ピクルマシン'), X(MACHINE.x), Y(MACHINE.y))
 }
 
 /**

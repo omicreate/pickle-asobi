@@ -7,19 +7,20 @@ import { PHRASES } from '../core/voiceLines'
 import { speak } from '../core/speak'
 import { PikuruCut } from './pikuruArt'
 import { useEffect } from 'react'
+import { t } from '../i18n'
 
 function Body({ onRest, onMore, small = false }: { onRest: () => void; onMore: () => void; small?: boolean }) {
   return (
-    <div className="break-card" role="dialog" aria-label="きゅうけい" data-testid="break-sheet">
+    <div className="break-card" role="dialog" aria-label={t('きゅうけい')} data-testid="break-sheet">
       <PikuruCut art="ok" height={small ? 64 : 96} />
-      <p className="break-title">たくさん あそんだね！</p>
-      <p className="break-sub">ちょっと きゅうけい しよう。とおくを みて、めを やすめよう。おみずも のもうね。</p>
+      <p className="break-title">{t('たくさん あそんだね！')}</p>
+      <p className="break-sub">{t('ちょっと きゅうけい しよう。とおくを みて、めを やすめよう。おみずも のもうね。')}</p>
       <div className="break-actions">
         <a className="btn btn-go" href="#/" onClick={onRest}>
-          きゅうけい する
+          {t('きゅうけい する')}
         </a>
         <button className="btn btn-quiet" onClick={onMore}>
-          あと 1かい だけ
+          {t('あと 1かい だけ')}
         </button>
       </div>
     </div>

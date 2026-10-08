@@ -3,13 +3,14 @@
  * じゅんばんモード・にせピクルくん・ジェスチャー・よみあい サーブ（てわたし）で使う。
  */
 import '../shell/party/party.css'
+import { t } from '../i18n'
 
 export function Handoff({
   name,
   color,
   sub,
   note,
-  go = 'じゅんびが できたら タッチ！',
+  go = t('じゅんびが できたら タッチ！'),
   onGo,
   testId = 'handoff-go',
 }: {
@@ -24,7 +25,7 @@ export function Handoff({
 }) {
   return (
     <button className="party-handoff" style={{ background: color }} onClick={onGo} data-testid={testId}>
-      <span className="party-handoff-name">{name}の ばん！</span>
+      <span className="party-handoff-name">{t('{0}の ばん！', [name])}</span>
       {sub && <span className="party-handoff-sub">{sub}</span>}
       {note && <span className="party-handoff-note">{note}</span>}
       <span className="party-handoff-go">{go}</span>

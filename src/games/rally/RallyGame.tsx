@@ -30,6 +30,7 @@ import { REASON_TEXT } from './rules'
 import type { RuleMode } from './rules'
 import { SHOTS } from './targets'
 import './rally.css'
+import { t } from '../../i18n'
 
 interface Props {
   kind: Kind
@@ -47,10 +48,10 @@ const DINK_BEST = 'dink-best'
 const targetBest = (lv: Level) => `target-best-${lv}`
 
 const MISS_TEXT: Record<ShotMiss, { title: string; sub: string }> = {
-  zone: { title: 'おしい！', sub: 'まとの そとに おちたよ' },
-  out: { title: 'アウト！', sub: 'コートの そとに でたよ' },
-  'double-bounce': { title: '2かい はねた！', sub: '2かい はねる まえに かえそう' },
-  'two-bounce': { title: '2バウンドルール！', sub: '3きゅうめは 1かい はねてから うつ' },
+  zone: { title: t('おしい！'), sub: t('まとの そとに おちたよ') },
+  out: { title: t('アウト！'), sub: t('コートの そとに でたよ') },
+  'double-bounce': { title: t('2かい はねた！'), sub: t('2かい はねる まえに かえそう') },
+  'two-bounce': { title: t('2バウンドルール！'), sub: t('3きゅうめは 1かい はねてから うつ') },
 }
 
 export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, paused, onRestart }: Props) {
@@ -90,7 +91,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
 
   const showLanding = levels.some((l) => LEVEL_INFO[l].assist > 0) || kind === 'dink'
   /** 得点した側の名前（ひとりのときは「あなた」と「ピクルくん」） */
-  const name = (s: Side) => (cpu ? (s === 0 ? 'あなた' : 'ピクルくん') : SIDE_NAME[s])
+  const name = (s: Side) => (cpu ? (s === 0 ? t('あなた') : t('ピクルくん')) : SIDE_NAME[s])
 
   // 開発中とテスト（Playwright）だけ、進行を外から見られるようにする
   useEffect(() => {
@@ -154,7 +155,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
             faces[other(ev.winner)] = 'oops'
             const sub = mode === 'real' ? `${why.kids} ${why.rule}` : why.kids
             // サイドアウト：レシーブ側が勝っても点は入らず、サーブが移るだけ
-            const title = ev.scored ? `${name(ev.winner)}の てん！` : `サイドアウト！ ${name(ev.winner)}の サーブ`
+            const title = ev.scored ? t('{0}の てん！', [name(ev.winner)]) : t('サイドアウト！ {0}の サーブ', [name(ev.winner)])
             flash({ title, sub, faces }, 1.8)
             setScore([engine.score[0], engine.score[1]])
             if (cpu) react(ev.winner === 1 ? 'ok' : 'oops')
@@ -165,7 +166,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
           case 'shot':
             if (ev.ok) {
               sfx.ok()
-              flash({ title: 'ナイス！', sub: 'ねらいどおり', face: 'ok' }, 1.3)
+              flash({ title: t('ナイス！'), sub: t('ねらいどおり'), face: 'ok' }, 1.3)
               speak(PHRASES.nice)
               react('ok', 1.3)
             } else {
@@ -181,7 +182,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
               sfx.ok()
               react('ok', 0.8)
             } else {
-              flash({ title: 'つよすぎ！', sub: 'そっと ポンで キッチンへ', face: 'eh' }, 1.3)
+              flash({ title: t('つよすぎ！'), sub: t('そっと ポンで キッチンへ'), face: 'eh' }, 1.3)
               speak(PHRASES.tooStrong)
               react('eh')
             }
@@ -291,7 +292,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
         onContextMenu={(e) => e.preventDefault()}
       />
       {umpire && (
-        <div className="umpire" aria-label="しんぱんの ピクルくん">
+        <div className="umpire" aria-label={t('しんぱんの ピクルくん')}>
           <PikuruCut art={pkFace} height={Math.round(Math.min(96, stage.w * 0.2))} />
         </div>
       )}
@@ -299,23 +300,23 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
         <>
           <div className="solo-banner" aria-live="polite">
             <Pikuru face="think" size={40} />
-            <span>{shots.label || 'ピクルマシンから ボールが くるよ'}</span>
+            <span>{shots.label || t('ピクルマシンから ボールが くるよ')}</span>
           </div>
           <div className="solo-score">
             <span>
-              {Math.min(shots.index + 1, SHOTS)} / {SHOTS} きゅう
+              {t('{0} / {1} きゅう', [Math.min(shots.index + 1, SHOTS), SHOTS])}
             </span>
-            <span className="solo-score-main">まと {shots.hits}</span>
+            <span className="solo-score-main">{t('まと {0}', [shots.hits])}</span>
           </div>
         </>
       )}
       {kind === 'versus' && cpu && (
-        <div className="solo-score" aria-label={`あなた ${score[0]}てん、ピクルくん ${score[1]}てん`}>
-          <span>あなた</span>
+        <div className="solo-score" aria-label={t('あなた {0}てん、ピクルくん {1}てん', [score[0], score[1]])}>
+          <span>{t('あなた')}</span>
           <span className="solo-score-main">
             {score[0]} - {score[1]}
           </span>
-          <span>ピクルくん</span>
+          <span>{t('ピクルくん')}</span>
         </div>
       )}
       {kind === 'versus' && !cpu && <Scores score={score} />}
@@ -324,8 +325,8 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
       <Notice data={notice} />
       {over && kind === 'dink' && (
         <Result
-          title={() => `${dink.count}かい つづいた！`}
-          sub={() => (dink.count >= dink.best && dink.count > 0 ? 'さいこう きろく！' : `さいこうは ${dink.best}かい`)}
+          title={() => t('{0}かい つづいた！', [dink.count])}
+          sub={() => (dink.count >= dink.best && dink.count > 0 ? t('さいこう きろく！') : t('さいこうは {0}かい', [dink.best]))}
           face={() => (dink.count >= dink.best && dink.count > 0 ? 'ok' : 'eh')}
           onAgain={again}
         />
@@ -333,8 +334,8 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
       {over && kind === 'target' && !contest && (
         <Result
           single
-          title={() => `${SHOTS}きゅう中 ${shots.hits}きゅう まとに はいった！`}
-          sub={() => (shots.hits >= shots.best && shots.hits > 0 ? 'さいこう きろく！' : `さいこうは ${shots.best}きゅう（${LEVEL_INFO[levels[0]].label}）`)}
+          title={() => t('{0}きゅう中 {1}きゅう まとに はいった！', [SHOTS, shots.hits])}
+          sub={() => (shots.hits >= shots.best && shots.hits > 0 ? t('さいこう きろく！') : t('さいこうは {0}きゅう（{1}）', [shots.best, LEVEL_INFO[levels[0]].label]))}
           face={() => (shots.hits >= SHOTS / 2 ? 'ok' : 'eh')}
           onAgain={again}
         />
@@ -342,16 +343,16 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
       {over && kind === 'versus' && cpu && (
         <Result
           single
-          title={() => (over.winner === 0 ? 'かち！ ピクルくんに かったね' : 'ピクルくんの かち！')}
-          sub={() => `あなた ${score[0]} たい ${score[1]} ピクルくん`}
+          title={() => (over.winner === 0 ? t('かち！ ピクルくんに かったね') : t('ピクルくんの かち！'))}
+          sub={() => t('あなた {0} たい {1} ピクルくん', [score[0], score[1]])}
           face={() => (over.winner === 0 ? 'oops' : 'ok')}
           onAgain={again}
         />
       )}
       {over && kind === 'versus' && !cpu && (
         <Result
-          title={(side) => (side === over.winner ? 'かち！ やったね' : 'おしい！')}
-          sub={(side) => `${score[side]} たい ${score[other(side)]}`}
+          title={(side) => (side === over.winner ? t('かち！ やったね') : t('おしい！'))}
+          sub={(side) => t('{0} たい {1}', [score[side], score[other(side)]])}
           face={(side) => (side === over.winner ? 'ok' : 'oops')}
           onAgain={again}
         />
@@ -367,8 +368,8 @@ function DinkCount({ count, best }: { count: number; best: number }) {
         <Half key={side} side={side} interactive={false}>
           <div className="dink-count" aria-live="polite">
             <span className="dink-num">{count}</span>
-            <span className="dink-label">かい</span>
-            <span className="dink-best">さいこう {best}</span>
+            <span className="dink-label">{t('かい')}</span>
+            <span className="dink-best">{t('さいこう {0}', [best])}</span>
           </div>
         </Half>
       ))}
@@ -382,14 +383,14 @@ function ServeHint({ side, kind, level, call }: { side: Side; kind: Kind; level:
     <Half side={side} interactive={false}>
       <div className="serve-hint">
         {call && (
-          <span className="serve-call" aria-label={`スコアの コール ${call}`}>
+          <span className="serve-call" aria-label={t('スコアの コール {0}', [call])}>
             {call}
           </span>
         )}
         <span className="serve-arrow" aria-hidden>
           ⬆
         </span>
-        {kind === 'dink' ? 'ゆっくり ポンと つなごう' : auto ? 'うえに シュッ！で サーブ（まってもOK）' : 'うえに シュッ！と ふって サーブ'}
+        {kind === 'dink' ? t('ゆっくり ポンと つなごう') : auto ? t('うえに シュッ！で サーブ（まってもOK）') : t('うえに シュッ！と ふって サーブ')}
       </div>
     </Half>
   )

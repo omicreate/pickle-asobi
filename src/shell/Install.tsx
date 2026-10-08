@@ -13,6 +13,8 @@ import './setup.css'
 import './collection.css'
 import './parents.css'
 import './install.css'
+import { t as tr } from '../i18n'
+import { Rich } from '../i18n/Rich'
 
 type Tab = 'ios' | 'android'
 
@@ -42,44 +44,44 @@ export function Install() {
   return (
     <main className="parents install">
       <header className="col-head">
-        <a className="btn btn-small" href="#/" aria-label="もどる">
+        <a className="btn btn-small" href="#/" aria-label={tr('もどる')}>
           ←
         </a>
-        <h1 className="col-title">ホーム画面に入れる</h1>
+        <h1 className="col-title">{tr('ホーム画面に入れる')}</h1>
       </header>
 
       {standalone ? (
         <section className="par-card inst-done">
           <PikuruCut art="ok" height={90} />
-          <p>ホーム画面から開いています。このまま遊べます（電波がなくても遊べます）。</p>
+          <p>{tr('ホーム画面から開いています。このまま遊べます（電波がなくても遊べます）。')}</p>
         </section>
       ) : (
-        <p className="inst-lead">ホーム画面に入れると、アプリのように ピクルくんの アイコンから すぐ開けて、電波のない所でも遊べます。</p>
+        <p className="inst-lead">{tr('ホーム画面に入れると、アプリのように ピクルくんの アイコンから すぐ開けて、電波のない所でも遊べます。')}</p>
       )}
 
       {app && (
         <section className="par-card inst-inapp" data-testid="install-inapp">
-          <h2>いま {app} の中で開いています</h2>
-          <p>アプリの中のブラウザでは、ホーム画面に入れられません。記録（ほし・きせかえ）も、ふだんのブラウザとは別に保存されます。{os === 'android' ? 'Chrome' : 'Safari'} で開きなおしてください。</p>
+          <h2>{tr('いま {0} の中で開いています', [tr(app)])}</h2>
+          <p>{tr('アプリの中のブラウザでは、ホーム画面に入れられません。記録（ほし・きせかえ）も、ふだんのブラウザとは別に保存されます。{0} で開きなおしてください。', [os === 'android' ? 'Chrome' : 'Safari'])}</p>
           <div className="inst-row">
-            <Phone width={150} label="① 右上の「…」">
+            <Phone width={150} label={tr('① 右上の「…」')}>
               <InAppScreen hi="more" os={os === 'android' ? 'android' : 'ios'} />
             </Phone>
-            <Phone width={150} label="②「外部ブラウザで開く」">
+            <Phone width={150} label={tr('②「外部ブラウザで開く」')}>
               <InAppMenu hi="menu" />
             </Phone>
           </div>
           <div className="inst-buttons">
             {ext && (
               <a className="btn btn-go" href={ext} data-testid="install-open-external">
-                {os === 'android' ? 'Chrome で ひらく' : 'Safari で ひらく'}
+                {os === 'android' ? tr('Chrome で ひらく') : tr('Safari で ひらく')}
               </a>
             )}
             <button className="btn" onClick={copy} data-testid="install-copy">
-              {copied ? 'コピーしました' : 'リンクを コピー'}
+              {copied ? tr('コピーしました') : tr('リンクを コピー')}
             </button>
           </div>
-          <p className="par-note">ボタンで開かないときは、上の図のように「…」から開くか、リンクをコピーして {os === 'android' ? 'Chrome' : 'Safari'} のアドレス欄に貼りつけてください。</p>
+          <p className="par-note">{tr('ボタンで開かないときは、上の図のように「…」から開くか、リンクをコピーして {0} のアドレス欄に貼りつけてください。', [os === 'android' ? 'Chrome' : 'Safari'])}</p>
           <p className="inst-url">{url}</p>
         </section>
       )}
@@ -93,15 +95,15 @@ export function Install() {
             }}
             data-testid="install-prompt"
           >
-            📲 ホーム画面に入れる
+            {tr('📲 ホーム画面に入れる')}
           </button>
         </section>
       )}
 
-      <div className="seg inst-tabs" role="tablist" aria-label="スマホの しゅるい">
+      <div className="seg inst-tabs" role="tablist" aria-label={tr('スマホの しゅるい')}>
         {(['ios', 'android'] as Tab[]).map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} aria-checked={tab === t} onClick={() => setTab(t)} data-testid={`install-tab-${t}`}>
-            {t === 'ios' ? 'iPhone・iPad（Safari）' : 'Android（Chrome）'}
+            {t === 'ios' ? tr('iPhone・iPad（Safari）') : 'Android（Chrome）'}
           </button>
         ))}
       </div>
@@ -113,7 +115,7 @@ export function Install() {
               <SafariScreen hi="share" />
             </Phone>
             <p>
-              <b>Safari</b> で開いて、下の <b>共有ボタン</b>（四角と上向きの矢印）をタップ。見つからないときは「…」の中にあります。
+              <Rich text={tr('**Safari** で開いて、下の **共有ボタン**（四角と上向きの矢印）をタップ。見つからないときは「…」の中にあります。')} />
             </p>
           </li>
           <li>
@@ -121,7 +123,7 @@ export function Install() {
               <ShareSheetArt hi="addHome" />
             </Phone>
             <p>
-              下へ動かして <b>「ホーム画面に追加」</b> をタップ。
+              <Rich text={tr('下へ動かして **「ホーム画面に追加」** をタップ。')} />
             </p>
           </li>
           <li>
@@ -129,14 +131,14 @@ export function Install() {
               <AddHomeArt hi="add" />
             </Phone>
             <p>
-              右上の <b>「追加」</b> をタップ。
+              <Rich text={tr('右上の **「追加」** をタップ。')} />
             </p>
           </li>
           <li>
             <Phone width={170}>
               <HomeScreenArt hi="icon" />
             </Phone>
-            <p>ホーム画面の ピクルくんから開けます。</p>
+            <p>{tr('ホーム画面の ピクルくんから開けます。')}</p>
           </li>
         </ol>
       ) : (
@@ -146,7 +148,7 @@ export function Install() {
               <ChromeScreen hi="cmore" />
             </Phone>
             <p>
-              <b>Chrome</b> で開いて、右上の <b>「⋮」</b> をタップ。
+              <Rich text={tr('**Chrome** で開いて、右上の **「⋮」** をタップ。')} />
             </p>
           </li>
           <li>
@@ -154,7 +156,7 @@ export function Install() {
               <ChromeMenuArt hi="cmenu" />
             </Phone>
             <p>
-              <b>「ホーム画面に追加」</b> か <b>「アプリをインストール」</b> をタップ。
+              <Rich text={tr('**「ホーム画面に追加」** か **「アプリをインストール」** をタップ。')} />
             </p>
           </li>
           <li>
@@ -162,24 +164,24 @@ export function Install() {
               <InstallDialogArt hi="install" />
             </Phone>
             <p>
-              <b>「インストール」</b>（または「追加」）をタップ。
+              <Rich text={tr('**「インストール」**（または「追加」）をタップ。')} />
             </p>
           </li>
           <li>
             <Phone width={170}>
               <HomeScreenArt hi="icon" />
             </Phone>
-            <p>ホーム画面の ピクルくんから開けます。</p>
+            <p>{tr('ホーム画面の ピクルくんから開けます。')}</p>
           </li>
         </ol>
       )}
 
       <section className="par-card">
-        <h2>知っておくと よいこと</h2>
+        <h2>{tr('知っておくと よいこと')}</h2>
         <ul className="inst-notes">
-          <li>ボタンの名前や場所は、アプリ・OS の版によって少しちがいます。</li>
-          <li>記録（ほし・きせかえ・メダル）は、ブラウザごと・ホーム画面のアプリごとに別々に保存されます。ホーム画面に入れたら、そこから遊ぶのがおすすめです。</li>
-          <li>ホーム画面に入れても、お金はかかりません。広告もありません。</li>
+          <li>{tr('ボタンの名前や場所は、アプリ・OS の版によって少しちがいます。')}</li>
+          <li>{tr('記録（ほし・きせかえ・メダル）は、ブラウザごと・ホーム画面のアプリごとに別々に保存されます。ホーム画面に入れたら、そこから遊ぶのがおすすめです。')}</li>
+          <li>{tr('ホーム画面に入れても、お金はかかりません。広告もありません。')}</li>
         </ul>
       </section>
     </main>

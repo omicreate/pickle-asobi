@@ -28,6 +28,7 @@ import '../../shell/setup.css'
 import '../../shell/party/party.css'
 import '../nise/nise.css'
 import './gesture.css'
+import { isEn, t as tr } from '../../i18n'
 
 type Phase = 'setup' | 'pass' | 'countdown' | 'act' | 'turn' | 'final'
 
@@ -146,25 +147,25 @@ export function GestureGame() {
     return (
       <main className="party gesture">
         <header className="party-head">
-          <a className="btn btn-small" href="#/" aria-label="もどる">
+          <a className="btn btn-small" href="#/" aria-label={tr('もどる')}>
             ←
           </a>
-          <h1 className="party-title">ジェスチャー ピックル</h1>
+          <h1 className="party-title">{tr('ジェスチャー ピックル')}</h1>
         </header>
         <div className="party-intro">
           <PikuruCut art="ok" height={92} />
-          <p>やる ひとだけ がめんを みて、こえを ださずに からだで まねしよう。みんなで いくつ あてられるかな？</p>
-          <button className="btn btn-small" aria-label="せつめいを よみあげる" onClick={() => speak(PHRASES.gestIntro)}>
+          <p>{tr('やる ひとだけ がめんを みて、こえを ださずに からだで まねしよう。みんなで いくつ あてられるかな？')}</p>
+          <button className="btn btn-small" aria-label={tr('せつめいを よみあげる')} onClick={() => speak(PHRASES.gestIntro)}>
             🗣️
           </button>
         </div>
-        <p className="gesture-safe">⚠️ パドルは もたずに、てで やろう。まわりに ぶつからない ひろい ところで。</p>
+        <p className="gesture-safe">{tr('⚠️ パドルは もたずに、てで やろう。まわりに ぶつからない ひろい ところで。')}</p>
 
-        <h2 className="party-label">なんにんで あそぶ？</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="にんずう">
+        <h2 className="party-label">{tr('なんにんで あそぶ？')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={tr('にんずう')}>
           {Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN).map((n) => (
             <button key={n} role="radio" aria-checked={count === n} onClick={() => setCount(n)} data-testid={`gesture-count-${n}`}>
-              {n}にん
+              {isEn ? n : tr('{0}にん', [n])}
             </button>
           ))}
         </div>
@@ -176,8 +177,8 @@ export function GestureGame() {
           ))}
         </p>
 
-        <h2 className="party-label">おだい</h2>
-        <div className="seg party-seg nise-decks" role="radiogroup" aria-label="おだい">
+        <h2 className="party-label">{tr('おだい')}</h2>
+        <div className="seg party-seg nise-decks" role="radiogroup" aria-label={tr('おだい')}>
           {G_DECKS.map((d) => (
             <button key={d} role="radio" aria-checked={deck === d} onClick={() => setDeck(d)} data-testid={`gesture-deck-${d}`}>
               <b>{G_DECK_INFO[d].label}</b>
@@ -186,22 +187,22 @@ export function GestureGame() {
           ))}
         </div>
 
-        <h2 className="party-label">ひとりの じかん</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="ひとりの じかん">
+        <h2 className="party-label">{tr('ひとりの じかん')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={tr('ひとりの じかん')}>
           {ACT_TIMES.map((t) => (
             <button key={t} role="radio" aria-checked={time === t} onClick={() => setTime(t)}>
-              {t}びょう
+              {tr('{0}びょう', [t])}
             </button>
           ))}
         </div>
-        {best[bestKey] ? <p className="party-note">じこベスト：みんなで {best[bestKey]}こ</p> : null}
-        <p className="party-note">じが よめない ときは、おうちの ひとが こっそり よんであげてね。</p>
+        {best[bestKey] ? <p className="party-note">{tr('じこベスト：みんなで {0}こ', [best[bestKey]])}</p> : null}
+        <p className="party-note">{tr('じが よめない ときは、おうちの ひとが こっそり よんであげてね。')}</p>
 
         <button className="btn solo-help" onClick={() => setHelp(true)}>
-          ？ あそびかた・ルールを みる
+          {tr('？ あそびかた・ルールを みる')}
         </button>
         <button className="btn btn-go party-start" onClick={start} data-testid="gesture-start">
-          はじめる！
+          {tr('はじめる！')}
         </button>
         {help && <HowToSheet game="gesture" onClose={() => setHelp(false)} fixed />}
       </main>
@@ -217,9 +218,9 @@ export function GestureGame() {
         <Handoff
           name={p.name}
           color={p.color}
-          sub={`${actor + 1} / ${count}にんめ・${time}びょう`}
-          note="やる ひとだけ がめんを みてね。こえは だしちゃ だめ！"
-          go="じゅんび OK（タッチで スタート）"
+          sub={tr('{0} / {1}にんめ・{2}びょう', [actor + 1, count, time])}
+          note={tr('やる ひとだけ がめんを みてね。こえは だしちゃ だめ！')}
+          go={tr('じゅんび OK（タッチで スタート）')}
           onGo={() => {
             unlockAudio()
             stopSpeaking()
@@ -245,15 +246,15 @@ export function GestureGame() {
             <span className="party-chip" style={{ background: p.color }}>
               {p.name}
             </span>
-            <div className="gesture-timer" aria-label={`のこり ${Math.ceil(left)}びょう`}>
+            <div className="gesture-timer" aria-label={tr('のこり {0}びょう', [Math.ceil(left)])}>
               <i style={{ width: `${Math.max(0, Math.min(1, left / time)) * 100}%` }} data-low={left <= 10 || undefined} />
               <span>{Math.ceil(left)}</span>
             </div>
-            <span className="gesture-got">あたり {turnScore(myLog)}</span>
+            <span className="gesture-got">{tr('あたり {0}', [turnScore(myLog)])}</span>
           </div>
           <div className="gesture-card" data-testid="gesture-card">
             <span className="gesture-say">{card.say}</span>
-            <span className="gesture-how">こんな ふうに：{card.act}</span>
+            <span className="gesture-how">{tr('こんな ふうに：{0}', [card.act])}</span>
           </div>
           <div className="gesture-buttons">
             <button
@@ -264,7 +265,7 @@ export function GestureGame() {
               }}
               data-testid="gesture-pass"
             >
-              パス
+              {tr('パス')}
             </button>
             <button
               className="btn btn-go gesture-hit"
@@ -274,13 +275,13 @@ export function GestureGame() {
               }}
               data-testid="gesture-hit"
             >
-              あたり！
+              {tr('あたり！')}
             </button>
           </div>
-          <button className="btn btn-small gesture-pause" onClick={() => setPaused((x) => !x)} aria-label={paused ? 'つづける' : 'とめる'}>
+          <button className="btn btn-small gesture-pause" onClick={() => setPaused((x) => !x)} aria-label={paused ? tr('つづける') : tr('とめる')}>
             {paused ? '▶' : '⏸'}
           </button>
-          {paused && <div className="gesture-paused">とまっているよ（▶ で つづき）</div>}
+          {paused && <div className="gesture-paused">{tr('とまっているよ（▶ で つづき）')}</div>}
         </section>
       )}
 
@@ -291,7 +292,7 @@ export function GestureGame() {
           </span>
           <p className="party-value">
             {turnScore(myLog)}
-            <small>こ つたわった！</small>
+            <small>{tr('こ つたわった！')}</small>
           </p>
           <CardList log={myLog} />
           <button
@@ -306,7 +307,7 @@ export function GestureGame() {
             }}
             data-testid="gesture-next"
           >
-            {actor + 1 < count ? `つぎは ${players[actor + 1].name}` : 'みんなの けっか'}
+            {actor + 1 < count ? tr('つぎは {0}', [players[actor + 1].name]) : tr('みんなの けっか')}
           </button>
         </section>
       )}
@@ -316,21 +317,21 @@ export function GestureGame() {
           <div className="nise-art">
             <PikuruCut art="ok" height={96} />
           </div>
-          <p className="party-round">みんなで つたえた かず</p>
+          <p className="party-round">{tr('みんなで つたえた かず')}</p>
           <p className="party-value" data-testid="gesture-total">
             {teamTotal(logs)}
-            <small>こ</small>
+            <small>{tr('こ')}</small>
           </p>
-          {newBest && <p className="party-top">じこベスト こうしん！</p>}
-          <p className="party-note">じこベスト：{best[bestKey] ?? teamTotal(logs)}こ（{G_DECK_INFO[deck].label}・{time}びょう）</p>
+          {newBest && <p className="party-top">{tr('じこベスト こうしん！')}</p>}
+          <p className="party-note">{tr('じこベスト：{0}こ（{1}・{2}びょう）', [best[bestKey] ?? teamTotal(logs), G_DECK_INFO[deck].label, time])}</p>
           <ul className="party-totals">
             {players.map((q, i) => (
               <li key={q.name}>
                 <span className="party-chip" style={{ background: q.color }}>
                   {q.name}
                 </span>
-                {bestActors(logs).includes(i) && <span className="nise-mark">つたえ めいじん</span>}
-                <b>{turnScore(logs[i] ?? [])}こ</b>
+                {bestActors(logs).includes(i) && <span className="nise-mark">{tr('つたえ めいじん')}</span>}
+                <b>{tr('{0}こ', [turnScore(logs[i] ?? [])])}</b>
               </li>
             ))}
           </ul>
@@ -338,15 +339,15 @@ export function GestureGame() {
           <RewardList rewards={rewards} />
           <div className="party-actions">
             <button className="btn btn-go" onClick={start} data-testid="gesture-again">
-              もういちど
+              {tr('もういちど')}
             </button>
             <button className="btn" onClick={() => setPhase('setup')}>
-              にんずう・おだいを かえる
+              {tr('にんずう・おだいを かえる')}
             </button>
             <a className="btn" href="#/">
-              おわる
+              {tr('おわる')}
             </a>
-            <button className="btn result-share" aria-label="きねんカード（おうちの人と いっしょに）" onClick={() => setShare(true)} data-testid="share-btn">
+            <button className="btn result-share" aria-label={tr('きねんカード（おうちの人と いっしょに）')} onClick={() => setShare(true)} data-testid="share-btn">
               📸
             </button>
           </div>
@@ -357,9 +358,9 @@ export function GestureGame() {
           fixed
           card={{
             game: 'gesture',
-            gameTitle: 'ジェスチャー ピックル',
-            title: `みんなで ${teamTotal(logs)}こ つたわった！`,
-            sub: `${count}にん・${G_DECK_INFO[deck].label}・${time}びょう`,
+            gameTitle: tr('ジェスチャー ピックル'),
+            title: tr('みんなで {0}こ つたわった！', [teamTotal(logs)]),
+            sub: tr('{0}にん・{1}・{2}びょう', [count, G_DECK_INFO[deck].label, time]),
             face: 'ok',
             wear: getProgress().wear,
           }}
@@ -368,7 +369,7 @@ export function GestureGame() {
       )}
 
       {phase !== 'pass' && phase !== 'act' && phase !== 'countdown' && (
-        <button className="btn btn-small nise-help" aria-label="あそびかた・ルール" onClick={() => setHelp(true)}>
+        <button className="btn btn-small nise-help" aria-label={tr('あそびかた・ルール')} onClick={() => setHelp(true)}>
           ？
         </button>
       )}
@@ -389,7 +390,7 @@ export function GestureGame() {
 
 /** その人のお題（あたり・パス） */
 function CardList({ log }: { log: TurnLog[] }) {
-  if (!log.length) return <p className="party-note">こんどは きっと つたわるよ！</p>
+  if (!log.length) return <p className="party-note">{tr('こんどは きっと つたわるよ！')}</p>
   return (
     <ul className="gesture-list">
       {log.map((x, i) => (
@@ -409,7 +410,7 @@ function Tips({ logs }: { logs: TurnLog[][] }) {
   if (!seen.size) return null
   return (
     <div className="nise-tip">
-      <b>まめちしき</b>
+      <b>{tr('まめちしき')}</b>
       {[...seen.values()].map((c) => (
         <p key={c.id}>
           <b>{c.say}</b>：{c.tip}

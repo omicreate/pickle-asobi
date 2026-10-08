@@ -16,6 +16,7 @@ import { MissionCard } from './MissionCard'
 import { href } from './route'
 import './home.css'
 import './install.css'
+import { isEn, setLang, t } from '../i18n'
 
 /** ゲーム名：単語の途中で折り返さないよう、区切ってよい所（| の所）でだけ折り返す */
 function CardTitle({ g }: { g: GameInfo }) {
@@ -69,22 +70,27 @@ export function Home() {
   return (
     <main className="home">
       <header className="home-hero">
-        <a className="home-pikuru" href="#/collection" aria-label="ピクルくんの きせかえ">
+        <a className="home-pikuru" href="#/collection" aria-label={t('ピクルくんの きせかえ')}>
           <PikuruCut art="full" height={150} />
         </a>
         <div>
           <h1 className="home-title">
-            ピクルくんと
-            <br />
-            あそぼ
+            {t('ピクルくんと|あそぼ')
+              .split('|')
+              .map((s, i) => (
+                <span key={i}>
+                  {i > 0 && <br />}
+                  {s}
+                </span>
+              ))}
           </h1>
-          <p className="home-lead">ひとりでも ふたりでも みんなでも あそべるよ</p>
+          <p className="home-lead">{t('ひとりでも ふたりでも みんなでも あそべるよ')}</p>
           <div className="home-hero-btns">
             <a className="btn btn-small home-dress" href="#/collection" onClick={unlockAudio}>
-              👕 きせかえ
+              {t('👕 きせかえ')}
             </a>
             <a className="btn btn-small home-dress" href="#/records" onClick={unlockAudio} data-testid="records-link">
-              🏅 きろく {medalCount(progress) > 0 ? medalCount(progress) : ''}
+              {t('🏅 きろく {0}', [medalCount(progress) > 0 ? medalCount(progress) : ''])}
             </a>
           </div>
         </div>
@@ -93,10 +99,10 @@ export function Home() {
       {inApp && (
         <div className="inapp-banner" data-testid="inapp-banner">
           <p>
-            おうちの方へ：いま {inApp} の中で開いています。ホーム画面に入れるには、Safari・Chrome で開きなおしてください。
+            {t('おうちの方へ：いま {0} の中で開いています。ホーム画面に入れるには、Safari・Chrome で開きなおしてください。', [t(inApp)])}
           </p>
           <a className="btn btn-small" href="#/install">
-            ほうほう
+            {t('ほうほう')}
           </a>
         </div>
       )}
@@ -106,7 +112,7 @@ export function Home() {
       {recent.length > 0 && (
         <section className="home-recent" aria-labelledby="games-recent">
           <h2 id="games-recent" className="game-section-title">
-            また あそぶ
+            {t('また あそぶ')}
           </h2>
           <ul className="recent-list">
             {recent.map((g) => (
@@ -124,7 +130,7 @@ export function Home() {
       {([2, 1] as const).map((n) => (
         <section key={n} className="game-section" aria-labelledby={`games-${n}`}>
           <h2 id={`games-${n}`} className="game-section-title">
-            {n === 2 ? 'ふたりで あそぶ' : 'ひとりで あそぶ'}
+            {n === 2 ? t('ふたりで あそぶ') : t('ひとりで あそぶ')}
           </h2>
           <ul className="game-list">
             {GAMES.filter((g) => g.players === n && !g.adult).map((g) => (
@@ -138,16 +144,16 @@ export function Home() {
 
       <section className="game-section" aria-labelledby="games-adult">
         <h2 id="games-adult" className="game-section-title">
-          おとなも むちゅう
+          {t('おとなも むちゅう')}
         </h2>
-        <p className="game-section-lead">サッと あそべて、けっかで もりあがる しょうぶ</p>
+        <p className="game-section-lead">{t('サッと あそべて、けっかで もりあがる しょうぶ')}</p>
         <ul className="game-list">
           {GAMES.filter((g) => g.adult).map((g) => (
             <li key={g.id}>
               <GameCard
                 g={g}
                 className="game-card-adult"
-                tag={g.players === 2 ? `ふたり・${g.tag}` : g.tag}
+                tag={g.players === 2 ? t('ふたり・{0}', [g.tag]) : g.tag}
                 best={progress.best[g.id]}
                 medal={progress.medals[g.id] ?? 0}
               />
@@ -158,50 +164,53 @@ export function Home() {
 
       <section className="game-section" aria-labelledby="games-party">
         <h2 id="games-party" className="game-section-title">
-          みんなで あそぶ
+          {t('みんなで あそぶ')}
         </h2>
-        <p className="game-section-lead">1だいを じゅんばんに てわたし して あそぶよ</p>
+        <p className="game-section-lead">{t('1だいを じゅんばんに てわたし して あそぶよ')}</p>
         <ul className="game-list game-list-group">
           {GAMES.filter((g) => g.players === 'group').map((g) => (
             <li key={g.id}>
-              <GameCard g={g} className="game-card-group" tag={g.sizes ? `${g.sizes.join('・')}にん` : g.range ? `${g.range[0]}〜${g.range[1]}にん` : g.tag} medal={0} />
+              <GameCard g={g} className="game-card-group" tag={g.sizes ? t('{0}にん', [g.sizes.join(t('・'))]) : g.range ? t('{0}〜{1}にん', [g.range[0], g.range[1]]) : g.tag} medal={0} />
             </li>
           ))}
         </ul>
         <a className="game-card game-card-party" href="#/party" data-game="party" onClick={unlockAudio}>
           <Pikuru face="ok" size={72} />
           <span className="game-text">
-            <span className="game-tag">2〜6にん</span>
-            <span className="game-title">じゅんばんモード</span>
-            <span className="game-desc">1だいを じゅんばんに まわして、きろくで しょうぶ！</span>
+            <span className="game-tag">{t('2〜6にん')}</span>
+            <span className="game-title">{t('じゅんばんモード')}</span>
+            <span className="game-desc">{t('1だいを じゅんばんに まわして、きろくで しょうぶ！')}</span>
           </span>
         </a>
       </section>
 
-      <section className="home-toggles" aria-label="せってい">
+      <section className="home-toggles" aria-label={t('せってい')}>
         <button className="toggle" aria-pressed={settings.sound} onClick={() => setSettings({ sound: !settings.sound })}>
-          <span aria-hidden>{settings.sound ? '🔊' : '🔇'}</span> おと {settings.sound ? 'あり' : 'なし'}
+          <span aria-hidden>{settings.sound ? '🔊' : '🔇'}</span>{' '}{t('おと')}{' '}{settings.sound ? t('あり') : t('なし')}
         </button>
         <button className="toggle" aria-pressed={settings.speak} onClick={() => setSettings({ speak: !settings.speak })}>
-          <span aria-hidden>{settings.speak ? '🗣️' : '🤐'}</span> よみあげ {settings.speak ? 'あり' : 'なし'}
+          <span aria-hidden>{settings.speak ? '🗣️' : '🤐'}</span>{' '}{t('よみあげ')}{' '}{settings.speak ? t('あり') : t('なし')}
+        </button>
+        <button className="toggle" lang={isEn ? 'ja' : 'en'} onClick={() => setLang(isEn ? 'ja' : 'en')} data-testid="lang-toggle">
+          <span aria-hidden>🌐</span> {isEn ? 'にほんご' : 'English'}
         </button>
       </section>
 
       <a className="home-parents" href="#/parents" data-testid="parents-link">
-        おうちの方へ（記録・集計・共有・あそびかた）
+        {t('おうちの方へ（記録・集計・共有・あそびかた）')}
       </a>
 
       {welcome && (
         <div className="welcome-backdrop" onClick={() => setWelcome(false)}>
-          <div className="welcome" role="dialog" aria-label="はじめての プレゼント" onClick={(e) => e.stopPropagation()}>
+          <div className="welcome" role="dialog" aria-label={t('はじめての プレゼント')} onClick={(e) => e.stopPropagation()}>
             <PikuruCut art="ok" height={120} />
-            <p className="welcome-title">はじめての プレゼント！</p>
+            <p className="welcome-title">{t('はじめての プレゼント！')}</p>
             <p className="welcome-stars">⭐ × {WELCOME_STARS}</p>
-            <p className="welcome-sub">ほしで ピクルくんの こものや パドルと こうかん できるよ</p>
+            <p className="welcome-sub">{t('ほしで ピクルくんの こものや パドルと こうかん できるよ')}</p>
             <div className="welcome-actions">
               <button
                 className="btn btn-small"
-                aria-label="よみあげる"
+                aria-label={t('よみあげる')}
                 onClick={() => {
                   unlockAudio()
                   speak(PHRASES.welcome)
@@ -210,7 +219,7 @@ export function Home() {
                 🗣️
               </button>
               <button className="btn btn-go" onClick={() => setWelcome(false)}>
-                ありがとう！
+                {t('ありがとう！')}
               </button>
             </div>
           </div>

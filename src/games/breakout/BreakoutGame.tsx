@@ -23,6 +23,7 @@ import { PikuruCut } from '../../ui/pikuruArt'
 import type { BreakoutState } from './breakout'
 import { usePlay } from '../../shell/playContext'
 import './breakout.css'
+import { t as tr } from '../../i18n'
 
 interface Props {
   two: boolean
@@ -110,12 +111,12 @@ export function BreakoutGame({ two, levels, paused, onRestart }: Props) {
           case 'miss':
             sfx.ng()
             react('oops', 1.2)
-            if (!two && ev.livesLeft > 0) flash({ title: 'おっと！', sub: `のこり ${ev.livesLeft}`, face: 'oops' }, 1.2)
+            if (!two && ev.livesLeft > 0) flash({ title: tr('おっと！'), sub: tr('のこり {0}', [ev.livesLeft]), face: 'oops' }, 1.2)
             break
           case 'clear':
             sfx.fanfare()
             react('ok', 1.6)
-            if (ev.stage + 1 < STAGES) flash({ title: `ステージ ${ev.stage + 1} クリア！`, sub: 'つぎは すこし はやいよ', face: 'ok' }, 1.6)
+            if (ev.stage + 1 < STAGES) flash({ title: tr('ステージ {0} クリア！', [ev.stage + 1]), sub: tr('つぎは すこし はやいよ'), face: 'ok' }, 1.6)
             break
           case 'over': {
             sfx.fanfare()
@@ -188,19 +189,19 @@ export function BreakoutGame({ two, levels, paused, onRestart }: Props) {
       {two ? (
         <>
           <Scores score={hud.score} />
-          <div className="bo-timer" aria-label={`のこり ${hud.time}びょう`}>
+          <div className="bo-timer" aria-label={tr('のこり {0}びょう', [hud.time])}>
             <PikuruCut art={pkFace} height={40} />
             <span>{hud.time}</span>
           </div>
         </>
       ) : (
         <div className="bo-hud">
-          <span className="bo-lives" aria-label={`ライフ ${hud.lives}`}>
+          <span className="bo-lives" aria-label={tr('ライフ {0}', [hud.lives])}>
             {'❤️'.repeat(Math.max(0, hud.lives))}
           </span>
-          <span className="bo-stage">{contest ? `のこり ${hud.time}びょう` : `ステージ ${Math.min(hud.stage + 1, STAGES)}/${STAGES}`}</span>
+          <span className="bo-stage">{contest ? tr('のこり {0}びょう', [hud.time]) : tr('ステージ {0}/{1}', [Math.min(hud.stage + 1, STAGES), STAGES])}</span>
           <PikuruCut art={pkFace} height={40} className="bo-pikuru" />
-          <span className="bo-score">{hud.score[0]}てん</span>
+          <span className="bo-score">{tr('{0}てん', [hud.score[0]])}</span>
         </div>
       )}
       <Notice data={notice} />
@@ -208,16 +209,16 @@ export function BreakoutGame({ two, levels, paused, onRestart }: Props) {
         !contest &&
         (two ? (
           <Result
-            title={(side) => (over.winner === null ? 'ひきわけ！' : side === over.winner ? 'かち！ やったね' : 'おしい！')}
-            sub={(side) => `${hud.score[side]} たい ${hud.score[other(side)]}`}
+            title={(side) => (over.winner === null ? tr('ひきわけ！') : side === over.winner ? tr('かち！ やったね') : tr('おしい！'))}
+            sub={(side) => tr('{0} たい {1}', [hud.score[side], hud.score[other(side)]])}
             face={(side) => (over.winner === null || side === over.winner ? 'ok' : 'oops')}
             onAgain={onRestart}
           />
         ) : (
           <Result
             single
-            title={() => (over.winner === 0 ? 'ぜんぶ くずした！' : `${hud.score[0]}てん！`)}
-            sub={() => (hud.score[0] >= over.best && hud.score[0] > 0 ? 'さいこう きろく！' : `さいこうは ${over.best}てん（${LEVEL_INFO[levels[0]].label}）`)}
+            title={() => (over.winner === 0 ? tr('ぜんぶ くずした！') : tr('{0}てん！', [hud.score[0]]))}
+            sub={() => (hud.score[0] >= over.best && hud.score[0] > 0 ? tr('さいこう きろく！') : tr('さいこうは {0}てん（{1}）', [over.best, LEVEL_INFO[levels[0]].label]))}
             face={() => (over.winner === 0 ? 'ok' : 'eh')}
             onAgain={onRestart}
           />

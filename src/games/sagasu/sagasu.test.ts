@@ -67,6 +67,8 @@ describe('まちがいさがし', () => {
         const r = makeDiff(lv, 100, 85, rand)
         expect(r.diffs.length, lv).toBe(DIFF[lv].diffs)
         expect(new Set(r.diffs.map((d) => d.id)).size).toBe(r.diffs.length)
+        // 下の絵の物も id が1つずつ（ボールを2つ足しても、絵の key が重ならない）
+        expect(new Set(r.b.things.map((t) => t.id)).size).toBe(r.b.things.length)
       }
     }
   })

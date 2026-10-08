@@ -30,6 +30,7 @@ import type { Deck, Word } from './words'
 import '../../shell/setup.css'
 import '../../shell/party/party.css'
 import './nise.css'
+import { isEn, t as tr } from '../../i18n'
 
 type Phase = 'setup' | 'pass' | 'peek' | 'ready' | 'talk' | 'count' | 'point' | 'votePass' | 'vote' | 'reveal' | 'guess' | 'result'
 
@@ -247,24 +248,24 @@ export function NiseGame() {
     return (
       <main className="party nise">
         <header className="party-head">
-          <a className="btn btn-small" href="#/" aria-label="もどる">
+          <a className="btn btn-small" href="#/" aria-label={tr('もどる')}>
             ←
           </a>
-          <h1 className="party-title">にせピクルくんは だれだ？</h1>
+          <h1 className="party-title">{tr('にせピクルくんは だれだ？')}</h1>
         </header>
         <div className="party-intro">
           <PikuruCut art="think" height={92} />
-          <p>ひとりだけ おだいが ちがう「にせピクルくん」が いるよ。はなして、せーので ゆびさし！ にせピクルくんは、じぶんが にせものだと しらないよ。</p>
-          <button className="btn btn-small" aria-label="せつめいを よみあげる" onClick={() => speak(PHRASES.niseIntro)}>
+          <p>{tr('ひとりだけ おだいが ちがう「にせピクルくん」が いるよ。はなして、せーので ゆびさし！ にせピクルくんは、じぶんが にせものだと しらないよ。')}</p>
+          <button className="btn btn-small" aria-label={tr('せつめいを よみあげる')} onClick={() => speak(PHRASES.niseIntro)}>
             🗣️
           </button>
         </div>
 
-        <h2 className="party-label">なんにんで あそぶ？</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="にんずう">
+        <h2 className="party-label">{tr('なんにんで あそぶ？')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={tr('にんずう')}>
           {Array.from({ length: MAX - MIN_PLAYERS + 1 }, (_, i) => i + MIN_PLAYERS).map((n) => (
             <button key={n} role="radio" aria-checked={count === n} onClick={() => setCount(n)} data-testid={`nise-count-${n}`}>
-              {n}にん
+              {isEn ? n : tr('{0}にん', [n])}
             </button>
           ))}
         </div>
@@ -275,10 +276,10 @@ export function NiseGame() {
             </span>
           ))}
         </p>
-        <p className="party-note">じぶんの いろを きめてね。この じゅんばんに てわたしするよ。</p>
+        <p className="party-note">{tr('じぶんの いろを きめてね。この じゅんばんに てわたしするよ。')}</p>
 
-        <h2 className="party-label">おだい</h2>
-        <div className="seg party-seg nise-decks" role="radiogroup" aria-label="おだい">
+        <h2 className="party-label">{tr('おだい')}</h2>
+        <div className="seg party-seg nise-decks" role="radiogroup" aria-label={tr('おだい')}>
           {DECKS.map((d) => (
             <button key={d} role="radio" aria-checked={deck === d} onClick={() => setDeck(d)} data-testid={`nise-deck-${d}`}>
               <b>{DECK_INFO[d].label}</b>
@@ -287,32 +288,32 @@ export function NiseGame() {
           ))}
         </div>
 
-        <h2 className="party-label">はなす じかん</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="はなす じかん">
+        <h2 className="party-label">{tr('はなす じかん')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={tr('はなす じかん')}>
           {TALK_TIMES.map((t) => (
             <button key={t} role="radio" aria-checked={talk === t} onClick={() => setTalk(t)}>
-              {t / 60}ふん
+              {tr('{0}ふん', [t / 60])}
             </button>
           ))}
         </div>
 
-        <h2 className="party-label">きめかた</h2>
-        <div className="seg party-seg" role="radiogroup" aria-label="きめかた">
+        <h2 className="party-label">{tr('きめかた')}</h2>
+        <div className="seg party-seg" role="radiogroup" aria-label={tr('きめかた')}>
           {VOTE_MODES.map((m) => (
             <button key={m} role="radio" aria-checked={vote === m} onClick={() => setVote(m)} data-testid={`nise-vote-${m}`}>
-              {m === 'point' ? 'せーので ゆびさし' : 'こっそり とうひょう'}
+              {m === 'point' ? tr('せーので ゆびさし') : tr('こっそり とうひょう')}
             </button>
           ))}
         </div>
         <p className="party-note">
-          {vote === 'point' ? 'みんなで いっせいに ゆびさすよ。いちばん おおく さされた ひとを えらんでね。' : '1だいを まわして、ひとりずつ こっそり とうひょう。ひとを ゆびささずに きめられるよ。'}
+          {vote === 'point' ? tr('みんなで いっせいに ゆびさすよ。いちばん おおく さされた ひとを えらんでね。') : tr('1だいを まわして、ひとりずつ こっそり とうひょう。ひとを ゆびささずに きめられるよ。')}
         </p>
 
         <button className="btn solo-help" onClick={() => setHelp(true)}>
-          ？ あそびかた・ルールを みる
+          {tr('？ あそびかた・ルールを みる')}
         </button>
         <button className="btn btn-go party-start" onClick={() => startRound(true)} data-testid="nise-start">
-          はじめる！
+          {tr('はじめる！')}
         </button>
         {help && <HowToSheet game="nise" onClose={() => setHelp(false)} fixed />}
       </main>
@@ -329,9 +330,9 @@ export function NiseGame() {
         <Handoff
           name={p.name}
           color={p.color}
-          sub={recheck ? 'おだいを もういちど みる' : `${who + 1} / ${count}にんめ`}
-          note={`${p.name}の ひとに わたしてね。ほかの ひとは みないでね！`}
-          go={`${p.name}だけで みる（タッチ）`}
+          sub={recheck ? tr('おだいを もういちど みる') : tr('{0} / {1}にんめ', [who + 1, count])}
+          note={tr('{0}の ひとに わたしてね。ほかの ひとは みないでね！', [p.name])}
+          go={tr('{0}だけで みる（タッチ）', [p.name])}
           onGo={() => {
             unlockAudio()
             stopSpeaking()
@@ -345,16 +346,16 @@ export function NiseGame() {
       {phase === 'peek' && (
         <section className="party-card nise-peek" style={{ borderColor: p.color }} data-testid="nise-peek">
           <span className="party-chip party-chip-big" style={{ background: p.color }}>
-            {p.name}の おだい
+            {tr('{0}の おだい', [p.name])}
           </span>
           <WordCard word={wordFor(round, who)} />
           <p className="nise-peek-note">
-            おだいの ことばは いわないでね。
+            {tr('おだいの ことばは いわないでね。')}
             <br />
-            みんなと ちがう おだいかも？ はなしながら たしかめよう。
+            {tr('みんなと ちがう おだいかも？ はなしながら たしかめよう。')}
           </p>
           <button className="btn btn-go" onClick={hidePeek} data-testid="nise-hide">
-            おぼえた！ かくす
+            {tr('おぼえた！ かくす')}
           </button>
         </section>
       )}
@@ -362,45 +363,45 @@ export function NiseGame() {
       {phase === 'ready' && (
         <section className="party-card">
           <PikuruCut art="ok" height={110} />
-          <h2 className="party-game">みんな おだいを みたね！</h2>
-          <p className="party-howto">つくえの まんなかに おいて、はなしあい スタート。おだいの ことばは いっちゃ だめだよ。</p>
+          <h2 className="party-game">{tr('みんな おだいを みたね！')}</h2>
+          <p className="party-howto">{tr('つくえの まんなかに おいて、はなしあい スタート。おだいの ことばは いっちゃ だめだよ。')}</p>
           <button className="btn btn-go" onClick={() => startTalk(talk, false)} data-testid="nise-talk">
-            はなしあい スタート！（{talk / 60}ふん）
+            {tr('はなしあい スタート！（{0}ふん）', [talk / 60])}
           </button>
         </section>
       )}
 
       {phase === 'talk' && (
         <section className="party-card nise-talk" data-testid="nise-talk-card">
-          {tie && <p className="nise-tie">けっせん！ もう すこし はなそう</p>}
+          {tie && <p className="nise-tie">{tr('けっせん！ もう すこし はなそう')}</p>}
           {tie && counts && <VoteCounts counts={counts} players={players} />}
-          <div className="nise-timer" data-low={left <= 10 || undefined} aria-label={`のこり ${Math.ceil(left)}びょう`}>
+          <div className="nise-timer" data-low={left <= 10 || undefined} aria-label={tr('のこり {0}びょう', [Math.ceil(left)])}>
             {mmss(left)}
           </div>
           <div className="nise-hint">
             <PikuruCut art="think" height={80} />
             <div>
-              <p className="nise-hint-title">はなす ヒント</p>
+              <p className="nise-hint-title">{tr('はなす ヒント')}</p>
               <p className="nise-hint-text">💬 {TALK_HINTS[deck][hint % TALK_HINTS[deck].length]}</p>
             </div>
-            <button className="btn btn-small" aria-label="つぎの ヒント" onClick={() => setHint((h) => h + 1)}>
+            <button className="btn btn-small" aria-label={tr('つぎの ヒント')} onClick={() => setHint((h) => h + 1)}>
               ▶
             </button>
           </div>
           <div className="party-actions">
             <button className="btn" onClick={() => setPaused((x) => !x)} data-testid="nise-pause">
-              {paused ? '▶ つづける' : '⏸ とめる'}
+              {paused ? tr('▶ つづける') : tr('⏸ とめる')}
             </button>
             <button className="btn" onClick={() => setPicking(true)} data-testid="nise-recheck">
-              👀 おだいを みなおす
+              {tr('👀 おだいを みなおす')}
             </button>
             <button className="btn btn-go" onClick={toCount} data-testid="nise-to-point">
-              ゆびさしへ
+              {tr('ゆびさしへ')}
             </button>
           </div>
           {picking && (
             <div className="nise-pick-who">
-              <p>だれが みる？</p>
+              <p>{tr('だれが みる？')}</p>
               <div className="nise-color-grid">
                 {players.map((q, i) => (
                   <button
@@ -420,7 +421,7 @@ export function NiseGame() {
                 ))}
               </div>
               <button className="btn btn-small" onClick={() => setPicking(false)}>
-                やめる
+                {tr('やめる')}
               </button>
             </div>
           )}
@@ -430,8 +431,8 @@ export function NiseGame() {
       {phase === 'count' && (
         <section className="party-card nise-count">
           <PikuruCut art="eh" height={110} />
-          <h2 className="party-game">にせピクルくんは だれ？</h2>
-          <p className="party-howto">にせピクルくんだと おもう ひとを、せーので ゆびさそう！</p>
+          <h2 className="party-game">{tr('にせピクルくんは だれ？')}</h2>
+          <p className="party-howto">{tr('にせピクルくんだと おもう ひとを、せーので ゆびさそう！')}</p>
           <button
             className="btn btn-go nise-seno"
             onClick={() => {
@@ -441,14 +442,14 @@ export function NiseGame() {
             }}
             data-testid="nise-seno"
           >
-            👉 せーの！
+            {tr('👉 せーの！')}
           </button>
         </section>
       )}
 
       {phase === 'point' && (
         <section className="party-card" data-testid="nise-point">
-          <h2 className="party-game">いちばん おおく ゆびを さされた ひとは？</h2>
+          <h2 className="party-game">{tr('いちばん おおく ゆびを さされた ひとは？')}</h2>
           <div className="nise-color-grid">
             {players.map((q, i) => (
               <button
@@ -463,7 +464,7 @@ export function NiseGame() {
             ))}
           </div>
           <button className="btn" onClick={() => startTalk(TIE_TIME, true)} data-testid="nise-tie">
-            おなじ かずの ひとが いた
+            {tr('おなじ かずの ひとが いた')}
           </button>
         </section>
       )}
@@ -472,9 +473,9 @@ export function NiseGame() {
         <Handoff
           name={players[voter].name}
           color={players[voter].color}
-          sub={`とうひょう ${voter + 1} / ${count}にんめ`}
-          note={`${players[voter].name}の ひとに わたしてね。ほかの ひとは みないでね！`}
-          go={`${players[voter].name}だけで とうひょう（タッチ）`}
+          sub={tr('とうひょう {0} / {1}にんめ', [voter + 1, count])}
+          note={tr('{0}の ひとに わたしてね。ほかの ひとは みないでね！', [players[voter].name])}
+          go={tr('{0}だけで とうひょう（タッチ）', [players[voter].name])}
           onGo={() => {
             unlockAudio()
             stopSpeaking()
@@ -488,9 +489,9 @@ export function NiseGame() {
       {phase === 'vote' && (
         <section className="party-card" style={{ borderColor: players[voter].color }} data-testid="nise-vote">
           <span className="party-chip party-chip-big" style={{ background: players[voter].color }}>
-            {players[voter].name}の とうひょう
+            {tr('{0}の とうひょう', [players[voter].name])}
           </span>
-          <h2 className="party-game">にせピクルくんは だれ？</h2>
+          <h2 className="party-game">{tr('にせピクルくんは だれ？')}</h2>
           <div className="nise-color-grid">
             {players.map((q, i) =>
               i === voter ? null : (
@@ -509,17 +510,17 @@ export function NiseGame() {
             {players[pointed].name}
           </span>
           {revealT.current < REVEAL_AT ? (
-            <p className="nise-drum">は……</p>
+            <p className="nise-drum">{tr('は……')}</p>
           ) : (
             <>
               <PikuruCut art={pointed === round.wolf ? 'ok' : 'oops'} height={96} />
               <p className="nise-big" data-caught={pointed === round.wolf || undefined}>
-                {pointed === round.wolf ? 'にせピクルくん だった！' : 'ほんものの ピクルくん！'}
+                {pointed === round.wolf ? tr('にせピクルくん だった！') : tr('ほんものの ピクルくん！')}
               </p>
               {counts && <VoteCounts counts={counts} players={players} />}
               {pointed !== round.wolf && (
                 <p className="nise-sub">
-                  にせピクルくんは <b style={{ color: wolf.color }}>{wolf.name}</b> でした
+                  {tr('にせピクルくんは')}{' '}<b style={{ color: wolf.color }}>{wolf.name}</b>{' '}{tr('でした')}
                 </p>
               )}
               {/* ばれたときは、ぎゃくてん チャンスが終わるまで お題を見せない */}
@@ -535,11 +536,11 @@ export function NiseGame() {
                   }}
                   data-testid="nise-chance"
                 >
-                  ぎゃくてん チャンス！
+                  {tr('ぎゃくてん チャンス！')}
                 </button>
               ) : (
                 <button className="btn btn-go" onClick={() => finishRound(round, judgeOutcome(round, pointed))} data-testid="nise-next">
-                  けっか
+                  {tr('けっか')}
                 </button>
               )}
             </>
@@ -552,13 +553,13 @@ export function NiseGame() {
           <span className="party-chip party-chip-big" style={{ background: wolf.color }}>
             {wolf.name}
           </span>
-          <h2 className="party-game">ぎゃくてん チャンス！</h2>
+          <h2 className="party-game">{tr('ぎゃくてん チャンス！')}</h2>
           {!answerShown ? (
             <>
               <p className="party-howto">
-                {wolf.name}は、みんなの おだいを こえに だして いってみよう。いえるのは 1かいだけ！
+                {tr('{0}は、みんなの おだいを こえに だして いってみよう。いえるのは 1かいだけ！', [wolf.name])}
                 <br />
-                あたったら、にせピクルくんの ぎゃくてん かち。
+                {tr('あたったら、にせピクルくんの ぎゃくてん かち。')}
               </p>
               <button
                 className="btn btn-go"
@@ -568,20 +569,20 @@ export function NiseGame() {
                 }}
                 data-testid="nise-answer"
               >
-                いった！ こたえを みる
+                {tr('いった！ こたえを みる')}
               </button>
             </>
           ) : (
             <>
-              <p className="nise-answers-label">みんなの おだいは…</p>
+              <p className="nise-answers-label">{tr('みんなの おだいは…')}</p>
               <WordCard word={majorityWord(round)} />
-              <p className="party-howto">{wolf.name}の こたえは あってた？ みんなで きめてね。</p>
+              <p className="party-howto">{tr('{0}の こたえは あってた？ みんなで きめてね。', [wolf.name])}</p>
               <div className="party-actions">
                 <button className="btn btn-go" onClick={() => finishRound(round, judgeOutcome(round, pointed, true))} data-testid="nise-guess-right">
-                  あってた！
+                  {tr('あってた！')}
                 </button>
                 <button className="btn" onClick={() => finishRound(round, judgeOutcome(round, pointed, false))} data-testid="nise-guess-wrong">
-                  ちがった
+                  {tr('ちがった')}
                 </button>
               </div>
             </>
@@ -595,12 +596,12 @@ export function NiseGame() {
             <PikuruCut art={outcome.winner === 'minna' ? 'ok' : 'eh'} height={96} />
           </div>
           <h2 className="party-game nise-win" data-winner={outcome.winner}>
-            {outcome.how === 'reverse' ? 'ぎゃくてん！ にせピクルくんの かち！' : outcome.winner === 'minna' ? 'みんなの かち！' : 'にせピクルくんの かち！'}
+            {outcome.how === 'reverse' ? tr('ぎゃくてん！ にせピクルくんの かち！') : outcome.winner === 'minna' ? tr('みんなの かち！') : tr('にせピクルくんの かち！')}
           </h2>
           <Answers round={round} />
           {pair.tip && (
             <div className="nise-tip">
-              <b>ちがいは？</b>
+              <b>{tr('ちがいは？')}</b>
               <p>{pair.tip}</p>
             </div>
           )}
@@ -610,7 +611,7 @@ export function NiseGame() {
                 <span className="party-chip" style={{ background: q.color }}>
                   {q.name}
                 </span>
-                {i === round.wolf && <span className="nise-mark">にせ</span>}
+                {i === round.wolf && <span className="nise-mark">{tr('にせ')}</span>}
                 <b>
                   ⭐ {stars[i] ?? 0}
                   {gained[i] ? <small> +{gained[i]}</small> : null}
@@ -621,15 +622,15 @@ export function NiseGame() {
           <RewardList rewards={rewards} />
           <div className="party-actions">
             <button className="btn btn-go" onClick={() => startRound(false)} data-testid="nise-again">
-              つぎの おだい
+              {tr('つぎの おだい')}
             </button>
             <button className="btn" onClick={() => setPhase('setup')}>
-              にんずう・おだいを かえる
+              {tr('にんずう・おだいを かえる')}
             </button>
             <a className="btn" href="#/">
-              おわる
+              {tr('おわる')}
             </a>
-            <button className="btn result-share" aria-label="きねんカード（おうちの人と いっしょに）" onClick={() => setShare(true)} data-testid="share-btn">
+            <button className="btn result-share" aria-label={tr('きねんカード（おうちの人と いっしょに）')} onClick={() => setShare(true)} data-testid="share-btn">
               📸
             </button>
           </div>
@@ -640,9 +641,9 @@ export function NiseGame() {
           fixed
           card={{
             game: 'nise',
-            gameTitle: 'にせピクルくんは だれだ？',
-            title: outcome.how === 'reverse' ? 'ぎゃくてん！ にせピクルくんの かち' : outcome.winner === 'minna' ? 'みんなで みやぶった！' : 'にせピクルくんの かち！',
-            sub: `${count}にん・おだい「${DECK_INFO[round.deck].label}」`,
+            gameTitle: tr('にせピクルくんは だれだ？'),
+            title: outcome.how === 'reverse' ? tr('ぎゃくてん！ にせピクルくんの かち') : outcome.winner === 'minna' ? tr('みんなで みやぶった！') : tr('にせピクルくんの かち！'),
+            sub: tr('{0}にん・おだい「{1}」', [count, DECK_INFO[round.deck].label]),
             face: outcome.winner === 'minna' ? 'ok' : 'eh',
             wear: getProgress().wear,
           }}
@@ -651,7 +652,7 @@ export function NiseGame() {
       )}
 
       {!['pass', 'peek', 'votePass', 'vote'].includes(phase) && (
-        <button className="btn btn-small nise-help" aria-label="あそびかた・ルール" onClick={() => setHelp(true)}>
+        <button className="btn btn-small nise-help" aria-label={tr('あそびかた・ルール')} onClick={() => setHelp(true)}>
           ？
         </button>
       )}
@@ -675,11 +676,11 @@ function Answers({ round }: { round: NiseRound }) {
   return (
     <div className="nise-answers">
       <div>
-        <span className="nise-answers-label">みんなの おだい</span>
+        <span className="nise-answers-label">{tr('みんなの おだい')}</span>
         <WordCard word={majorityWord(round)} size="small" />
       </div>
       <div>
-        <span className="nise-answers-label">にせピクルくんの おだい</span>
+        <span className="nise-answers-label">{tr('にせピクルくんの おだい')}</span>
         <WordCard word={wolfWord(round)} size="small" />
       </div>
     </div>
@@ -689,13 +690,13 @@ function Answers({ round }: { round: NiseRound }) {
 /** こっそり とうひょうの票の数 */
 function VoteCounts({ counts, players }: { counts: number[]; players: readonly { name: string; color: string }[] }) {
   return (
-    <ul className="nise-votes" aria-label="とうひょうの かず">
+    <ul className="nise-votes" aria-label={tr('とうひょうの かず')}>
       {players.map((q, i) => (
         <li key={q.name}>
           <span className="party-chip" style={{ background: q.color }}>
             {q.name}
           </span>
-          <b>{counts[i] ?? 0}ひょう</b>
+          <b>{tr('{0}ひょう', [counts[i] ?? 0])}</b>
         </li>
       ))}
     </ul>

@@ -19,6 +19,7 @@ import type { Face } from '../../ui/Pikuru'
 import { drawPikuruArt } from '../../ui/pikuruArt'
 import { COUNTDOWN, createTug, ROUND_TIME, stepTug, tap, WINS } from './tug'
 import type { TugState } from './tug'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -76,7 +77,7 @@ export function TugGame({ levels, paused, onRestart }: Props) {
           case 'go':
             sfx.whistle()
             setFace('eh')
-            setNotice({ title: 'スタート！', big: true })
+            setNotice({ title: t('スタート！'), big: true })
             noticeTimer.current = 0.8
             break
           case 'round':
@@ -84,14 +85,14 @@ export function TugGame({ levels, paused, onRestart }: Props) {
             if (ev.winner === null) {
               sfx.bounce()
               setFace('think')
-              setNotice({ title: 'ひきわけ！', sub: 'もういちど', face: 'think' })
+              setNotice({ title: t('ひきわけ！'), sub: t('もういちど'), face: 'think' })
             } else {
               sfx.ok()
               setFace('ok')
               speak(ev.winner === 0 ? PHRASES.point0 : PHRASES.point1)
               setNotice({
-                title: `${SIDE_NAME[ev.winner]}の かち！`,
-                sub: `${ev.wins[0]} たい ${ev.wins[1]}`,
+                title: t('{0}の かち！', [SIDE_NAME[ev.winner]]),
+                sub: t('{0} たい {1}', [ev.wins[0], ev.wins[1]]),
                 faces: [ev.winner === 0 ? 'ok' : 'oops', ev.winner === 1 ? 'ok' : 'oops'],
               })
             }
@@ -137,8 +138,8 @@ export function TugGame({ levels, paused, onRestart }: Props) {
       <Notice data={notice} />
       {over !== null && (
         <Result
-          title={(side) => (side === over ? 'かち！ やったね' : 'おしい！')}
-          sub={(side) => `${wins[side]} たい ${wins[side === 0 ? 1 : 0]}（${WINS}かい かったら かち）`}
+          title={(side) => (side === over ? t('かち！ やったね') : t('おしい！'))}
+          sub={(side) => t('{0} たい {1}（{2}かい かったら かち）', [wins[side], wins[side === 0 ? 1 : 0], WINS])}
           face={(side) => (side === over ? 'ok' : 'oops')}
           onAgain={onRestart}
         />
@@ -177,7 +178,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: TugState, 
       ctx.font = `900 ${fs}px 'Zen Maru Gothic', sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillText('タップ！', 0, 0)
+      ctx.fillText(t('タップ！'), 0, 0)
       ctx.restore()
     }
   }
@@ -202,7 +203,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: TugState, 
     ctx.font = `900 16px 'Zen Maru Gothic', sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText('ここまで おされたら まけ', 0, 0)
+    ctx.fillText(t('ここまで おされたら まけ'), 0, 0)
     ctx.restore()
   }
 

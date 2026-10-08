@@ -32,6 +32,7 @@ import { defaultTeams, pickGames, pointsFor, ranks, standings, teamTotals, TEAMS
 import type { PartyPlayer } from './scoring'
 import '../setup.css'
 import './party.css'
+import { isEn, t as tr } from '../../i18n'
 
 type Phase = 'setup' | 'intro' | 'handoff' | 'play' | 'turn' | 'round' | 'final'
 
@@ -241,24 +242,24 @@ export function Party({ fixed }: { fixed?: GameId }) {
       {phase === 'setup' && (
         <>
           <header className="party-head">
-            <a className="btn btn-small" href="#/" aria-label="もどる">
+            <a className="btn btn-small" href="#/" aria-label={tr('もどる')}>
               ←
             </a>
-            <h1 className="party-title">じゅんばんモード</h1>
+            <h1 className="party-title">{tr('じゅんばんモード')}</h1>
           </header>
           <div className="party-intro">
             <PikuruCut art="ok" height={92} />
-            <p>1だいを じゅんばんに まわして、おなじ ゲームの きろくで しょうぶ！ さいごに ピクルくんが ひょうしょう するよ。</p>
-            <button className="btn btn-small" aria-label="せつめいを よみあげる" onClick={() => speak(PHRASES.partyIntro)}>
+            <p>{tr('1だいを じゅんばんに まわして、おなじ ゲームの きろくで しょうぶ！ さいごに ピクルくんが ひょうしょう するよ。')}</p>
+            <button className="btn btn-small" aria-label={tr('せつめいを よみあげる')} onClick={() => speak(PHRASES.partyIntro)}>
               🗣️
             </button>
           </div>
 
-          <h2 className="party-label">なんにんで あそぶ？</h2>
-          <div className="seg party-seg" role="radiogroup" aria-label="にんずう">
+          <h2 className="party-label">{tr('なんにんで あそぶ？')}</h2>
+          <div className="seg party-seg" role="radiogroup" aria-label={tr('にんずう')}>
             {[2, 3, 4, 5, 6].map((n) => (
               <button key={n} role="radio" aria-checked={count === n} onClick={() => setCount(n)} data-testid={`party-count-${n}`}>
-                {n}にん
+                {isEn ? n : tr('{0}にん', [n])}
               </button>
             ))}
           </div>
@@ -271,7 +272,7 @@ export function Party({ fixed }: { fixed?: GameId }) {
                 </span>
                 <button
                   className="party-level"
-                  aria-label={`${p.name}の レベル ${LEVEL_INFO[p.level].label}（おすと かわる）`}
+                  aria-label={tr('{0}の レベル {1}（おすと かわる）', [p.name, LEVEL_INFO[p.level].label])}
                   onClick={() => {
                     sfx.tick()
                     setLevels((ls) => {
@@ -287,7 +288,7 @@ export function Party({ fixed }: { fixed?: GameId }) {
                   <button
                     className="party-team"
                     style={{ background: TEAMS[p.team ?? 0].color }}
-                    aria-label={`${p.name}の チーム ${TEAMS[p.team ?? 0].name}（おすと かわる）`}
+                    aria-label={tr('{0}の チーム {1}（おすと かわる）', [p.name, TEAMS[p.team ?? 0].name])}
                     data-testid={`party-team-${i}`}
                     onClick={() => {
                       sfx.tick()
@@ -304,24 +305,24 @@ export function Party({ fixed }: { fixed?: GameId }) {
               </li>
             ))}
           </ul>
-          <p className="party-note">レベルを おすと かわるよ（ちびっこ → キッズ → おとな → せんしゅ）</p>
+          <p className="party-note">{tr('レベルを おすと かわるよ（ちびっこ → キッズ → おとな → せんしゅ）')}</p>
 
-          <h2 className="party-label">あそびかた</h2>
-          <div className="seg party-seg" role="radiogroup" aria-label="ひとりずつ か チームせん">
+          <h2 className="party-label">{tr('あそびかた')}</h2>
+          <div className="seg party-seg" role="radiogroup" aria-label={tr('ひとりずつ か チームせん')}>
             {([false, true] as const).map((t) => (
               <button key={String(t)} role="radio" aria-checked={teamMode === t} onClick={() => setTeamMode(t)} data-testid={t ? 'party-team-mode' : 'party-solo-mode'}>
-                {t ? 'チームせん' : 'ひとりずつ'}
+                {t ? tr('チームせん') : tr('ひとりずつ')}
               </button>
             ))}
           </div>
           {teamMode && (
             <p className="party-note">
-              「{TEAMS[0].name}」と「{TEAMS[1].name}」の 2チーム。チームの ボタンを おすと かわるよ。チームの みんなの てんを たして しょうぶ（にんずうが ちがう ときは そろえて くらべる）。
+              {tr('「{0}」と「{1}」の 2チーム。チームの ボタンを おすと かわるよ。チームの みんなの てんを たして しょうぶ（にんずうが ちがう ときは そろえて くらべる）。', [TEAMS[0].name, TEAMS[1].name])}
             </p>
           )}
 
-          <h2 className="party-label">でる ゲーム</h2>
-          <div className="seg party-seg" role="radiogroup" aria-label="でる ゲーム">
+          <h2 className="party-label">{tr('でる ゲーム')}</h2>
+          <div className="seg party-seg" role="radiogroup" aria-label={tr('でる ゲーム')}>
             <button
               role="radio"
               aria-checked={!only}
@@ -331,7 +332,7 @@ export function Party({ fixed }: { fixed?: GameId }) {
               }}
               data-testid="party-mix"
             >
-              いろいろ
+              {tr('いろいろ')}
             </button>
             {(only ?? fixed) && (
               <button
@@ -343,23 +344,23 @@ export function Party({ fixed }: { fixed?: GameId }) {
                 }}
                 data-testid="party-only"
               >
-                {gameById(only ?? fixed)?.title}だけ
+                {tr('{0}だけ', [gameById(only ?? fixed)?.title ?? ''])}
               </button>
             )}
           </div>
 
-          <h2 className="party-label">なんラウンド？</h2>
-          <div className="seg party-seg" role="radiogroup" aria-label="ラウンド">
+          <h2 className="party-label">{tr('なんラウンド？')}</h2>
+          <div className="seg party-seg" role="radiogroup" aria-label={tr('ラウンド')}>
             {roundChoices.map((n) => (
               <button key={n} role="radio" aria-checked={rounds === n} onClick={() => setRounds(n)} data-testid={`party-rounds-${n}`}>
-                {n}ラウンド
+                {tr('{0}ラウンド', [n])}
               </button>
             ))}
           </div>
-          <p className="party-note">{only ? `ぜんぶ ${gameById(only)?.title}。みんな おなじ コースで しょうぶ！` : `でる ゲーム：${POOL.map((id) => gameById(id)?.title).join('・')}`}</p>
+          <p className="party-note">{only ? tr('ぜんぶ {0}。みんな おなじ コースで しょうぶ！', [gameById(only)?.title ?? '']) : tr('でる ゲーム：{0}', [POOL.map((id) => gameById(id)?.title).join(tr('・'))])}</p>
 
           <button className="btn btn-go party-start" onClick={start} disabled={!teamsOk} data-testid="party-start">
-            {teamsOk ? 'はじめる！' : 'どちらの チームにも 1にんは いれてね'}
+            {teamsOk ? tr('はじめる！') : tr('どちらの チームにも 1にんは いれてね')}
           </button>
         </>
       )}
@@ -367,17 +368,17 @@ export function Party({ fixed }: { fixed?: GameId }) {
       {phase === 'intro' && run && game && (
         <section className="party-card" aria-live="polite">
           <p className="party-round">
-            ラウンド {round + 1} / {run.games.length}
+            {tr('ラウンド {0} / {1}', [round + 1, run.games.length])}
           </p>
           <Pikuru face={game.face} size={110} />
           <h2 className="party-game">{game.title}</h2>
           <p className="party-howto">{game.howto}</p>
           <div className="party-actions">
-            <button className="btn btn-small" aria-label="よみあげる" onClick={() => speak([nextGameLine(game.title), game.howto])}>
+            <button className="btn btn-small" aria-label={tr('よみあげる')} onClick={() => speak([nextGameLine(game.title), game.howto])}>
               🗣️
             </button>
             <button className="btn btn-go" onClick={() => goHandoff(run, 0)} data-testid="party-next">
-              つぎへ
+              {tr('つぎへ')}
             </button>
           </div>
         </section>
@@ -387,7 +388,7 @@ export function Party({ fixed }: { fixed?: GameId }) {
         <Handoff
           name={player.name}
           color={player.color}
-          sub={`${game.title}・${LEVEL_INFO[player.level].label}`}
+          sub={tr('{0}・{1}', [game.title, LEVEL_INFO[player.level].label])}
           onGo={() => {
             unlockAudio()
             stopSpeaking()
@@ -405,9 +406,9 @@ export function Party({ fixed }: { fixed?: GameId }) {
           </span>
           <PikuruCut art={isTop(run.scores[round], turn, run.low[round]) ? 'ok' : 'eh'} height={110} />
           <p className="party-value">{formatValue(game, run.scores[round][turn] ?? 0)}</p>
-          {isTop(run.scores[round], turn, run.low[round]) && turn > 0 && <p className="party-top">いま トップ！</p>}
+          {isTop(run.scores[round], turn, run.low[round]) && turn > 0 && <p className="party-top">{tr('いま トップ！')}</p>}
           <button className="btn btn-go" onClick={nextAfterTurn} data-testid="party-next">
-            {turn + 1 < run.players.length ? `つぎは ${run.players[turn + 1].name}` : 'ラウンドの けっか'}
+            {turn + 1 < run.players.length ? tr('つぎは {0}', [run.players[turn + 1].name]) : tr('ラウンドの けっか')}
           </button>
         </section>
       )}
@@ -434,9 +435,9 @@ export function Party({ fixed }: { fixed?: GameId }) {
             const tt = run.team ? teamTotals(run.scores, run.players.map((p) => p.team ?? 0), run.low) : null
             return {
               game: 'party',
-              gameTitle: 'じゅんばんモード',
-              title: tt ? (tt[0] === tt[1] ? 'ひきわけ！' : teamWinLine(TEAMS[tt[0] > tt[1] ? 0 : 1].name)) : champLine(champ.name),
-              sub: `${run.players.length}にん・${run.games.length}ラウンド`,
+              gameTitle: tr('じゅんばんモード'),
+              title: tt ? (tt[0] === tt[1] ? tr('ひきわけ！') : teamWinLine(TEAMS[tt[0] > tt[1] ? 0 : 1].name)) : champLine(champ.name),
+              sub: tr('{0}にん・{1}ラウンド', [run.players.length, run.games.length]),
               face: 'ok' as const,
               wear: getProgress().wear,
               look: { design: 'orange' as const, shape: 'std' as const, tint: champ.color },
@@ -465,7 +466,7 @@ function TeamTotals({ run, upTo }: { run: Run; upTo: number }) {
           <span className="party-team" style={{ background: tm.color }}>
             {tm.name}
           </span>
-          <b>{t[k]}てん</b>
+          <b>{tr('{0}てん', [t[k]])}</b>
           <span className="party-team-members">
             {run.players
               .filter((p) => (p.team ?? 0) === k)
@@ -488,12 +489,12 @@ function RoundResult({ run, round, onNext, last }: { run: Run; round: number; on
   return (
     <section className="party-card party-wide" data-testid="party-round">
       <p className="party-round">
-        ラウンド {round + 1} の けっか（{gameById(run.games[round])?.title}）
+        {tr('ラウンド {0} の けっか（{1}）', [round + 1, gameById(run.games[round])?.title ?? ''])}
       </p>
       <ol className="party-rank">
         {order.map(({ p, i, v, rank }) => (
           <li key={i}>
-            <span className="party-medal">{MEDAL[rank - 1] ?? `${rank}い`}</span>
+            <span className="party-medal">{MEDAL[rank - 1] ?? tr('{0}い', [rank])}</span>
             <span className="party-chip" style={{ background: p.color }}>
               {p.name}
             </span>
@@ -502,7 +503,7 @@ function RoundResult({ run, round, onNext, last }: { run: Run; round: number; on
           </li>
         ))}
       </ol>
-      <p className="party-sub">ごうけい</p>
+      <p className="party-sub">{tr('ごうけい')}</p>
       {run.team && <TeamTotals run={run} upTo={round + 1} />}
       <ul className="party-totals">
         {st.map((s) => (
@@ -515,7 +516,7 @@ function RoundResult({ run, round, onNext, last }: { run: Run; round: number; on
         ))}
       </ul>
       <button className="btn btn-go" onClick={onNext} data-testid="party-next">
-        {last ? 'けっか はっぴょう！' : 'つぎの ラウンド'}
+        {last ? tr('けっか はっぴょう！') : tr('つぎの ラウンド')}
       </button>
     </section>
   )
@@ -527,13 +528,13 @@ function Final({ run, rewards, onAgain, onShare }: { run: Run; rewards: Reward[]
   const tt = run.team ? teamTotals(run.scores, run.players.map((p) => p.team ?? 0), run.low) : null
   return (
     <section className="party-card party-wide" data-testid="party-final">
-      <h2 className="party-game">ひょうしょうしき</h2>
+      <h2 className="party-game">{tr('ひょうしょうしき')}</h2>
       {tt && (
         <div className="party-team-win" data-testid="party-team-win">
           <PikuruCut art="ok" height={84} />
-          <p className="party-game">{tt[0] === tt[1] ? 'ひきわけ！' : `チーム「${TEAMS[tt[0] > tt[1] ? 0 : 1].name}」の かち！`}</p>
+          <p className="party-game">{tt[0] === tt[1] ? tr('ひきわけ！') : tr('チーム「{0}」の かち！', [TEAMS[tt[0] > tt[1] ? 0 : 1].name])}</p>
           <TeamTotals run={run} upTo={run.scores.length} />
-          <p className="party-sub">ひとりずつの けっか</p>
+          <p className="party-sub">{tr('ひとりずつの けっか')}</p>
         </div>
       )}
       <div className="podium">
@@ -544,8 +545,8 @@ function Final({ run, rewards, onAgain, onShare }: { run: Run; rewards: Reward[]
               {run.players[s.player].name}
             </span>
             <div className="podium-step">
-              <span>{MEDAL[s.rank - 1] ?? `${s.rank}い`}</span>
-              <b>{s.total}てん</b>
+              <span>{MEDAL[s.rank - 1] ?? tr('{0}い', [s.rank])}</span>
+              <b>{tr('{0}てん', [s.total])}</b>
             </div>
           </div>
         ))}
@@ -554,11 +555,11 @@ function Final({ run, rewards, onAgain, onShare }: { run: Run; rewards: Reward[]
         <ul className="party-totals">
           {st.slice(3).map((s) => (
             <li key={s.player}>
-              <span>{s.rank}い</span>
+              <span>{tr('{0}い', [s.rank])}</span>
               <span className="party-chip" style={{ background: run.players[s.player].color }}>
                 {run.players[s.player].name}
               </span>
-              <b>{s.total}てん</b>
+              <b>{tr('{0}てん', [s.total])}</b>
             </li>
           ))}
         </ul>
@@ -566,12 +567,12 @@ function Final({ run, rewards, onAgain, onShare }: { run: Run; rewards: Reward[]
       <RewardList rewards={rewards} />
       <div className="party-actions">
         <button className="btn btn-go" onClick={onAgain}>
-          もういちど
+          {tr('もういちど')}
         </button>
         <a className="btn" href="#/">
-          ホームへ
+          {tr('ホームへ')}
         </a>
-        <button className="btn result-share" aria-label="きねんカード（おうちの人と いっしょに）" onClick={onShare}>
+        <button className="btn result-share" aria-label={tr('きねんカード（おうちの人と いっしょに）')} onClick={onShare}>
           📸
         </button>
       </div>

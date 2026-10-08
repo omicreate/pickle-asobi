@@ -20,6 +20,7 @@ import { Pic } from './pics'
 import { pickRound } from './pick'
 import type { Asked } from './pick'
 import './quiz.css'
+import { t as tr } from '../../i18n'
 
 const TARGET = 5
 const MAX_ROUNDS = 10
@@ -48,7 +49,7 @@ export function Quiz({ levels, paused, onRestart }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
   const [presses, setPresses] = useState<Press[]>([])
   const [score, setScore] = useState<[number, number]>([0, 0])
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'だい 1もん', big: false, face: 'think' })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: tr('だい 1もん'), big: false, face: 'think' })
   const [roundWinner, setRoundWinner] = useState<Side | null>(null)
   const pressRef = useRef<Press[]>([])
   const t = useRef(0)
@@ -77,7 +78,7 @@ export function Quiz({ levels, paused, onRestart }: Props) {
     pressRef.current = []
     setPresses([])
     setRoundWinner(null)
-    setNotice({ title: `だい ${roundNo + 1}もん`, face: 'think' })
+    setNotice({ title: tr('だい {0}もん', [roundNo + 1]), face: 'think' })
     t.current = 0
     setPhase('intro')
   }
@@ -146,7 +147,7 @@ export function Quiz({ levels, paused, onRestart }: Props) {
               <div className="quiz-prompt">
                 <PikuruCut art={reveal ? (roundWinner === side ? 'ok' : 'oops') : 'think'} height={58} className="quiz-host" />
                 {kids && (
-                  <button className="quiz-speak" aria-label="もんだいを よみあげる" onClick={() => speak(speech(a))}>
+                  <button className="quiz-speak" aria-label={tr('もんだいを よみあげる')} onClick={() => speak(speech(a))}>
                     🗣️
                   </button>
                 )}
@@ -174,11 +175,11 @@ export function Quiz({ levels, paused, onRestart }: Props) {
                 <div className="quiz-explain">
                   <PikuruCut art={roundWinner === side ? 'ok' : mine && !mine.correct ? 'oops' : 'eh'} height={64} />
                   <div>
-                    <div className="quiz-explain-head">{roundWinner === side ? 'せいかい！ 1てん' : roundWinner === null ? 'こんどは ひきわけ' : mine?.correct ? 'せいかい！ でも おしい' : 'ざんねん'}</div>
+                    <div className="quiz-explain-head">{roundWinner === side ? tr('せいかい！ 1てん') : roundWinner === null ? tr('こんどは ひきわけ') : mine?.correct ? tr('せいかい！ でも おしい') : tr('ざんねん')}</div>
                     <div className="quiz-explain-body">{a.q.explain}</div>
                   </div>
                   <button className="btn btn-small btn-go" onClick={next}>
-                    つぎへ
+                    {tr('つぎへ')}
                   </button>
                 </div>
               )}
@@ -190,8 +191,8 @@ export function Quiz({ levels, paused, onRestart }: Props) {
       {phase === 'intro' && <Notice data={notice} />}
       {phase === 'over' && (
         <Result
-          title={(side) => (winner === null ? 'ひきわけ！' : side === winner ? 'かち！ ものしりだね' : 'おしい！')}
-          sub={(side) => `${score[side]} たい ${score[other(side)]}`}
+          title={(side) => (winner === null ? tr('ひきわけ！') : side === winner ? tr('かち！ ものしりだね') : tr('おしい！'))}
+          sub={(side) => tr('{0} たい {1}', [score[side], score[other(side)]])}
           face={(side) => (winner === null || side === winner ? 'ok' : 'oops')}
           onAgain={onRestart}
         />

@@ -9,6 +9,7 @@
  * 2人には同じ転がり方のボールが来る。レベルで、ボールの動く速さ（時間の進み）だけが変わる。
  */
 import type { Level, Side } from '../../core/players'
+import { t } from '../../i18n'
 
 /** 見えている長さ（cm）：ネット側の はじめの位置から、ベースラインの少し先まで */
 export const LANE = 420
@@ -178,7 +179,7 @@ export function stepLs(s: LsState, dt: number, rand: () => number = Math.random)
 
 /** 判定を こども向けの文にする */
 export function callText(c: Call): string {
-  if (c.kind === 'line') return 'ライン！ イン'
-  if (c.kind === 'in') return `あと ${c.gap < 1 ? c.gap.toFixed(1) : Math.round(c.gap)}cm`
-  return `アウト（${c.over < 1 ? c.over.toFixed(1) : Math.round(c.over)}cm）`
+  if (c.kind === 'line') return t('ライン！ イン')
+  if (c.kind === 'in') return t('あと {0}cm', [c.gap < 1 ? c.gap.toFixed(1) : Math.round(c.gap)])
+  return t('アウト（{0}cm）', [c.over < 1 ? c.over.toFixed(1) : Math.round(c.over)])
 }

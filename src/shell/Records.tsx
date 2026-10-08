@@ -10,6 +10,7 @@ import { href } from './route'
 import './setup.css'
 import './collection.css'
 import './records.css'
+import { t } from '../i18n'
 
 export function Records() {
   const progress = useProgress()
@@ -17,16 +18,16 @@ export function Records() {
   return (
     <main className="records">
       <header className="col-head">
-        <a className="btn btn-small" href="#/" aria-label="もどる">
+        <a className="btn btn-small" href="#/" aria-label={t('もどる')}>
           ←
         </a>
-        <h1 className="col-title">きろく と メダル</h1>
-        <span className="star-pill" aria-label={`メダル ${total}`} data-testid="medal-total">
+        <h1 className="col-title">{t('きろく と メダル')}</h1>
+        <span className="star-pill" aria-label={t('メダル {0}', [total])} data-testid="medal-total">
           🏅 {total}
         </span>
       </header>
       <p className="rec-lead">
-        ひとりで あそぶ ゲーム（と ディンク）で、じぶんの きろくを のばそう。メダルを とると ほしが もらえるよ（どう・ぎん ⭐1、きん ⭐{MEDAL_STARS[3]}）。
+        {t('ひとりで あそぶ ゲーム（と ディンク）で、じぶんの きろくを のばそう。メダルを とると ほしが もらえるよ（どう・ぎん ⭐1、きん ⭐{0}）。', [MEDAL_STARS[3]])}
       </p>
       <ul className="rec-list">
         {MEDAL_GAMES.map((id) => {
@@ -41,12 +42,12 @@ export function Records() {
                 <GameIcon game={id} size={60} />
                 <span className="rec-text">
                   <span className="rec-title">{g.title}</span>
-                  <span className="rec-best">{best === undefined ? 'まだ きろく なし' : `さいこう：${recordText(id, best)}`}</span>
+                  <span className="rec-best">{best === undefined ? t('まだ きろく なし') : t('さいこう：{0}', [recordText(id, best)])}</span>
                   <span className="rec-goal">
-                    {goal ? `つぎは ${MEDAL_NAME[goal.medal]}メダル：${recordText(id, goal.need)}${rule.low ? ' いない' : ''}` : 'きんメダル たっせい！'}
+                    {goal ? t('つぎは {0}メダル：{1}{2}', [MEDAL_NAME[goal.medal], recordText(id, goal.need), rule.low ? t(' いない') : '']) : t('きんメダル たっせい！')}
                   </span>
                 </span>
-                <span className="rec-medals" aria-label={got ? `${MEDAL_NAME[got]}メダル` : 'メダル なし'}>
+                <span className="rec-medals" aria-label={got ? t('{0}メダル', [MEDAL_NAME[got]]) : t('メダル なし')}>
                   {[1, 2, 3].map((m) => (
                     <span key={m} className="rec-medal" data-on={got >= m || undefined}>
                       {MEDAL_MARK[m]}
@@ -58,7 +59,7 @@ export function Records() {
           )
         })}
       </ul>
-      <p className="rec-note">メダルの きろくは レベルに かんけいなく おなじ。ちいさい こは やさしい レベルで めざそう。</p>
+      <p className="rec-note">{t('メダルの きろくは レベルに かんけいなく おなじ。ちいさい こは やさしい レベルで めざそう。')}</p>
     </main>
   )
 }

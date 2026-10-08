@@ -6,6 +6,7 @@
 import type { ReactNode } from 'react'
 import { PikuruCut } from './pikuruArt'
 import './install.css'
+import { t } from '../i18n'
 
 export type Hi = 'more' | 'menu' | 'share' | 'addHome' | 'add' | 'cmore' | 'cmenu' | 'install' | 'icon' | null
 
@@ -38,7 +39,7 @@ function AppPage() {
   return (
     <div className="ia-page">
       <PikuruCut art="full" height={64} />
-      <b>ピクルくんと あそぼ</b>
+      <b>{t('ピクルくんと あそぼ')}</b>
       <div className="ia-tiles">
         {Array.from({ length: 6 }, (_, i) => (
           <i key={i} />
@@ -82,12 +83,12 @@ export function InAppMenu({ hi, tap, item = 'open' }: { hi?: Hi; tap?: boolean; 
       </div>
       <div className="ia-sheet">
         <Spot on={hi === 'menu' && item === 'open'} tap={tap} className="ia-row">
-          外部ブラウザで開く
+          {t('外部ブラウザで開く')}
         </Spot>
         <Spot on={hi === 'menu' && item === 'copy'} tap={tap} className="ia-row">
-          リンクをコピー
+          {t('リンクをコピー')}
         </Spot>
-        <span className="ia-row">共有</span>
+        <span className="ia-row">{t('共有')}</span>
       </div>
     </div>
   )
@@ -113,7 +114,7 @@ export function SafariScreen({ hi, tap }: { hi?: Hi; tap?: boolean }) {
 
 function ShareIcon() {
   return (
-    <svg className="ia-share" viewBox="0 0 20 24" aria-label="共有">
+    <svg className="ia-share" viewBox="0 0 20 24" aria-label={t('共有')}>
       <path d="M6 9 H3 V22 H17 V9 H14" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" />
       <path d="M10 15 V2 M5.5 6.5 L10 2 L14.5 6.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -128,10 +129,10 @@ export function ShareSheetArt({ hi, tap }: { hi?: Hi; tap?: boolean }) {
         <AppPage />
       </div>
       <div className="ia-sheet">
-        <span className="ia-row">コピー</span>
-        <span className="ia-row">ブックマークを追加</span>
+        <span className="ia-row">{t('コピー')}</span>
+        <span className="ia-row">{t('ブックマークを追加')}</span>
         <Spot on={hi === 'addHome'} tap={tap} className="ia-row">
-          ホーム画面に追加 <b className="ia-plus">⊞</b>
+          {t('ホーム画面に追加')}{' '}<b className="ia-plus">⊞</b>
         </Spot>
       </div>
     </div>
@@ -143,15 +144,15 @@ export function AddHomeArt({ hi, tap }: { hi?: Hi; tap?: boolean }) {
   return (
     <div className="ia-col ia-add">
       <div className="ia-bar ia-bar-add">
-        <span className="ia-cancel">キャンセル</span>
-        <b>ホーム画面に追加</b>
+        <span className="ia-cancel">{t('キャンセル')}</span>
+        <b>{t('ホーム画面に追加')}</b>
         <Spot on={hi === 'add'} tap={tap}>
-          <span className="ia-add-btn">追加</span>
+          <span className="ia-add-btn">{t('追加')}</span>
         </Spot>
       </div>
       <div className="ia-add-body">
         <img src={`${BASE}icon-192.png`} alt="" />
-        <span className="ia-add-name">ピクルあそぼ</span>
+        <span className="ia-add-name">{t('ピクルあそぼ')}</span>
       </div>
     </div>
   )
@@ -188,11 +189,11 @@ export function ChromeMenuArt({ hi, tap }: { hi?: Hi; tap?: boolean }) {
         <AppPage />
       </div>
       <div className="ia-menu">
-        <span className="ia-row">新しいタブ</span>
-        <span className="ia-row">ブックマーク</span>
+        <span className="ia-row">{t('新しいタブ')}</span>
+        <span className="ia-row">{t('ブックマーク')}</span>
         <Spot on={hi === 'cmenu'} tap={tap} className="ia-row">
-          ホーム画面に追加
-          <small>（アプリをインストール）</small>
+          {t('ホーム画面に追加')}
+          <small>{t('（アプリをインストール）')}</small>
         </Spot>
       </div>
     </div>
@@ -207,15 +208,15 @@ export function InstallDialogArt({ hi, tap }: { hi?: Hi; tap?: boolean }) {
         <AppPage />
       </div>
       <div className="ia-dialog">
-        <b>アプリを インストール</b>
+        <b>{t('アプリを インストール')}</b>
         <span className="ia-dialog-app">
           <img src={`${BASE}icon-192.png`} alt="" />
-          ピクルくんとあそぼ
+          {t('ピクルくんとあそぼ')}
         </span>
         <span className="ia-dialog-btns">
-          <span>キャンセル</span>
+          <span>{t('キャンセル')}</span>
           <Spot on={hi === 'install'} tap={tap}>
-            <span className="ia-install-btn">インストール</span>
+            <span className="ia-install-btn">{t('インストール')}</span>
           </Spot>
         </span>
       </div>
@@ -235,7 +236,7 @@ export function HomeScreenArt({ hi, tap }: { hi?: Hi; tap?: boolean }) {
       ))}
       <Spot on={hi === 'icon'} tap={tap} className="ia-app ia-app-pk">
         <img src={`${BASE}icon-192.png`} alt="" />
-        <small>ピクルあそぼ</small>
+        <small>{t('ピクルあそぼ')}</small>
       </Spot>
     </div>
   )

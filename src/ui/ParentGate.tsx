@@ -3,6 +3,7 @@
  * 小さい子が読めない漢字の説明と、2けた×1けたの かけ算で、子どもだけでは進めないようにする。
  */
 import { useState } from 'react'
+import { t } from '../i18n'
 
 function question() {
   const a = 11 + Math.floor(Math.random() * 9)
@@ -24,9 +25,9 @@ export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel:
   return (
     <div className="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title" data-testid="parent-gate">
       <h2 id="gate-title" className="gate-title">
-        保護者の方へ
+        {t('保護者の方へ')}
       </h2>
-      <p className="gate-text">続けるには、次の計算の答えを選んでください。</p>
+      <p className="gate-text">{t('続けるには、次の計算の答えを選んでください。')}</p>
       <div className="gate-q" aria-live="polite">
         {q.a} × {q.b} = ？
       </div>
@@ -48,9 +49,9 @@ export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel:
           </button>
         ))}
       </div>
-      {wrong && <p className="gate-wrong">答えがちがいます。もう一度どうぞ。</p>}
+      {wrong && <p className="gate-wrong">{t('答えがちがいます。もう一度どうぞ。')}</p>}
       <button className="btn btn-quiet" onClick={onCancel}>
-        もどる
+        {t('もどる')}
       </button>
     </div>
   )

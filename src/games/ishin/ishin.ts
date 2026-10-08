@@ -7,6 +7,7 @@
  */
 import { questionsFor } from './questions'
 import type { IDeck, IQuestion } from './questions'
+import { t } from '../../i18n'
 
 export type ISize = 2 | 4
 export const I_SIZES: ISize[] = [2, 4]
@@ -59,8 +60,8 @@ export function pairScores(history: (number | undefined)[][], size: ISize): numb
 /** ペアの なかよし度（そろった割合で） */
 export function rating(matches: number, total: number): string {
   const r = total > 0 ? matches / total : 0
-  if (r >= 1) return 'いしんでんしん！'
-  if (r >= 0.6) return 'さいこうの あいぼう'
-  if (r >= 0.3) return 'なかよし ペア'
-  return 'これから なかよし'
+  if (r >= 1) return t('いしんでんしん！')
+  if (r >= 0.6) return t('さいこうの あいぼう')
+  if (r >= 0.3) return t('なかよし ペア')
+  return t('これから なかよし')
 }

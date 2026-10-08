@@ -9,6 +9,7 @@
  */
 import type { Level } from '../../core/players'
 import { COURT } from './court'
+import { t } from '../../i18n'
 
 export interface Zone {
   x0: number
@@ -34,17 +35,17 @@ const CORNER = 1.8
 export function makeZone(level: Level, i: number, rand: () => number = Math.random): Zone {
   switch (level) {
     case 'chibi':
-      return { x0: 0, x1: W, y0: 0, y1: N, label: 'むこうの コートに いれよう' }
+      return { x0: 0, x1: W, y0: 0, y1: N, label: t('むこうの コートに いれよう') }
     case 'kids':
-      return i % 2 === 0 ? { x0: W / 2, x1: W, y0: 0, y1: N, label: 'みぎがわに いれよう' } : { x0: 0, x1: W / 2, y0: 0, y1: N, label: 'ひだりがわに いれよう' }
+      return i % 2 === 0 ? { x0: W / 2, x1: W, y0: 0, y1: N, label: t('みぎがわに いれよう') } : { x0: 0, x1: W / 2, y0: 0, y1: N, label: t('ひだりがわに いれよう') }
     case 'otona':
       return i % 2 === 0
-        ? { x0: 0, x1: W, y0: N - K, y1: N, label: 'ディンク：キッチンに おとそう' }
-        : { x0: 0, x1: W, y0: 0, y1: DEEP, label: 'ふかく：ベースラインの まえ 2m に' }
+        ? { x0: 0, x1: W, y0: N - K, y1: N, label: t('ディンク：キッチンに おとそう') }
+        : { x0: 0, x1: W, y0: 0, y1: DEEP, label: t('ふかく：ベースラインの まえ 2m に') }
     case 'senshu': {
-      if (i % 2 === 0) return { x0: 0, x1: W, y0: N - K, y1: N, label: '3きゅうめ ドロップ：はねてから キッチンへ', thirdShot: true }
+      if (i % 2 === 0) return { x0: 0, x1: W, y0: N - K, y1: N, label: t('3きゅうめ ドロップ：はねてから キッチンへ'), thirdShot: true }
       const right = rand() < 0.5
-      return right ? { x0: W - CORNER, x1: W, y0: 0, y1: CORNER, label: 'みぎおくの コーナーへ' } : { x0: 0, x1: CORNER, y0: 0, y1: CORNER, label: 'ひだりおくの コーナーへ' }
+      return right ? { x0: W - CORNER, x1: W, y0: 0, y1: CORNER, label: t('みぎおくの コーナーへ') } : { x0: 0, x1: CORNER, y0: 0, y1: CORNER, label: t('ひだりおくの コーナーへ') }
     }
   }
 }

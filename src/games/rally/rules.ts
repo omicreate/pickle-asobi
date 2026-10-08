@@ -6,6 +6,7 @@
  */
 import type { Side } from '../../core/players'
 import { inCourt, inKitchen, inServiceCourt, sideOf } from './court'
+import { t } from '../../i18n'
 
 export type RuleMode = 'easy' | 'real'
 
@@ -34,12 +35,12 @@ export interface RallyState {
 }
 
 export const REASON_TEXT: Record<FaultReason, { kids: string; rule: string }> = {
-  out: { kids: 'アウト！', rule: 'ラインにさわればイン。そとはアウト' },
-  'double-bounce': { kids: '2かい はねた！', rule: '2かい はねるまえに かえそう' },
-  'two-bounce': { kids: '2バウンドルール！', rule: 'サーブとリターンは 1かい はねてから うつ' },
-  'kitchen-volley': { kids: 'キッチンで ボレー！', rule: 'ボレーは キッチンの そとから' },
-  'serve-kitchen': { kids: 'サーブが キッチンに！', rule: 'サーブは キッチン（ラインも）を こえて' },
-  'serve-wrong-court': { kids: 'サーブは ななめへ！', rule: 'サーブは ななめむこうの サービスコートへ' },
+  out: { kids: t('アウト！'), rule: t('ラインにさわればイン。そとはアウト') },
+  'double-bounce': { kids: t('2かい はねた！'), rule: t('2かい はねるまえに かえそう') },
+  'two-bounce': { kids: t('2バウンドルール！'), rule: t('サーブとリターンは 1かい はねてから うつ') },
+  'kitchen-volley': { kids: t('キッチンで ボレー！'), rule: t('ボレーは キッチンの そとから') },
+  'serve-kitchen': { kids: t('サーブが キッチンに！'), rule: t('サーブは キッチン（ラインも）を こえて') },
+  'serve-wrong-court': { kids: t('サーブは ななめへ！'), rule: t('サーブは ななめむこうの サービスコートへ') },
 }
 
 /** 球が跳ねたときの判定。bounces は今の跳ねを数えた後の値 */

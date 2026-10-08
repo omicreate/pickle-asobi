@@ -17,6 +17,7 @@ import { best, clock, createS10, HIDE_AT, stepS10, tapS10, TRIES, visible } from
 import type { S10Event, S10State } from './stop10'
 import '../reaction/reaction.css'
 import './stop10.css'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -25,7 +26,7 @@ interface Props {
 }
 
 const bestKey = (lv: Level) => `stop10-best-${lv}`
-const diffText = (ms: number) => `ずれ ${(ms / 1000).toFixed(2)}びょう`
+const diffText = (ms: number) => t('ずれ {0}びょう', [(ms / 1000).toFixed(2)])
 
 export function Stop10Game({ levels, paused, onRestart }: Props) {
   const play = usePlay()
@@ -91,7 +92,7 @@ export function Stop10Game({ levels, paused, onRestart }: Props) {
       </div>
       <div className="s10-clock" data-hidden={!show || undefined} aria-live="off">
         {game.phase === 'idle' ? clock(0) : show ? clock(game.t) : '？？.？？'}
-        <small>びょう</small>
+        <small>{t('びょう')}</small>
       </div>
       <div className="s10-sky">
         {running && show && <div className="s10-ball" style={{ bottom: `${8 + height * 92}%`, opacity: 1 - height * 0.7 }} />}
@@ -100,9 +101,9 @@ export function Stop10Game({ levels, paused, onRestart }: Props) {
         <PikuruCut art={face} height={110} />
       </div>
       <p className="s10-msg">
-        {game.phase === 'idle' && 'タップで ロブを うちあげる'}
-        {running && (show ? '10びょうで おちてくるよ' : 'いまだ！と おもったら タップ')}
-        {game.phase === 'shown' && game.last && `${clock(game.last.at)}びょう（${diffText(game.last.diff)}）`}
+        {game.phase === 'idle' && t('タップで ロブを うちあげる')}
+        {running && (show ? t('10びょうで おちてくるよ') : t('いまだ！と おもったら タップ'))}
+        {game.phase === 'shown' && game.last && t('{0}びょう（{1}）', [clock(game.last.at), diffText(game.last.diff)])}
       </p>
       <ol className="rx-list">
         {Array.from({ length: TRIES }, (_, i) => (
@@ -114,8 +115,8 @@ export function Stop10Game({ levels, paused, onRestart }: Props) {
       {over && !contest && (
         <Result
           single
-          title={() => (over.best <= 30 ? 'ピタッ！ すごい！' : diffText(over.best))}
-          sub={() => (over.best <= over.record ? 'さいこう きろく！' : `さいこうは ${diffText(over.record)}（${LEVEL_INFO[level].label}）`)}
+          title={() => (over.best <= 30 ? t('ピタッ！ すごい！') : diffText(over.best))}
+          sub={() => (over.best <= over.record ? t('さいこう きろく！') : t('さいこうは {0}（{1}）', [diffText(over.record), LEVEL_INFO[level].label]))}
           face={() => (over.best <= over.record ? 'ok' : 'eh')}
           onAgain={onRestart}
         />

@@ -19,6 +19,7 @@ import { drawPikuruArt } from '../../ui/pikuruArt'
 import { BALL_R, CENTER, createCurling, ENDS, FIELD_H, FIELD_W, launchPoint, launchVelocity, restPoint, RINGS, stepCurling, STONES, throwStone } from './curling'
 import type { CuState } from './curling'
 import './curling.css'
+import { t } from '../../i18n'
 
 interface Props {
   levels: [Level, Level]
@@ -43,7 +44,7 @@ export function CurlingGame({ levels, paused, onRestart }: Props) {
   const aim = useRef<Aim | null>(null)
   const noticeTimer = useRef(0)
   const [hud, setHud] = useState({ score: [0, 0] as [number, number], turn: 0 as Side, thrown: [0, 0] as [number, number], end: 1, phase: game.phase })
-  const [notice, setNotice] = useState<NoticeData | null>({ title: 'ひいて はなすと なげるよ', sub: 'まとの まんなかに ちかい ほうが かち', face: 'think' })
+  const [notice, setNotice] = useState<NoticeData | null>({ title: t('ひいて はなすと なげるよ'), sub: t('まとの まんなかに ちかい ほうが かち'), face: 'think' })
   const [over, setOver] = useState<Side | null>(null)
 
   const view = useMemo(() => {
@@ -82,12 +83,12 @@ export function CurlingGame({ levels, paused, onRestart }: Props) {
             break
           case 'end':
             sfx.ok()
-            if (ev.side === null) setNotice({ title: 'てんなし', sub: 'まとに だれも はいらなかった', face: 'eh' })
+            if (ev.side === null) setNotice({ title: t('てんなし'), sub: t('まとに だれも はいらなかった'), face: 'eh' })
             else {
               speak(ev.side === 0 ? PHRASES.point0 : PHRASES.point1)
               setNotice({
                 title: `${SIDE_NAME[ev.side]} +${ev.points}`,
-                sub: `${ev.score[0]} たい ${ev.score[1]}`,
+                sub: t('{0} たい {1}', [ev.score[0], ev.score[1]]),
                 faces: [ev.side === 0 ? 'ok' : 'oops', ev.side === 1 ? 'ok' : 'oops'],
               })
             }
@@ -159,23 +160,22 @@ export function CurlingGame({ levels, paused, onRestart }: Props) {
         {(side) => (
           <div className="cu-info">
             <span className="cu-end">
-              エンド {Math.min(hud.end, ENDS)}/{ENDS}
-              {hud.end > ENDS ? '＋' : ''}
+              {t('エンド {0}/{1}{2}', [Math.min(hud.end, ENDS), ENDS, hud.end > ENDS ? '＋' : ''])}
             </span>
-            <span className="cu-stones" aria-label={`のこり ${STONES - hud.thrown[side]}きゅう`}>
+            <span className="cu-stones" aria-label={t('のこり {0}きゅう', [STONES - hud.thrown[side]])}>
               {Array.from({ length: STONES }, (_, i) => (
                 <i key={i} data-used={i < hud.thrown[side] || undefined} style={{ borderColor: SIDE_COLOR[side] }} />
               ))}
             </span>
-            {hud.phase === 'aim' && <span className="cu-turn">{hud.turn === side ? 'あなたの ばん！' : 'あいての ばん'}</span>}
+            {hud.phase === 'aim' && <span className="cu-turn">{hud.turn === side ? t('あなたの ばん！') : t('あいての ばん')}</span>}
           </div>
         )}
       </Both>
       <Notice data={notice} />
       {over !== null && (
         <Result
-          title={(side) => (side === over ? 'かち！ ナイスショット' : 'おしい！')}
-          sub={(side) => `${hud.score[side]} たい ${hud.score[side === 0 ? 1 : 0]}`}
+          title={(side) => (side === over ? t('かち！ ナイスショット') : t('おしい！'))}
+          sub={(side) => t('{0} たい {1}', [hud.score[side], hud.score[side === 0 ? 1 : 0]])}
           face={(side) => (side === over ? 'ok' : 'oops')}
           onAgain={onRestart}
         />

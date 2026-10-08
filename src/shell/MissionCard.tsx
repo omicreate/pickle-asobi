@@ -7,8 +7,9 @@ import { speak } from '../core/speak'
 import { GameIcon } from '../ui/GameIcon'
 import { Pikuru } from '../ui/Pikuru'
 import { PHRASES } from '../core/voiceLines'
+import { isEn, t } from '../i18n'
 
-const WEEK = ['にち', 'げつ', 'か', 'すい', 'もく', 'きん', 'ど']
+const WEEK = isEn ? ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] : ['にち', 'げつ', 'か', 'すい', 'もく', 'きん', 'ど']
 
 export function MissionCard() {
   const p = useProgress()
@@ -28,10 +29,10 @@ export function MissionCard() {
   return (
     <section className="mission-card" aria-labelledby="mission-title" data-testid="missions">
       <div className="mission-head">
-        <h2 id="mission-title">きょうの ミッション</h2>
+        <h2 id="mission-title">{t('きょうの ミッション')}</h2>
         <button
           className="btn btn-small mission-speak"
-          aria-label="ミッションを よみあげる"
+          aria-label={t('ミッションを よみあげる')}
           onClick={() => {
             unlockAudio()
             speak([PHRASES.missions, ...defs.map((d) => d.text), ...(defs.some((d) => d.together && !state.done[defs.indexOf(d)]) ? [PHRASES.missionSolo] : [])])
@@ -39,7 +40,7 @@ export function MissionCard() {
         >
           🗣️
         </button>
-        <a className="star-pill" href="#/collection" aria-label={`ほし ${p.stars}こ（きせかえへ）`} data-testid="home-stars">
+        <a className="star-pill" href="#/collection" aria-label={t('ほし {0}こ（きせかえへ）', [p.stars])} data-testid="home-stars">
           ⭐ {p.stars}
         </a>
       </div>
@@ -60,7 +61,7 @@ export function MissionCard() {
                 {d.text}
                 {d.together && !done && (
                   <small className="mission-solo">
-                    ひとりなら <GameIcon game="pikuru" size={18} /> ピクルくんと <span className="nowrap">ラリーでも OK</span>
+                    {t('ひとりなら')}{' '}<GameIcon game="pikuru" size={18} />{' '}{t('ピクルくんと')}{' '}<span className="nowrap">{t('ラリーでも OK')}</span>
                   </small>
                 )}
               </span>
@@ -69,8 +70,8 @@ export function MissionCard() {
           )
         })}
       </ul>
-      <p className="mission-bonus">{state.bonus ? `ぜんぶ クリア！ ⭐+${BONUS_STARS} もらったよ` : `3つ ぜんぶ クリアで ⭐+${BONUS_STARS}`}</p>
-      <div className="stamps" aria-label={`スタンプ ${p.days.length}こ`}>
+      <p className="mission-bonus">{state.bonus ? t('ぜんぶ クリア！ ⭐+{0} もらったよ', [BONUS_STARS]) : t('3つ ぜんぶ クリアで ⭐+{0}', [BONUS_STARS])}</p>
+      <div className="stamps" aria-label={t('スタンプ {0}こ', [p.days.length])}>
         {week.map((w) => (
           <span
             key={w.key}
@@ -83,10 +84,10 @@ export function MissionCard() {
           </span>
         ))}
         <span className="stamp-total">
-          スタンプ {p.days.length}こ
+          {t('スタンプ {0}こ', [p.days.length])}
           {next?.item && (
             <small>
-              あと {next.n - p.days.length}こで「{next.item.label}」
+              {t('あと {0}こで「{1}」', [next.n - p.days.length, next.item.label])}
             </small>
           )}
         </span>

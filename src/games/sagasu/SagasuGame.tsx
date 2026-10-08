@@ -20,6 +20,8 @@ import { CONTEST_ROUNDS, HINT_AFTER, HINT_MS, makeDiff, makeWally, MISS_MS, WALL
 import type { DiffRound, WallyRound, Zone } from './sagasu'
 import { SceneSvg, TargetCard } from './SceneSvg'
 import './sagasu.css'
+import { t } from '../../i18n'
+import { Rich } from '../../i18n/Rich'
 
 interface Props {
   levels: [Level, Level]
@@ -132,7 +134,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       penalty.current += MISS_MS[level]
       // どこが ちがうかを見せる（つぎは見分けられるように）
       const why = whyNot(wally.scene.people.find((p) => p.id === id)?.look ?? wally.scene.people[0].look)
-      flash(`${why ?? 'ちがうよ'}${MISS_MS[level] ? ` +${MISS_MS[level] / 1000}びょう` : ''}`)
+      flash(`${why ?? t('ちがうよ')}${MISS_MS[level] ? t(' +{0}びょう', [MISS_MS[level] / 1000]) : ''}`)
     }
   }
 
@@ -159,7 +161,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
     if (paused || busy || !diff) return
     sfx.ng()
     penalty.current += missPenalty
-    flash(missPenalty ? `ちがうよ +${missPenalty / 1000}びょう` : 'ちがうよ')
+    flash(missPenalty ? t('ちがうよ +{0}びょう', [missPenalty / 1000]) : t('ちがうよ'))
   }
   const useHint = () => {
     if (!diff || busy) return
@@ -182,27 +184,27 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
           <>
             <TargetCard size={60} />
             <div className="sagasu-head-text">
-              <b>ほんものは どこ？</b>
-              <small className="sagasu-marks">ライムの はちまき・あたまに つる</small>
+              <b>{t('ほんものは どこ？')}</b>
+              <small className="sagasu-marks">{t('ライムの はちまき・あたまに つる')}</small>
               <small>
-                {round + 1} / {rounds}かいめ
+                {t('{0} / {1}かいめ', [round + 1, rounds])}
               </small>
             </div>
           </>
         ) : (
           <div className="sagasu-head-text">
-            <b>ちがいを さがそう</b>
+            <b>{t('ちがいを さがそう')}</b>
             <small data-testid="sagasu-left">
-              のこり {diff ? diff.diffs.length - found.size : 0}こ
+              {t('のこり {0}こ', [diff ? diff.diffs.length - found.size : 0])}
             </small>
           </div>
         )}
-        <span className="sagasu-time" aria-label="じかん">
+        <span className="sagasu-time" aria-label={t('じかん')}>
           {sec(total())}
         </span>
         {mode === 'diff' && (
           <button className="btn btn-small sagasu-hint-btn" disabled={!canHint} onClick={useHint} data-testid="sagasu-hint">
-            ヒント
+            {t('ヒント')}
           </button>
         )}
       </header>
@@ -221,7 +223,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
 
       {ring && mode === 'wally' && wally && (
         <div className="sagasu-found-note" data-testid="sagasu-found">
-          みつけた！ <b>{ZONE_NAME[wally.zone]}</b>に いたよ
+          <Rich text={t('みつけた！ **{0}**に いたよ', [ZONE_NAME[wally.zone]])} />
         </div>
       )}
       {toast && <div className="sagasu-toast">{toast}</div>}
@@ -229,11 +231,11 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       {over && !contest && (
         <Result
           single
-          title={() => (mode === 'wally' ? `${rounds}かい みつけた！` : 'ぜんぶ みつけた！')}
-          sub={() => `${sec(over.ms)}びょう（じこベスト ${sec(over.best)}びょう）`}
+          title={() => (mode === 'wally' ? t('{0}かい みつけた！', [rounds]) : t('ぜんぶ みつけた！'))}
+          sub={() => t('{0}びょう（じこベスト {1}びょう）', [sec(over.ms), sec(over.best)])}
           face={() => 'ok'}
           onAgain={onRestart}
-          extra={over.isBest ? <p className="sagasu-best">じこベスト こうしん！</p> : undefined}
+          extra={over.isBest ? <p className="sagasu-best">{t('じこベスト こうしん！')}</p> : undefined}
         />
       )}
     </div>

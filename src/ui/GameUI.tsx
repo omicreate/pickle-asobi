@@ -8,6 +8,7 @@ import type { Side } from '../core/players'
 import { usePlay } from '../shell/playContext'
 import type { Face } from './Pikuru'
 import { PikuruCut } from './pikuruArt'
+import { t } from '../i18n'
 
 export interface NoticeData {
   title: string
@@ -57,7 +58,7 @@ export function Scores({ score }: { score: [number, number] }) {
   return (
     <Both>
       {(side) => (
-        <div className="score-pill" data-side={side} aria-label={`${side === 0 ? 'オレンジ' : 'あお'} ${score[side]}てん`}>
+        <div className="score-pill" data-side={side} aria-label={t('{0} {1}てん', [side === 0 ? t('オレンジ') : t('あお'), score[side]])}>
           {score[side]}
         </div>
       )}
@@ -69,15 +70,15 @@ export function Scores({ score }: { score: [number, number] }) {
 export function rewardText(r: Reward): string {
   switch (r.type) {
     case 'mission':
-      return `⭐+${r.stars} ミッション クリア！`
+      return t('⭐+{0} ミッション クリア！', [r.stars])
     case 'bonus':
-      return `⭐+${r.stars} きょうの ミッション ぜんぶ クリア！`
+      return t('⭐+{0} きょうの ミッション ぜんぶ クリア！', [r.stars])
     case 'item':
-      return `🎁 「${r.item.label}」を もらった！`
+      return t('🎁 「{0}」を もらった！', [r.item.label])
     case 'welcome':
-      return `🎁 はじめての プレゼント ⭐${r.stars}`
+      return t('🎁 はじめての プレゼント ⭐{0}', [r.stars])
     case 'medal':
-      return `${MEDAL_MARK[r.medal]} ${gameById(r.game)?.title ?? ''}で ${MEDAL_NAME[r.medal]}メダル！ ⭐+${r.stars}`
+      return t('{0} {1}で {2}メダル！ ⭐+{3}', [MEDAL_MARK[r.medal], gameById(r.game)?.title ?? '', MEDAL_NAME[r.medal], r.stars])
   }
 }
 
@@ -114,7 +115,7 @@ export function Result({
     play.share && (
       <button
         className="btn result-share"
-        aria-label="きねんカード（おうちの人と いっしょに）"
+        aria-label={t('きねんカード（おうちの人と いっしょに）')}
         data-testid="share-btn"
         onClick={() => play.share?.({ side, title: title(side), sub: sub?.(side), face: face(side) })}
       >
@@ -131,10 +132,10 @@ export function Result({
         <RewardList rewards={play.rewards} />
         <div className="result-actions">
           <button className="btn btn-go" onClick={onAgain}>
-            もういちど
+            {t('もういちど')}
           </button>
           <a className="btn" href="#/">
-            おわる
+            {t('おわる')}
           </a>
           {card(0)}
         </div>
@@ -152,10 +153,10 @@ export function Result({
           <RewardList rewards={play.rewards} />
           <div className="result-actions">
             <button className="btn btn-go" onClick={onAgain}>
-              もういちど
+              {t('もういちど')}
             </button>
             <a className="btn" href="#/">
-              おわる
+              {t('おわる')}
             </a>
             {card(side)}
           </div>
@@ -187,10 +188,10 @@ export function GameMenu({
   return (
     <>
       <div className={`game-buttons ${corner ? 'game-buttons-corner' : ''}`}>
-        <button className="mid-btn mid-btn-help" onClick={onHelp} aria-label="あそびかた・ルール（いちじていし）" data-testid="help-btn">
+        <button className="mid-btn mid-btn-help" onClick={onHelp} aria-label={t('あそびかた・ルール（いちじていし）')} data-testid="help-btn">
           ？
         </button>
-        <button className="mid-btn" onClick={onOpen} aria-label="メニュー（いちじていし）">
+        <button className="mid-btn" onClick={onOpen} aria-label={t('メニュー（いちじていし）')}>
           ⏸
         </button>
       </div>
@@ -198,18 +199,18 @@ export function GameMenu({
         <div className="menu-backdrop" onClick={onClose}>
           <div className="menu-card" onClick={(e) => e.stopPropagation()}>
             <button className="btn btn-go" onClick={onClose}>
-              つづける
+              {t('つづける')}
             </button>
             <button className="btn" onClick={onHelp}>
-              ？ あそびかた・ルール
+              {t('？ あそびかた・ルール')}
             </button>
             {onRestart && (
               <button className="btn" onClick={onRestart}>
-                さいしょから
+                {t('さいしょから')}
               </button>
             )}
             <a className="btn" href="#/">
-              ホームへ
+              {t('ホームへ')}
             </a>
           </div>
         </div>
