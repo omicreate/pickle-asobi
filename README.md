@@ -6,7 +6,7 @@ Put the device on a table and two players play face to face, or play solo agains
 - **Play:** https://omicreate.github.io/pickle-asobi/?lang=en (free, no install, works offline)
 - **Languages:** English / Japanese (follows your device; switch with 🌐)
 - **Stack:** React + TypeScript + Vite, PWA. Tests run on every push before deploying to GitHub Pages.
-- **Privacy:** records stay on your device. Only anonymous play counts are sent, never with Do Not Track / GPC on, and parents can turn them off.
+- **Privacy:** records stay on your device. Only anonymous play data is sent (events, game, level, play time and score — never names, device IDs or cookies), never with Do Not Track / GPC on, and parents can turn them off.
 
 *The rest of this README is in Japanese.*
 
