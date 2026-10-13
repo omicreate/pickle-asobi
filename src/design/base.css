@@ -14,7 +14,10 @@ body,
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  /* アメリカンポップ：ピンクの水玉 */
+  background-image: radial-gradient(var(--pink-dot) 5px, transparent 5.5px);
+  background-size: 40px 40px;
   color: var(--ink);
   font-family: var(--font);
   font-weight: 700;
@@ -37,6 +40,11 @@ h2,
 h3,
 p {
   margin: 0;
+}
+h1,
+h2 {
+  font-family: var(--display);
+  font-weight: 400;
 }
 
 button {
@@ -84,20 +92,22 @@ img {
   gap: 8px;
   background: var(--surface-2);
   color: var(--ink);
+  border: 3px solid var(--ink);
   box-shadow: var(--shadow);
   transition: transform 0.1s var(--ease);
   text-decoration: none;
 }
 .btn:active {
-  transform: translateY(3px);
+  transform: translate(3px, 3px);
   box-shadow: none;
 }
 .btn-go {
-  background: var(--lime);
-  border: 3px solid var(--pk-line);
+  background: var(--sunny);
+  border: 3px solid var(--ink);
 }
 .btn-quiet {
   background: transparent;
+  border-color: transparent;
   box-shadow: none;
   color: var(--mute);
 }
@@ -172,7 +182,7 @@ img {
   border: 4px solid var(--pk-line);
   padding: 10px 22px;
   text-align: center;
-  box-shadow: 0 6px 0 rgba(18, 48, 43, 0.25);
+  box-shadow: 6px 6px 0 var(--ink);
   animation: pop-in 0.28s var(--ease);
   max-width: 88%;
   display: flex;
@@ -386,7 +396,7 @@ img {
   gap: 6px;
   text-align: center;
   max-width: 340px;
-  box-shadow: 0 5px 0 var(--pk-line);
+  box-shadow: 5px 5px 0 var(--pk-line);
   animation: pop-in 0.25s var(--ease);
 }
 .break-title {

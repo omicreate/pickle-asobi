@@ -69,11 +69,11 @@ export interface Scene {
 export type Zone = 'kitchen' | 'service' | 'outside'
 export const ZONE_NAME: Record<Zone, string> = { kitchen: t('キッチン'), service: t('サービスコート'), outside: t('コートの そと') }
 
-export const KITCHEN_COLOR = '#3d8f7a'
+export const KITCHEN_COLOR = '#ff7eb6'
 export const BALL_COLORS = ['#d4f03c', '#ff8a3d', '#ffffff']
 export const PADDLE_COLORS = ['#ff8a3d', '#3d9be9', '#ff6fae', '#9b6bff']
 export const CONE_COLORS = ['#ff8a3d', '#f5c400']
-export const BOTTLE_COLORS = ['#3d9be9', '#4caf50']
+export const BOTTLE_COLORS = ['#3d9be9', '#3dbe6b']
 const colorsOf = (k: ThingKind) => (k === 'ball' ? BALL_COLORS : k === 'paddle' ? PADDLE_COLORS : k === 'cone' ? CONE_COLORS : BOTTLE_COLORS)
 
 /** さがせ！ピクルくん：レベルごとの人数・大きさ・にせものの ちがいの数・ちがいに使う所 */
@@ -320,7 +320,7 @@ export function makeDiff(level: Level, w: number, h: number, rand: () => number 
   const kitchenCand: Cand = () => {
     if (usedObj.has('kitchen')) return false
     usedObj.add('kitchen')
-    b.kitchenColor = '#2f5d9a'
+    b.kitchenColor = '#2f6fe4'
     add({ kind: 'kitchen', x: court.x + court.w / 2, y: court.y + court.h / 2 - court.k / 2, r: Math.max(minR, court.k * 0.6) })
     return true
   }

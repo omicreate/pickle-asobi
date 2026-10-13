@@ -191,7 +191,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: R
   const Y = (y: number) => v.ground - y * k
 
   // 空と、遠くのコート
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, w, h)
   ctx.fillStyle = '#ffd99a'
   for (let i = 0; i < 4; i++) {
@@ -202,9 +202,9 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: R
   }
 
   // 地面：コート（青）と、流れていく白いライン
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fillRect(0, v.ground, w, h - v.ground)
-  ctx.fillStyle = '#3d8f7a'
+  ctx.fillStyle = '#ff7eb6'
   ctx.fillRect(0, v.ground, w, Math.max(6, 0.18 * k))
   ctx.fillStyle = '#ffffff'
   const step = 3
@@ -234,7 +234,7 @@ function drawObstacle(ctx: CanvasRenderingContext2D, X: (x: number) => number, Y
     const top = Y(o.h)
     const nw = Math.max(10, 0.5 * k)
     // ポスト
-    ctx.fillStyle = '#12302b'
+    ctx.fillStyle = '#1b1b3a'
     ctx.fillRect(x - nw / 2 - 3, top - 4, 5, Y(0) - top + 4)
     ctx.fillRect(x + nw / 2 - 2, top - 4, 5, Y(0) - top + 4)
     // あみ
@@ -327,7 +327,7 @@ function drawPikuru(ctx: CanvasRenderingContext2D, x: number, y: number, k: numb
   ctx.fillStyle = '#d4f03c'
   ctx.fillRect(x - bw / 2 + line / 2, hb, bw - line, bh * 0.14)
   ctx.strokeRect(x - bw / 2 + line / 2, hb, bw - line, bh * 0.14)
-  ctx.fillStyle = '#12302b'
+  ctx.fillStyle = '#1b1b3a'
   ctx.font = `900 ${Math.round(bh * 0.12)}px 'Zen Maru Gothic', sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -344,7 +344,7 @@ function drawPikuru(ctx: CanvasRenderingContext2D, x: number, y: number, k: numb
     ctx.stroke()
     ctx.beginPath()
     ctx.arc(ex + bw * 0.03, ey, bw * 0.055, 0, Math.PI * 2)
-    ctx.fillStyle = '#12302b'
+    ctx.fillStyle = '#1b1b3a'
     ctx.fill()
   }
   ctx.fillStyle = 'rgba(255, 138, 61, 0.7)'

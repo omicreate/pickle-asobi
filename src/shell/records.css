@@ -28,13 +28,13 @@
   border-radius: var(--r-lg);
   background: var(--surface-2);
   border: 3px solid var(--pk-line);
-  box-shadow: 0 4px 0 var(--pk-line);
+  box-shadow: 4px 4px 0 var(--pk-line);
   color: inherit;
   text-decoration: none;
 }
 .rec-card:active {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 var(--pk-line);
+  box-shadow: 1px 1px 0 var(--pk-line);
 }
 .rec-text {
   flex: 1;

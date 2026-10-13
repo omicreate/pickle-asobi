@@ -46,13 +46,13 @@ export function makeView(w: number, h: number, topExtra = 0): View {
 export const toWorld = (v: View, x: number, y: number) => ({ x: (x - v.ox) / v.scale, y: (y - v.oy) / v.scale })
 
 const C = {
-  bg: '#ffe7b8',
-  out: '#24497a',
-  court: '#2f5d9a',
-  kitchen: '#3d8f7a',
-  kitchenHot: '#5fb79f',
+  bg: '#f2efe8',
+  out: '#1f4fb0',
+  court: '#2f6fe4',
+  kitchen: '#ff7eb6',
+  kitchenHot: '#ff4f9a',
   line: '#ffffff',
-  net: '#12302b',
+  net: '#1b1b3a',
   ball: '#d4f03c',
   ballLine: '#2e5a1c',
   shadow: 'rgba(0, 0, 0, 0.28)',
@@ -126,7 +126,7 @@ export function drawRally(ctx: CanvasRenderingContext2D, w: number, h: number, v
   ctx.stroke()
 
   // 「キッチン」の文字（それぞれの人から読める向き）
-  ctx.fillStyle = 'rgba(255,255,255,0.32)'
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
   ctx.font = `900 ${Math.round(0.62 * s)}px 'Zen Maru Gothic', sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -316,7 +316,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: R
     ctx.fillStyle = color
     ctx.fill()
     ctx.lineWidth = Math.max(1.5, 0.03 * s)
-    ctx.strokeStyle = '#12302b'
+    ctx.strokeStyle = '#1b1b3a'
     ctx.stroke()
     ctx.beginPath()
     ctx.arc(X(bx), Y(by), 0.11 * VIS * s, 0, Math.PI * 2)

@@ -17,7 +17,7 @@ export const GRIP_RATIO = 13 / 28
 
 const OUTLINE = '#2e5a1c'
 const GRIP = '#2e5a1c'
-const CAP = '#12302b'
+const CAP = '#1b1b3a'
 
 export type PaddleShape = 'std' | 'long' | 'wide' | 'round'
 
@@ -60,9 +60,9 @@ export const DESIGNS = {
   orange: { label: t('オレンジ'), base: '#ff8a3d', pattern: 'plain' },
   blue: { label: t('あお'), base: '#3d9be9', pattern: 'plain' },
   lime: { label: t('ライム'), base: '#d4f03c', pattern: 'plain' },
-  red: { label: t('あか'), base: '#e5533d', pattern: 'plain' },
+  red: { label: t('あか'), base: '#e8433a', pattern: 'plain' },
   dots: { label: t('みずたま'), base: '#ff7eb6', pattern: 'dots', accent: '#ffffff' },
-  stripe: { label: t('しましま'), base: '#12302b', pattern: 'stripe', accent: '#d4f03c' },
+  stripe: { label: t('しましま'), base: '#1b1b3a', pattern: 'stripe', accent: '#d4f03c' },
   star: { label: t('ほし'), base: '#8b5cf6', pattern: 'star', accent: '#ffd84d' },
   heart: { label: t('ハート'), base: '#ffffff', pattern: 'heart', accent: '#ff5d8f' },
   pikuru: { label: t('ピクルくん モデル'), base: '#6bb33f', pattern: 'band', accent: '#d4f03c' },
@@ -70,8 +70,8 @@ export const DESIGNS = {
   gold: { label: t('きんいろ'), base: '#f5c400', pattern: 'gold' },
   ocean: { label: t('うみ'), base: '#3d9be9', pattern: 'stripe', accent: '#ffffff' },
   sakura: { label: t('さくら'), base: '#ffc2d9', pattern: 'heart', accent: '#ff5d8f' },
-  yozora: { label: t('よぞら'), base: '#24497a', pattern: 'star', accent: '#ffd84d' },
-  champion: { label: t('チャンピオン'), base: '#12302b', pattern: 'star', accent: '#f5c400' },
+  yozora: { label: t('よぞら'), base: '#1f4fb0', pattern: 'star', accent: '#ffd84d' },
+  champion: { label: t('チャンピオン'), base: '#1b1b3a', pattern: 'star', accent: '#f5c400' },
 } satisfies Record<string, Design>
 
 export type DesignId = keyof typeof DESIGNS
@@ -246,7 +246,7 @@ function drawPattern(ctx: CanvasRenderingContext2D, d: Design, L: number, W: num
       ctx.save()
       ctx.translate(bx, 0)
       ctx.rotate(Math.PI / 2)
-      ctx.fillStyle = '#12302b'
+      ctx.fillStyle = '#1b1b3a'
       ctx.font = `900 ${Math.round(bw * 0.62)}px 'Zen Maru Gothic', sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'

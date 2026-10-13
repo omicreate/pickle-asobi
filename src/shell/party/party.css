@@ -93,7 +93,7 @@
   background: var(--surface-2);
   border: 3px solid var(--pk-line);
   border-radius: var(--r-lg);
-  box-shadow: 0 6px 0 var(--pk-line);
+  box-shadow: 6px 6px 0 var(--pk-line);
   padding: 18px;
   display: flex;
   flex-direction: column;
@@ -151,7 +151,7 @@
   align-items: center;
   justify-content: center;
   gap: 14px;
-  box-shadow: 0 8px 0 rgba(18, 48, 43, 0.3);
+  box-shadow: 8px 8px 0 var(--ink);
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
   animation: pop-in 0.3s var(--ease);
 }

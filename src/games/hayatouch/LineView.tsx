@@ -4,11 +4,11 @@ import type { LineCase, Region } from './lineJudge'
 import { t } from '../../i18n'
 
 const FILL: Record<Region, string> = {
-  court: '#2f5d9a',
-  service: '#2f5d9a',
-  target: '#2f5d9a',
-  'other-service': '#24497a',
-  kitchen: '#3d8f7a',
+  court: '#2f6fe4',
+  service: '#2f6fe4',
+  target: '#2f6fe4',
+  'other-service': '#1f4fb0',
+  kitchen: '#ff7eb6',
   out: '#183152',
 }
 

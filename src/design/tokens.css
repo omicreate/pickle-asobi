@@ -1,23 +1,29 @@
 /*
  * ピクルくんとあそぼ デザイントークン
  * 色はピクルくん仕様（PickleballIQ/ブランド/ピクルくん/ピクルくん仕様.md）に合わせる。
- * コートの色は動画テンプレート（pb-studio/template/player.html）の紺とキッチンの緑。
+ * 2026-10-13 からアメリカンポップ（動画テンプレート pb-studio の look amepop と同じ色・文字）。
+ * 元は Design キャンバス「ピックルボールIQ アメリカンポップ」。
  */
 :root {
   /* ピクルくん */
   --pk-body: #6bb33f;
-  --pk-line: #2e5a1c;
+  --pk-line: #1b1b3a; /* 縁どり（ボタン・カードの太い縁）。ピクルくんの絵の線は絵の中で別に持つ */
   --lime: #d4f03c;
-  --ink: #12302b;
+  --ink: #1b1b3a;
   --orange: #ff8a3d;
-  --cream: #ffe7b8;
+  --cream: #f2efe8; /* クラウドホワイト */
+  --pink: #ff7eb6;
+  --pink-dot: #ffd3e6;
+  --cherry: #e8433a;
+  --sunny: #ffd23f;
+  --pool: #2f6fe4;
 
   /* 地と面 */
   --bg: var(--cream);
-  --surface: #fff6e3;
+  --surface: #fffdf8;
   --surface-2: #ffffff;
-  --mute: #4f6a5f;
-  --line: rgba(18, 48, 43, 0.14);
+  --mute: #5a5a75;
+  --line: rgba(27, 27, 58, 0.14);
 
   /* 2人の色（下＝オレンジ、上＝あお） */
   --p0: #ff8a3d;
@@ -29,16 +35,18 @@
   --p1-tint: #d3e7f8;
 
   /* コート */
-  --court-out: #24497a;
-  --court: #2f5d9a;
-  --kitchen: #3d8f7a;
+  --court-out: #1f4fb0;
+  --court: #2f6fe4;
+  --kitchen: #ff7eb6;
   --court-line: #ffffff;
   --ball: #d4f03c;
 
   /* 意味のある色 */
-  --ok: #4caf50;
-  --ng: #e5533d;
+  --ok: #3dbe6b;
+  --ng: #e8433a;
 
+  --display: 'Dela Gothic One', 'Zen Maru Gothic', sans-serif; /* 見出し */
+  --latin: 'Bowlby One', 'Dela Gothic One', sans-serif; /* 英字・数字の飾り */
   --font: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
 
   --r-md: 16px;
@@ -47,7 +55,12 @@
   /* 押せる要素の最小の大きさ（小さい子の指でも押せるように大きめ） */
   --tap: 64px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --shadow: 0 4px 0 rgba(18, 48, 43, 0.18);
+  --shadow: 4px 4px 0 var(--ink);
 
   color-scheme: light;
+}
+
+/* 英語版の見出しは Bowlby One（アメリカのレトロな看板の書体）。日本語版はデラゴシック */
+:root:lang(en) {
+  --display: 'Bowlby One', 'Dela Gothic One', sans-serif;
 }

@@ -9,6 +9,8 @@ import { preloadPikuru } from './ui/pikuruArt'
 // 書体はアプリに同梱する（電波のない場所でも同じ見た目にするため）
 import '@fontsource/zen-maru-gothic/700.css'
 import '@fontsource/zen-maru-gothic/900.css'
+import '@fontsource/dela-gothic-one/400.css'
+import '@fontsource/bowlby-one/400.css'
 import './design/base.css'
 
 // どこから来たか（?src=）を読んでアドレスから消し、開いたことを1回だけ数える（共有リンクで ゲームの画面から入ったときも）

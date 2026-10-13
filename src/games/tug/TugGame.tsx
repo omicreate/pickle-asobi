@@ -155,7 +155,7 @@ function margin(h: number) {
 
 function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: TugState, ripples: Ripple[], face: Face) {
   // 下はオレンジ、上はあお
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, w, h)
   ctx.fillStyle = '#d3e7f8' // 上の人の地（tokens.css の --p1-tint）
   ctx.fillRect(0, 0, w, h / 2)
@@ -184,10 +184,10 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: TugState, 
   }
   ctx.beginPath()
   ctx.roundRect(lx, m - 18, laneW, h - 2 * m + 36, 18)
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fill()
   // キッチンの色をネットの近くに
-  ctx.fillStyle = '#3d8f7a'
+  ctx.fillStyle = '#ff7eb6'
   ctx.fillRect(lx, h / 2 - (h / 2 - m) * 0.3, laneW, (h / 2 - m) * 0.6)
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(lx, h / 2 - 2, laneW, 4)
@@ -199,7 +199,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: TugState, 
     ctx.save()
     ctx.translate(w / 2, side === 0 ? y + 24 : y - 24)
     if (side === 1) ctx.rotate(Math.PI)
-    ctx.fillStyle = '#12302b'
+    ctx.fillStyle = '#1b1b3a'
     ctx.font = `900 16px 'Zen Maru Gothic', sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'

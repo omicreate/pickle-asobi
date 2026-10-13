@@ -87,7 +87,7 @@ export async function makeCard(d: CardData): Promise<Blob> {
   const ctx = c.getContext('2d')!
 
   // 地
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, SIZE, SIZE)
   ctx.fillStyle = 'rgba(255, 138, 61, 0.12)'
   for (let i = 0; i < 9; i++) {
@@ -123,7 +123,7 @@ export async function makeCard(d: CardData): Promise<Blob> {
   const ph = 560
   ctx.beginPath()
   ctx.roundRect(px, py, pw, ph, 44)
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fill()
   ctx.lineWidth = 10
   ctx.strokeStyle = '#ffffff'
@@ -143,7 +143,7 @@ export async function makeCard(d: CardData): Promise<Blob> {
   const titleH = fitText(ctx, d.title, tx, ty + 30, pw - 104, 104, 56, 2)
   ty += titleH + 46
   if (d.sub) {
-    ctx.fillStyle = '#ffe7b8'
+    ctx.fillStyle = '#f2efe8'
     ctx.font = `700 40px ${FONT}`
     // 右下のピクルくんに かからない幅で
     fitText(ctx, d.sub, tx, ty, 560, 40, 28, 2)

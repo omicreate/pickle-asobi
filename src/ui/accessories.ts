@@ -59,7 +59,7 @@ const ANCHORS: Record<CutArt, Anchor> = {
   run: { cx: 140.8, cy: 205.9, b: 221, tilt: -0.15, ex: 152, ey: 300 },
 }
 
-const INK = '#12302b'
+const INK = '#1b1b3a'
 const LINE = '#2e5a1c'
 
 /** ヘッドバンドに沿った向きで、中心から (u, v) だけずらした点（ヘッドバンドの幅＝1） */
@@ -185,7 +185,7 @@ function crown(ctx: CanvasRenderingContext2D) {
   }
   ctx.beginPath()
   ctx.arc(0, -0.07, 0.04, 0, Math.PI * 2)
-  ctx.fillStyle = '#e5533d'
+  ctx.fillStyle = '#e8433a'
   ctx.fill()
 }
 
@@ -286,7 +286,7 @@ function starGlasses(ctx: CanvasRenderingContext2D) {
 
 /** ちょうネクタイ（結び目が原点） */
 function bowtie(ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = '#e5533d'
+  ctx.fillStyle = '#e8433a'
   for (const s of [-1, 1]) {
     ctx.beginPath()
     ctx.moveTo(0, 0)
