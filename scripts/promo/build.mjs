@@ -74,33 +74,37 @@ const probe = (f) => Number(execFileSync(FFPROBE, ['-v', 'error', '-show_entries
 // ---------- 舞台（1枚の HTML。時刻を渡すと その瞬間の絵になる） ----------
 const icons = readdirSync(`${DIR}icons`).filter((f) => f.endsWith('.png'))
 const CSS = `
-:root{--green:#2e5a1c;--body:#6bb33f;--lime:#d4f03c;--ink:#12302b;--orange:#ff8a3d;--cream:#ffe7b8;--navy:#24497a;--mute:#4f6a5f}
+:root{--green:#1b1b3a;--body:#6bb33f;--lime:#ffd23f;--ink:#1b1b3a;--orange:#ff8a3d;--cream:#f2efe8;--navy:#1b1b3a;--mute:#5a5a75;--pink:#ff7eb6;--cherry:#e8433a;--pool:#2f6fe4;--disp:'Dela Gothic One','Zen Maru Gothic',sans-serif}
 *{box-sizing:border-box}
-html,body{margin:0;background:#ffe7b8}
-.stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:radial-gradient(circle at 50% 28%,#fff8e8 0,#ffe7b8 68%);font-family:'Zen Maru Gothic',sans-serif;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere}
+html,body{margin:0;background:#f2efe8}
+.stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:#f2efe8;font-family:'Zen Maru Gothic',sans-serif;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere}
+.stage.en{--disp:'Bowlby One','Dela Gothic One',sans-serif}
 .stage.still{height:1350px}
-.dots{position:absolute;inset:0;background-image:radial-gradient(rgba(107,179,63,.13) 9px,transparent 10px);background-size:120px 120px;background-position:30px 40px}
+.stage::before{content:'';position:absolute;left:0;right:0;top:0;height:40px;background:repeating-linear-gradient(90deg,#1b1b3a 0 40px,#f2efe8 40px 80px);z-index:2}
+.dots{position:absolute;inset:0;background-image:radial-gradient(#ffd3e6 9px,transparent 10px);background-size:64px 64px;background-position:30px 40px}
 .top{position:absolute;left:50px;right:50px;top:110px;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center}
-.title{margin:0;font-size:80px;font-weight:900;line-height:1.18;white-space:pre-line;color:var(--green);letter-spacing:.01em}
-.en .title{font-size:78px;line-height:1.1}
+.title{margin:0;font-family:var(--disp);font-size:80px;font-weight:400;line-height:1.18;white-space:pre-line;color:var(--ink);letter-spacing:.01em;text-shadow:5px 5px 0 var(--pink)}
+.en .title{font-size:76px;line-height:1.1}
 .foot span,.foot b{white-space:nowrap}
 .sub{margin:0;font-size:40px;font-weight:700;line-height:1.45;white-space:pre-line;color:var(--mute)}
-.pill{display:inline-block;background:var(--green);color:#fff;font-size:44px;font-weight:900;border-radius:999px;padding:10px 40px}
-.phone{position:absolute;width:var(--w);height:calc(var(--w)*844/390);border-radius:calc(var(--w)*.12);background:#1c2420;padding:calc(var(--w)*.03);box-shadow:0 34px 70px rgba(46,90,28,.30),0 0 0 6px rgba(255,255,255,.65)}
+.pill{display:inline-block;background:var(--cherry);color:#fff;font-size:44px;font-weight:900;border-radius:999px;padding:8px 40px;border:6px solid var(--ink);box-shadow:8px 8px 0 var(--ink);rotate:-2deg}
+.phone{position:absolute;width:var(--w);height:calc(var(--w)*844/390);border-radius:calc(var(--w)*.12);background:#1b1b3a;padding:calc(var(--w)*.03);box-shadow:16px 16px 0 var(--pool),0 0 0 6px #1b1b3a}
 .phone img{display:block;width:100%;height:100%;border-radius:calc(var(--w)*.095);object-fit:cover}
-.pk{position:absolute;filter:drop-shadow(0 18px 24px rgba(46,90,28,.25))}
-.foot{position:absolute;left:0;right:0;bottom:0;height:120px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 54px;font-size:40px;font-weight:900}
+.pk{position:absolute;filter:drop-shadow(8px 10px 0 rgba(27,27,58,.25))}
+.foot{position:absolute;left:0;right:0;bottom:0;height:120px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 54px;font-size:40px;font-weight:900}
 .foot b{color:var(--lime)}
 .still .foot{height:104px;font-size:36px}
 .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:18px}
-.chip{background:var(--lime);border:5px solid var(--green);border-radius:999px;padding:8px 30px;font-size:42px;font-weight:900;white-space:nowrap}
+.chip{background:var(--lime);border:5px solid var(--ink);border-radius:999px;padding:8px 30px;font-size:42px;font-weight:900;white-space:nowrap;box-shadow:6px 6px 0 var(--ink)}
+.chip:nth-child(3n+2){background:var(--pink)}
+.chip:nth-child(3n){background:#fff}
 .grid{position:absolute;display:grid;gap:22px}
-.grid img{width:100%;display:block;border-radius:22%;box-shadow:0 8px 16px rgba(46,90,28,.18)}
-.ripple{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:10px solid #fff;background:rgba(212,240,60,.45)}
-.tag{position:absolute;background:var(--orange);color:#fff;font-size:38px;font-weight:900;border-radius:999px;padding:6px 26px;white-space:nowrap;box-shadow:0 8px 18px rgba(0,0,0,.15)}
+.grid img{width:100%;display:block;border-radius:22%;border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink)}
+.ripple{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:10px solid #fff;background:rgba(255,210,63,.5)}
+.tag{position:absolute;background:var(--orange);color:#fff;font-size:38px;font-weight:900;border-radius:999px;padding:6px 26px;white-space:nowrap;border:5px solid var(--ink)}
 .tag.blue{background:#3a86d6}
 .col{position:absolute;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
-.col .head{background:var(--green);color:#fff;font-size:40px;font-weight:900;border-radius:999px;padding:6px 30px}
+.col .head{background:var(--cherry);color:#fff;font-size:40px;font-weight:900;border-radius:999px;padding:6px 30px;border:5px solid var(--ink)}
 .col .body{font-size:30px;font-weight:700;line-height:1.4;white-space:pre-line;color:var(--ink)}
 .note{position:absolute;left:40px;right:40px;text-align:center;font-size:32px;font-weight:700;color:var(--mute);white-space:pre-line}
 `
@@ -110,7 +114,7 @@ function stageHtml(lang) {
   const data = { lang, P, icons, GAME_COUNT }
   const font = (w) => pathToFileURL(path(`node_modules/@fontsource/zen-maru-gothic/${w}.css`)).href
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8">
-<link rel="stylesheet" href="${font(700)}"><link rel="stylesheet" href="${font(900)}">
+<link rel="stylesheet" href="${font(700)}"><link rel="stylesheet" href="${font(900)}"><link rel="stylesheet" href="${pathToFileURL(path('node_modules/@fontsource/dela-gothic-one/400.css')).href}"><link rel="stylesheet" href="${pathToFileURL(path('node_modules/@fontsource/bowlby-one/400.css')).href}">
 <style>${CSS}</style></head><body><div id="s" class="stage ${lang}"></div>
 <script>
 const D = ${JSON.stringify(data)}

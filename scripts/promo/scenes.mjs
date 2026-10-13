@@ -37,10 +37,10 @@ export const PROMO = {
       {
         id: 'hook',
         layout: 'one',
-        title: 'スマホ1台で\n親子ピックルボール！',
-        sub: 'ピクルくんとあそぼ',
+        title: 'ピクルくんとあそぼ\nリニューアル！',
+        sub: 'アメリカンポップに 大へんしん',
         phones: ['home'],
-        say: 'スマホ いちだいで、おやこで ピックルボール！',
+        say: 'ピクルくんとあそぼが、リニューアル！',
         min: 2.8,
       },
       {
@@ -82,8 +82,8 @@ export const PROMO = {
         id: 'grid',
         layout: 'grid',
         title: `ミニゲーム ${GAME_COUNT}本`,
-        chips: ['無料', 'インストール不要', '電波がなくてもOK', '広告なし', '英語版も！'],
-        say: `ミニゲームが ${jaHon(GAME_COUNT)}。むりょうで、えいごばんも できたよ！`,
+        chips: ['NEW デザイン', '無料', 'インストール不要', '電波がなくてもOK', '広告なし', '英語版も 新しく'],
+        say: `ミニゲームが ${jaHon(GAME_COUNT)}。むりょうで、えいごばんも あたらしく なったよ！`,
         min: 3.6,
       },
       {
@@ -130,10 +130,10 @@ export const PROMO = {
       {
         id: 'hook',
         layout: 'one',
-        title: 'One phone.\nPickleball fun\nfor the whole family!',
-        sub: 'Play with Pikuru',
+        title: 'Play with Pikuru\njust got a\nglow-up!',
+        sub: 'Fresh new look',
         phones: ['home'],
-        say: 'One phone. Pickleball fun for the whole family!',
+        say: 'Play with Pikuru just got a glow-up!',
         min: 2.8,
       },
       {
@@ -157,7 +157,7 @@ export const PROMO = {
         id: 'solo',
         layout: 'two',
         title: 'Play solo or with everyone',
-        sub: "Find Pikuru, Who's the Fake Pikuru? and more",
+        sub: "Where's Pikuru?, Who's the Fake Pikuru? and more",
         phones: ['sagasu', 'nise'],
         say: 'Play solo, or pass it around with friends.',
         min: 2.8,
@@ -175,8 +175,8 @@ export const PROMO = {
         id: 'grid',
         layout: 'grid',
         title: `${GAME_COUNT} mini-games`,
-        chips: ['Free', 'No install', 'Works offline', 'No ads', 'English & Japanese'],
-        say: `${enCount(GAME_COUNT)} mini-games. Free, no ads, works offline.`,
+        chips: ['New look', 'Free', 'No install', 'Works offline', 'No ads', 'English & Japanese'],
+        say: `${enCount(GAME_COUNT)} mini-games. Free, no ads, and it works offline!`,
         min: 3.6,
       },
       {
