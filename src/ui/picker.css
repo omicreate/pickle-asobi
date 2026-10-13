@@ -6,7 +6,7 @@
   background: var(--surface);
   border: 3px solid var(--pk-line);
   border-radius: var(--r-lg);
-  box-shadow: 0 6px 0 rgba(18, 48, 43, 0.25);
+  box-shadow: 6px 6px 0 var(--ink);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;

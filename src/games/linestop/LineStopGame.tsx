@@ -134,7 +134,7 @@ export function LineStopGame({ levels, paused, onRestart }: Props) {
 }
 
 function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: LsState) {
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, w, h)
   for (const side of [0, 1] as Side[]) {
     ctx.save()
@@ -148,7 +148,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, s: LsState) {
     ctx.restore()
   }
   // ネット
-  ctx.fillStyle = '#12302b'
+  ctx.fillStyle = '#1b1b3a'
   ctx.fillRect(0, h / 2 - 2, w, 4)
 }
 
@@ -163,9 +163,9 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   const cx = lx + laneW / 2
 
   // コート（ラインの外は外の色）
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fillRect(lx, 0, laneW, Y(LINE))
-  ctx.fillStyle = '#24497a'
+  ctx.fillStyle = '#1f4fb0'
   ctx.fillRect(lx, Y(LINE), laneW, hh - Y(LINE))
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(lx, Y(LINE), laneW, LINE_W * k)
@@ -192,9 +192,9 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.arc(lcx, lcy, lr, 0, Math.PI * 2)
   ctx.clip()
   const ZY = (pos: number) => lcy + (pos - LINE - LINE_W / 2) * zk
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fillRect(lcx - lr, lcy - lr, lr * 2, ZY(LINE) - (lcy - lr))
-  ctx.fillStyle = '#24497a'
+  ctx.fillStyle = '#1f4fb0'
   ctx.fillRect(lcx - lr, ZY(LINE), lr * 2, lcy + lr - ZY(LINE))
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(lcx - lr, ZY(LINE), lr * 2, LINE_W * zk)
@@ -210,9 +210,9 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.beginPath()
   ctx.arc(lcx, lcy, lr, 0, Math.PI * 2)
   ctx.lineWidth = 4
-  ctx.strokeStyle = '#12302b'
+  ctx.strokeStyle = '#1b1b3a'
   ctx.stroke()
-  ctx.fillStyle = '#12302b'
+  ctx.fillStyle = '#1b1b3a'
   ctx.font = `900 12px 'Zen Maru Gothic', sans-serif`
   ctx.textBaseline = 'top'
   // 2行に分け、画面の はしで 切れないように 中心を内側へ寄せる

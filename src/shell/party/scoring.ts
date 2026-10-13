@@ -80,5 +80,5 @@ export const defaultTeams = (n: number) => Array.from({ length: n }, (_, i) => i
 /** チーム戦の名前と色 */
 export const TEAMS = [
   { name: t('ピクルス'), color: '#4d8f2a' },
-  { name: t('パドル'), color: '#2f5d9a' },
+  { name: t('パドル'), color: '#2f6fe4' },
 ] as const

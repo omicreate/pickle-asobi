@@ -136,7 +136,7 @@
 }
 .gesture-list li[data-got] {
   background: #eef9d0;
-  color: var(--ink, #12302b);
+  color: var(--ink, #1b1b3a);
   font-weight: 900;
 }
 .gesture-list li span {

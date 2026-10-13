@@ -130,11 +130,11 @@
   font-size: 22px;
   font-weight: 900;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
-  box-shadow: 0 4px 0 rgba(18, 48, 43, 0.3);
+  box-shadow: 4px 4px 0 var(--ink);
 }
 .nise-color:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(18, 48, 43, 0.3);
+  box-shadow: 2px 2px 0 var(--ink);
 }
 .nise-seno {
   font-size: 30px;

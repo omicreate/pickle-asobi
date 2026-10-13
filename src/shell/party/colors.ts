@@ -4,7 +4,7 @@ export const PARTY_COLORS = [
   { name: t('オレンジ'), color: '#ff8a3d' },
   { name: t('あお'), color: '#3d9be9' },
   { name: t('ピンク'), color: '#ff6fae' },
-  { name: t('みどり'), color: '#4caf50' },
+  { name: t('みどり'), color: '#3dbe6b' },
   { name: t('むらさき'), color: '#9b6bff' },
   { name: t('きいろ'), color: '#f5c400' },
 ] as const

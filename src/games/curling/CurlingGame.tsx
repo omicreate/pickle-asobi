@@ -220,15 +220,15 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: C
   const k = v.scale
   const X = (x: number) => v.ox + x * k
   const Y = (y: number) => v.oy + y * k
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, w, h)
   // コート：まんなかがキッチン（的）
   ctx.beginPath()
   ctx.roundRect(X(0), Y(0), FIELD_W * k, FIELD_H * k, 14)
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fill()
   const kz = 26
-  ctx.fillStyle = '#3d8f7a'
+  ctx.fillStyle = '#ff7eb6'
   ctx.fillRect(X(0), Y(CENTER.y - kz), FIELD_W * k, kz * 2 * k)
   ctx.strokeStyle = 'rgba(255,255,255,0.9)'
   ctx.lineWidth = 2

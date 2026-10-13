@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react'
 import type { Band, Diff, Hat, Look, Person, Scene, Thing, Tone } from './sagasu'
 
-const INK = '#12302b'
+const INK = '#1b1b3a'
 const DARK = '#2e5a1c'
 // yellow はライム（#d4f03c）と見分けられるよう、だいだい寄りの黄色にする
 const BAND: Record<Band, string> = { lime: '#d4f03c', orange: '#ff8a3d', blue: '#3d9be9', pink: '#ff6fae', white: '#ffffff', yellow: '#ffb300' }
@@ -109,8 +109,8 @@ function Ground({ scene }: { scene: Scene }) {
       ].map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r={6} fill="#a9d47a" />
       ))}
-      <rect x={c.x - 2} y={c.y - 2} width={c.w + 4} height={c.h + 4} rx={1.5} fill="#24497a" />
-      <rect x={c.x} y={c.y} width={c.w} height={c.h} fill="#2f5d9a" stroke="#fff" strokeWidth={lw} />
+      <rect x={c.x - 2} y={c.y - 2} width={c.w + 4} height={c.h + 4} rx={1.5} fill="#1f4fb0" />
+      <rect x={c.x} y={c.y} width={c.w} height={c.h} fill="#2f6fe4" stroke="#fff" strokeWidth={lw} />
       <rect x={c.x} y={mid - c.k} width={c.w} height={c.k * 2} fill={scene.kitchenColor} stroke="#fff" strokeWidth={lw} />
       <line x1={c.x + c.w / 2} y1={c.y} x2={c.x + c.w / 2} y2={mid - c.k} stroke="#fff" strokeWidth={lw} />
       <line x1={c.x + c.w / 2} y1={mid + c.k} x2={c.x + c.w / 2} y2={c.y + c.h} stroke="#fff" strokeWidth={lw} />

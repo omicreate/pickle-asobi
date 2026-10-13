@@ -20,8 +20,8 @@ export type NisePicId =
   | 'dog'
   | 'cat'
 
-const INK = '#12302b'
-const LEAF = '#4caf50'
+const INK = '#1b1b3a'
+const LEAF = '#3dbe6b'
 const DARK = '#2e5a1c'
 
 const eyes = (y: number, gap = 12) => (

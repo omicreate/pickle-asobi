@@ -33,11 +33,11 @@ export type PicId =
   | 'serve-kitchen'
   | 'janken'
 
-const INK = '#12302b'
+const INK = '#1b1b3a'
 const LIME = '#d4f03c'
 const LINE = '#2e5a1c'
-const COURT = '#2f5d9a'
-const KITCHEN = '#3d8f7a'
+const COURT = '#2f6fe4'
+const KITCHEN = '#ff7eb6'
 
 const ball = (cx: number, cy: number, r: number) => (
   <g>
@@ -127,9 +127,9 @@ const PICS: Record<PicId, ReactNode> = {
   'zone-kitchen': court('kitchen'),
   'zone-middle': court('middle'),
   'zone-back': court('back'),
-  'mark-ok': <circle cx={50} cy={50} r={30} fill="none" stroke="#4caf50" strokeWidth={10} />,
+  'mark-ok': <circle cx={50} cy={50} r={30} fill="none" stroke="#3dbe6b" strokeWidth={10} />,
   'mark-ng': (
-    <g stroke="#e5533d" strokeWidth={11} strokeLinecap="round">
+    <g stroke="#e8433a" strokeWidth={11} strokeLinecap="round">
       <line x1={26} y1={26} x2={74} y2={74} />
       <line x1={74} y1={26} x2={26} y2={74} />
     </g>
@@ -144,7 +144,7 @@ const PICS: Record<PicId, ReactNode> = {
     <g>
       <circle cx={34} cy={50} r={14} fill="#ff8a3d" />
       <circle cx={70} cy={50} r={14} fill="#3d9be9" />
-      <g stroke="#e5533d" strokeWidth={6} strokeLinecap="round">
+      <g stroke="#e8433a" strokeWidth={6} strokeLinecap="round">
         <line x1={60} y1={30} x2={80} y2={50} />
         <line x1={80} y1={30} x2={60} y2={50} />
       </g>
@@ -156,7 +156,7 @@ const PICS: Record<PicId, ReactNode> = {
       <rect x={56} y={10} width={44} height={80} fill="#183152" />
       <rect x={44} y={10} width={12} height={80} fill="#fff" />
       {ball(58, 50, 14)}
-      <circle cx={50} cy={50} r={44} fill="none" stroke="#4caf50" strokeWidth={6} opacity={0.9} />
+      <circle cx={50} cy={50} r={44} fill="none" stroke="#3dbe6b" strokeWidth={6} opacity={0.9} />
     </g>
   ),
   'line-out': (
@@ -165,7 +165,7 @@ const PICS: Record<PicId, ReactNode> = {
       <rect x={56} y={10} width={44} height={80} fill="#183152" />
       <rect x={44} y={10} width={12} height={80} fill="#fff" />
       {ball(80, 50, 14)}
-      <g stroke="#e5533d" strokeWidth={6} strokeLinecap="round" opacity={0.9}>
+      <g stroke="#e8433a" strokeWidth={6} strokeLinecap="round" opacity={0.9}>
         <line x1={14} y1={14} x2={86} y2={86} />
       </g>
     </g>

@@ -42,9 +42,9 @@ function SpotIcon({ spot }: { spot: Spot }) {
   const x = spot === 'wide' ? 12 : spot === 'center' ? 52 : 32
   return (
     <svg className="sr-icon" viewBox="0 0 64 48" aria-hidden>
-      <rect x="2" y="2" width="60" height="44" rx="4" fill="#2f5d9a" stroke="#fff" strokeWidth="2" />
+      <rect x="2" y="2" width="60" height="44" rx="4" fill="#2f6fe4" stroke="#fff" strokeWidth="2" />
       <line x1="62" y1="2" x2="62" y2="46" stroke="#fff" strokeWidth="3" />
-      <circle cx="32" cy="22" r="6" fill="#ffe7b8" stroke="#12302b" strokeWidth="2" />
+      <circle cx="32" cy="22" r="6" fill="#f2efe8" stroke="#1b1b3a" strokeWidth="2" />
       <circle cx={x} cy={spot === 'body' ? 14 : 18} r="6" fill="#d4f03c" stroke="#2e5a1c" strokeWidth="2" />
     </svg>
   )
@@ -402,14 +402,14 @@ function drawReveal(ctx: CanvasRenderingContext2D, W: number, H: number, r: Serv
   const cw = W - 40
   const top = 8
   const box = H * 0.62
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fillRect(cx0, top, cw, box)
   ctx.strokeStyle = '#ffffff'
   ctx.lineWidth = 2
   ctx.strokeRect(cx0, top, cw, box)
-  ctx.fillStyle = '#3d8f7a'
+  ctx.fillStyle = '#ff7eb6'
   ctx.fillRect(cx0, top + box, cw, H - top - box - 4)
-  ctx.fillStyle = '#12302b'
+  ctx.fillStyle = '#1b1b3a'
   ctx.fillRect(cx0 - 6, top + box - 1, cw + 12, 3)
   // 的（点つき）
   const sy = top + box * 0.42

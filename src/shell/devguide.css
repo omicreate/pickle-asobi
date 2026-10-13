@@ -4,8 +4,8 @@
   height: 1920px;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 35%, #fff6e3 0%, #ffe7b8 70%);
-  color: #12302b;
+  background: radial-gradient(circle at 50% 35%, #fff6e3 0%, #f2efe8 70%);
+  color: #1b1b3a;
   font-family: 'Zen Maru Gothic', sans-serif;
   word-break: keep-all;
   overflow-wrap: anywhere;
@@ -95,7 +95,7 @@
 }
 .guide-sub-big {
   font-size: 46px;
-  color: #12302b;
+  color: #1b1b3a;
 }
 
 /* 動きは時刻から（CSS のアニメーションは止める） */

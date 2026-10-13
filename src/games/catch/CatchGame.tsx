@@ -202,7 +202,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: C
   const k = v.scale
   const X = (x: number) => v.ox + x * k
   const Y = (y: number) => v.oy + y * k
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, w, h)
   // 空（場）と地面（コート）
   ctx.save()
@@ -214,7 +214,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: C
   sky.addColorStop(1, '#fff3d6')
   ctx.fillStyle = sky
   ctx.fillRect(X(0), Y(0), FIELD_W * k, FIELD_H * k)
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fillRect(X(0), Y(FIELD_H - 8), FIELD_W * k, 8 * k)
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(X(0), Y(FIELD_H - 8), FIELD_W * k, Math.max(2, 0.8 * k))
@@ -352,7 +352,7 @@ function drawItem(ctx: CanvasRenderingContext2D, it: Item, x: number, y: number,
       ctx.arc(0, 0, R, 0, Math.PI * 2)
       ctx.fillStyle = '#ffffff'
       ctx.fill()
-      ctx.strokeStyle = '#12302b'
+      ctx.strokeStyle = '#1b1b3a'
       ctx.stroke()
       ctx.beginPath()
       for (let i = 0; i < 5; i++) {
@@ -360,7 +360,7 @@ function drawItem(ctx: CanvasRenderingContext2D, it: Item, x: number, y: number,
         ctx.lineTo(Math.cos(a) * R * 0.38, Math.sin(a) * R * 0.38)
       }
       ctx.closePath()
-      ctx.fillStyle = '#12302b'
+      ctx.fillStyle = '#1b1b3a'
       ctx.fill()
       for (let i = 0; i < 5; i++) {
         const a = -Math.PI / 2 + (i * Math.PI * 2) / 5
@@ -400,7 +400,7 @@ function drawItem(ctx: CanvasRenderingContext2D, it: Item, x: number, y: number,
       ctx.fill()
       ctx.strokeStyle = '#9aa5a0'
       ctx.stroke()
-      ctx.strokeStyle = '#e5533d'
+      ctx.strokeStyle = '#e8433a'
       ctx.lineWidth = r * 0.12
       for (const s of [-1, 1]) {
         ctx.beginPath()

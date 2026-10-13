@@ -183,16 +183,16 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: A
   const k = v.scale
   const X = (x: number) => v.ox + x * k
   const Y = (y: number) => v.oy + y * k
-  ctx.fillStyle = '#ffe7b8'
+  ctx.fillStyle = '#f2efe8'
   ctx.fillRect(0, 0, w, h)
 
   // 場（コートの色）とキッチン、まんなかのネット
   ctx.beginPath()
   ctx.roundRect(X(0), Y(0), FIELD_W * k, FIELD_H * k, 14)
-  ctx.fillStyle = '#2f5d9a'
+  ctx.fillStyle = '#2f6fe4'
   ctx.fill()
   const kz = FIELD_H * 0.16
-  ctx.fillStyle = '#3d8f7a'
+  ctx.fillStyle = '#ff7eb6'
   ctx.fillRect(X(0), Y(FIELD_H / 2 - kz), FIELD_W * k, kz * 2 * k)
   ctx.strokeStyle = '#ffffff'
   ctx.lineWidth = 2

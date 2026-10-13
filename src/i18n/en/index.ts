@@ -7,5 +7,6 @@ import gesture from './gesture'
 import ishin from './ishin'
 import misc from './misc'
 import ui from './ui'
+import casual from './casual'
 
-export const EN: Record<string, string> = { ...games, ...howto, ...quiz, ...nise, ...gesture, ...ishin, ...misc, ...ui }
+export const EN: Record<string, string> = { ...games, ...howto, ...quiz, ...nise, ...gesture, ...ishin, ...misc, ...ui, ...casual }

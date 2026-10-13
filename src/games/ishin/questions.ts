@@ -49,7 +49,7 @@ export const I_QUESTIONS: IQuestion[] = [
   { id: 'e-ball', deck: 'e', prompt: tr('すきな ボールは？'), choices: [p(tr('ピックルボール'), 'pb-ball'), p(tr('テニスボール'), 'tennis-ball'), q(tr('サッカーボール'), 'soccer-ball')] },
   { id: 'e-pet', deck: 'e', prompt: tr('いっしょに あそぶ なら？'), choices: [p(tr('いぬ'), 'dog'), p(tr('ねこ'), 'cat')] },
   { id: 'e-sky', deck: 'e', prompt: tr('ひると よる、どっちが すき？'), choices: [p(tr('ひる'), 'sun'), p(tr('よる'), 'moon')] },
-  { id: 'e-color', deck: 'e', prompt: tr('すきな いろは？'), choices: [c(tr('オレンジ'), '#ff8a3d'), c(tr('あお'), '#3d9be9'), c(tr('みどり'), '#4caf50'), c(tr('ピンク'), '#ff6fae')] },
+  { id: 'e-color', deck: 'e', prompt: tr('すきな いろは？'), choices: [c(tr('オレンジ'), '#ff8a3d'), c(tr('あお'), '#3d9be9'), c(tr('みどり'), '#3dbe6b'), c(tr('ピンク'), '#ff6fae')] },
   { id: 'e-tool', deck: 'e', prompt: tr('つかって みたい どうぐは？'), choices: [p(tr('パドル'), 'paddle'), p(tr('ラケット'), 'racket'), q(tr('バット'), 'bat')] },
   { id: 'e-court', deck: 'e', prompt: tr('コートの どこで うちたい？'), choices: [q(tr('ネットの まえ'), 'zone-kitchen'), q(tr('まんなか'), 'zone-middle'), q(tr('うしろ'), 'zone-back')] },
   { id: 'e-red', deck: 'e', prompt: tr('あかい もので すきなのは？'), choices: [p(tr('りんご'), 'apple'), p(tr('トマト'), 'tomato'), p(tr('いちご'), 'strawberry'), p(tr('さくらんぼ'), 'cherry')] },

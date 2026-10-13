@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: radial-gradient(circle at 50% 45%, #fff6e3 0, #ffe7b8 60%);
+  background: radial-gradient(circle at 50% 45%, #fff6e3 0, #f2efe8 60%);
 }
 .rx-hud,
 .s10-hud {

@@ -29,7 +29,10 @@
   font-weight: 900;
   line-height: 1.15;
   white-space: nowrap;
-  color: var(--pk-line);
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 400;
+  text-shadow: 3px 3px 0 var(--pink);
 }
 .home-lead {
   margin-top: 6px;
@@ -60,14 +63,14 @@
   border-radius: var(--r-lg);
   background: var(--surface-2);
   border: 3px solid var(--pk-line);
-  box-shadow: 0 5px 0 var(--pk-line);
+  box-shadow: 5px 5px 0 var(--pk-line);
   text-decoration: none;
   transition: transform 0.1s var(--ease);
   position: relative;
 }
 .game-card:active {
-  transform: translateY(4px);
-  box-shadow: 0 1px 0 var(--pk-line);
+  transform: translate(4px, 4px);
+  box-shadow: 1px 1px 0 var(--pk-line);
 }
 .game-card img {
   flex: none;
@@ -84,13 +87,16 @@
   top: 12px;
   right: 10px;
   font-size: 12px;
-  background: var(--lime);
+  background: var(--sunny);
+  border: 2px solid var(--ink);
   border-radius: var(--r-pill);
   padding: 0 8px;
+  transform: rotate(4deg);
 }
 .game-title {
-  font-size: 19px;
-  font-weight: 900;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 400;
   line-height: 1.25;
 }
 .game-desc {
@@ -158,9 +164,37 @@
   gap: 10px;
 }
 .game-section-title {
+  /* アメリカンポップ：見出しはシール（白地・太い縁・少し傾ける） */
+  justify-self: start;
   font-size: 18px;
-  font-weight: 900;
-  color: var(--pk-line);
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 3px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 2px 16px 4px;
+  transform: rotate(-1.5deg);
+}
+/* カードの影を 赤・青・黄 の順に（動画の3か条と同じ並び） */
+.game-list li:nth-child(3n + 1) .game-card {
+  box-shadow: 5px 5px 0 var(--cherry);
+}
+.game-list li:nth-child(3n + 2) .game-card {
+  box-shadow: 5px 5px 0 var(--pool);
+}
+.game-list li:nth-child(3n) .game-card {
+  box-shadow: 5px 5px 0 var(--sunny);
+}
+.game-list li .game-card:active {
+  box-shadow: none;
+}
+/* 上の市松の帯 */
+.home::before {
+  content: '';
+  display: block;
+  height: 14px;
+  margin: 0 -16px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 14px, var(--cream) 14px 28px);
 }
 
 .home-dress {
@@ -172,7 +206,7 @@
   background: var(--surface-2);
   border: 3px solid var(--pk-line);
   border-radius: var(--r-lg);
-  box-shadow: 0 5px 0 var(--pk-line);
+  box-shadow: 5px 5px 0 var(--pk-line);
   padding: 12px 14px;
   display: grid;
   gap: 8px;
@@ -372,7 +406,7 @@
   background: linear-gradient(160deg, #ffffff 55%, rgba(47, 93, 154, 0.16));
 }
 .game-card-adult .game-tag {
-  background: #2f5d9a;
+  background: #2f6fe4;
   color: #fff;
 }
 
