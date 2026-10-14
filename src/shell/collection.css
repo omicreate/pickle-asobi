@@ -14,7 +14,9 @@
 }
 .col-title {
   flex: 1;
-  font-size: 26px;
+  /* 見出し書体は幅が広いので、英語の長い見出しも折れにくい大きさに */
+  font-size: clamp(20px, 6vw, 26px);
+  line-height: 1.15;
   font-weight: 900;
   color: var(--pk-line);
 }

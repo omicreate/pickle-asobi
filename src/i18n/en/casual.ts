@@ -120,6 +120,8 @@ export default {
   "じゅんびが できたら タッチ！": "Tap when you're ready!",
   "ホームへ": "Home",
   "{0}は ちがうよ！": "Nope, that's a {0}!",
+  "つぎは {0}メダル：{1}{2}": "Next {0} medal: {1}{2}",
+  "{0}で かった": "Beat Pikuru on {0}",
   "まだだよ！": "Not yet... wait for it!",
   "おてつき…": "Jumped the gun!",
   "ふたりとも おてつき": "You both jumped the gun!",

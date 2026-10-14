@@ -416,3 +416,27 @@ img {
   gap: 10px;
   margin-top: 4px;
 }
+
+/* ---------- アメリカンポップの見出しの調整（2026-10-14 点検） ---------- */
+/* 小さな項目名は見出し書体だとつぶれるので、本文の丸ゴシックの太字にもどす */
+.solo-label,
+.party-label,
+.howto-body h3,
+.par-card h2 {
+  font-family: var(--font);
+  font-weight: 900;
+}
+/* 遊ぶ前の画面のゲーム名：見出し書体は幅が広いので、1行に収まる大きさに（2行に折れないように） */
+.solo-title,
+.party-title,
+.nise .party-title {
+  font-size: clamp(18px, 5.4vw, 24px);
+  line-height: 1.2;
+  white-space: nowrap;
+  min-width: 0;
+}
+/* 保護者の確認の見出しは漢字が多いので本文の書体に。ページの見出しは画面幅に合わせて小さく */
+.gate-title {
+  font-family: var(--font);
+  font-weight: 900;
+}

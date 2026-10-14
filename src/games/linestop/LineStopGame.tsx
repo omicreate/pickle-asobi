@@ -174,7 +174,7 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.textBaseline = 'top'
   ctx.fillStyle = '#ffffff'
   ctx.fillText(tr('ベースライン'), cx, Y(LINE + LINE_W) + 4)
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'
+  ctx.fillStyle = 'rgba(255,255,255,0.78)'
   ctx.fillText(tr('アウト'), cx, Y(LINE + 30))
 
   // ボール（本物の大きさの比率）
@@ -232,6 +232,11 @@ function drawHalf(ctx: CanvasRenderingContext2D, w: number, hh: number, s: LsSta
   ctx.fillStyle = SIDE_COLOR[side]
   ctx.font = `900 22px 'Zen Maru Gothic', sans-serif`
   const msg = call ? resultText(call, lane.byTap) : s.phase === 'roll' ? tr('タップで ストップ！') : s.phase === 'ready' ? tr('じゅんび…') : ''
+  // コートの青に重なっても読めるよう、白いふちどりをつける
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = 6
+  ctx.strokeStyle = '#ffffff'
+  ctx.strokeText(msg, (w + 84) / 2, hh - bottom / 2 - 6, w - 96)
   ctx.fillText(msg, (w + 84) / 2, hh - bottom / 2 - 6, w - 96)
 }
 
