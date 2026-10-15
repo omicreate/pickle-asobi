@@ -10,6 +10,7 @@ import { Install } from './shell/Install'
 import { Parents } from './shell/Parents'
 import { Party } from './shell/party/Party'
 import { Play } from './shell/Play'
+import { PrivacyNotice } from './shell/PrivacyNotice'
 import { Records } from './shell/Records'
 import { useRoute } from './shell/route'
 import { Setup } from './shell/Setup'
@@ -49,5 +50,10 @@ export default function App() {
         <DevWear />
       </Suspense>
     )
-  return <Home />
+  return (
+    <>
+      <Home />
+      <PrivacyNotice />
+    </>
+  )
 }

@@ -24,6 +24,8 @@ async function open(page: Page, hash: string, levels: [Level, Level] = ['kids', 
       sessionStorage.setItem('seeded', '1')
       localStorage.setItem('pickle-asobi:settings', JSON.stringify({ sound: false, speak: false, levels: lv, rallyRules: 'easy', rallyTarget: 5, soloLevel: 'kids' }))
       localStorage.setItem('pickle-asobi:progress', JSON.stringify(pr))
+      // はじめての計測のお知らせは、専用のテスト以外では閉じておく（ほかの操作の邪魔をしないように）
+      if (!location.hash.includes('notice-test')) localStorage.setItem('pickle-asobi:privacySeen', 'true')
     },
     [levels, progress] as const,
   )
@@ -772,4 +774,22 @@ test('ふつうのブラウザ：案内は出ない。?go=install で開くと�
   await expect(page).toHaveURL(/#\/install$/)
   await expect(page.getByTestId('install-tab-android')).toBeVisible()
   await expect(page.getByTestId('install-inapp')).toHaveCount(0)
+})
+
+test('計測のお知らせ：はじめてだけ出て、閉じると次から出ない', async ({ page }) => {
+  await open(page, './#notice-test')
+  const notice = page.getByRole('complementary', { name: '計測のお知らせ' })
+  await expect(notice).toBeVisible()
+  await expect(notice.getByRole('link', { name: '詳しく' })).toHaveAttribute('href', '#/parents')
+  await notice.getByRole('button', { name: 'お知らせを閉じる' }).click()
+  await expect(notice).toHaveCount(0)
+  await page.reload()
+  await expect(page.getByRole('complementary', { name: '計測のお知らせ' })).toHaveCount(0)
+})
+
+test('計測のお知らせ：「送らない」を選ぶと設定に残る', async ({ page }) => {
+  await open(page, './#notice-test')
+  await page.getByRole('complementary', { name: '計測のお知らせ' }).getByRole('button', { name: '送らない' }).click()
+  await expect(page.getByRole('complementary', { name: '計測のお知らせ' })).toHaveCount(0)
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pickle-asobi:settings') ?? '{}').counter)).toBe(false)
 })

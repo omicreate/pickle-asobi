@@ -417,7 +417,7 @@ export default {
   "あり": "on",
   "なし": "off",
   "よみあげ": "Voice",
-  "おうちの方へ（記録・集計・共有・あそびかた）": "For grown-ups (records, stats, sharing, how to play)",
+  "おうちの方へ（記録・プライバシーと計測・共有・あそびかた）": "For grown-ups (records, privacy & counting, sharing, how to play)",
   "はじめての プレゼント": "Welcome present",
   "はじめての プレゼント！": "A welcome present!",
   "ほしで ピクルくんの こものや パドルと こうかん できるよ": "Trade stars for Pikuru accessories and paddles",
@@ -655,4 +655,11 @@ export default {
   "「{0}」で {1}{2} {3}{4}": "“{0}”: {1}{2} {3}{4}",
   // アプリの中のブラウザ（名前が分からないとき。core/browser.ts の InApp）
   "アプリ": "an app",
+  // はじめて開いたときの計測のお知らせ（shell/PrivacyNotice.tsx）と、おうちの方へ の説明
+  "計測のお知らせ": "Notice about counting",
+  "このアプリは、開いた回数と遊んだ回数だけを数えています。": "This app only counts how many times it is opened and played.",
+  "詳しく": "Details",
+  "お知らせを閉じる": "Close notice",
+  "広告や、ほかの会社の解析ツールは使っていません。送り先は、運営者（omicreate）だけが見られる表です。": "No ads and no analytics tools from other companies. Counts go to a sheet only the operator (omicreate) can see.",
+  "1回ごとの記録は13か月で消し、そのあとは日ごとの合計の数だけを残します。": "Each individual record is deleted after 13 months; only daily totals are kept.",
 } as Record<string, string>
