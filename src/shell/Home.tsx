@@ -197,7 +197,7 @@ export function Home() {
       </section>
 
       <a className="home-parents" href="#/parents" data-testid="parents-link">
-        {t('おうちの方へ（記録・集計・共有・あそびかた）')}
+        {t('おうちの方へ（記録・プライバシーと計測・共有・あそびかた）')}
       </a>
 
       {welcome && (

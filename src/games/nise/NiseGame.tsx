@@ -205,8 +205,7 @@ export function NiseGame() {
     setGained(got)
     setStars((s) => s.map((v, i) => v + (got[i] ?? 0)))
     setRewards(recordPlay({ type: 'finish', game: 'nise', two: true }))
-    // val：みんなが見やぶったら1
-    countFinish('nise', { sec: clock.current, val: o.winner === 'minna' ? 1 : 0 })
+    countFinish('nise')
     clock.current = 0
     sfx.fanfare()
     speak(o.how === 'reverse' ? PHRASES.niseReverse : o.winner === 'minna' ? PHRASES.niseMinnaWin : PHRASES.niseWin)
