@@ -225,8 +225,7 @@ export function IshinGame() {
       }
     }
     setRewards(recordPlay({ type: 'finish', game: 'ishin', value: size === 2 ? scores[0] : undefined, two: true }))
-    // val：2人＝そろった数、4人＝なし
-    countFinish('ishin', { sec: clock.current, val: size === 2 ? scores[0] : undefined })
+    countFinish('ishin')
     clock.current = 0
     sfx.fanfare()
     speak(PHRASES.ishinEnd)
