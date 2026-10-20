@@ -47,6 +47,9 @@
 
   --display: 'Dela Gothic One', 'Zen Maru Gothic', sans-serif; /* 見出し */
   --latin: 'Bowlby One', 'Dela Gothic One', sans-serif; /* 英字・数字の飾り */
+  /* 24px 未満の見出し：日本語はゼン丸の 900（デラゴシックは小さいと線がつぶれる）。英語はボウルビーのまま */
+  --display-s: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', sans-serif;
+  --display-s-weight: 900;
   --font: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
 
   /* ---------- ピクルポップ v2（2026-10-20）：意味の色と段。部品はこちらを使う ----------
@@ -119,4 +122,6 @@
 /* 英語版の見出しは Bowlby One（アメリカのレトロな看板の書体）。日本語版はデラゴシック */
 :root:lang(en) {
   --display: 'Bowlby One', 'Dela Gothic One', sans-serif;
+  --display-s: 'Bowlby One', 'Zen Maru Gothic', sans-serif;
+  --display-s-weight: 400;
 }

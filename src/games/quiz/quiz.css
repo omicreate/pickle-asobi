@@ -63,9 +63,10 @@
 .quiz-choice {
   min-height: 56px;
   border-radius: var(--r-md);
-  background: var(--surface-2);
-  border: 3px solid var(--line);
-  box-shadow: var(--shadow);
+  /* 選ぶカード：ink の縁（ピクルポップ D5）。せいかい・まちがいは緑・赤の縁 */
+  background: var(--surface-raised);
+  border: var(--border-base) solid var(--border);
+  box-shadow: var(--shadow-2);
   padding: 8px 12px;
   font-size: clamp(16px, 2.8vmin, 26px);
   font-weight: 700;
