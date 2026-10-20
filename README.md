@@ -134,6 +134,21 @@ npm run voice:en         # まだ無い英語のセリフだけ作る
 - パドルの「スタンダード」はピクルくんの原画と同じ形（オレンジの面・内側の明るい縁・緑の輪郭・握り）で、比率は本物どおり（面28cm×20cm・握り13cm）。どのゲームでもつぶしたりのばしたりしない（`src/ui/paddleArt.ts`）。ラリーの当たり判定（とどく範囲）はうすい帯で見せる
 - ピクルくんは原画から背景を抜いた絵（`public/pikuru/cut-*.png`、`npm run art` で作る）で、審判・対戦相手・ボールマシンの係・応援・合図・出題・走る姿として出す（`src/ui/pikuruArt.tsx`）
 
+## 見た目の決まり（デザインシステム「ピクルポップ」）
+
+- 色・書体・ピクルくんはアメリカンポップのまま。値は `src/design/tokens.css` の1か所だけに書く
+- 色は2層：素の色（`--orange` `--lime` など）は絵とコートだけ。部品は意味の色（`--text` `--action` `--selected` `--p0` など）を使う
+- 段：文字10段（`--fs-*`。デラゴシックは 24px 以上）・余白7段（`--space-*`）・影3段（`--shadow-1〜3`、ぼかさない ink のずらし影）・角4つ（`--radius-*`）・動き3つ（`--dur-*`）
+- 置き換えは見た目が変わっていないかを撮影で比べながら進める：
+
+```bash
+npm run build && npm run design:shots -- out/shots/before   # 直す前（主な9画面×日英×スマホ・タブレット）
+# 直してから
+npm run build && npm run design:shots -- out/shots/after
+npm run design:diff -- out/shots/before out/shots/after       # ちがう画面と赤い差分の画像（out/shots/diff/）
+npm run design:audit                                          # まだ そろっていない値の数（--list で場所）
+```
+
 ## インスタなど、アプリの中のブラウザで開いたとき
 
 - ホームの上に「おうちの方へ：いま Instagram の中で開いています」と出し、`#/install`（ホーム画面に入れる方法）へ案内する（`src/core/browser.ts`）
