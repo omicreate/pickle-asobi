@@ -71,19 +71,17 @@
   padding: 8px;
   text-align: center;
 }
-.col-item[data-have] {
-  background: var(--surface-2);
+/* 押せる物（もっている・いま交換できる）は ink の縁と影、つけている物は lime（ピクルポップ D5）。
+   まだ交換できない物は点線のまま */
+.col-item[data-have],
+.col-item[data-ready] {
+  background: var(--surface-raised);
   border-style: solid;
-  border-color: transparent;
-  box-shadow: var(--shadow);
+  border-color: var(--border);
+  box-shadow: var(--shadow-2);
 }
 .col-item[data-on] {
-  border-color: var(--pk-line);
-  background: var(--lime);
-}
-.col-item[data-ready] {
-  border-color: var(--orange);
-  border-style: solid;
+  background: var(--selected);
 }
 .col-item:not([data-have]) .col-art,
 .col-item:not([data-have]) canvas {

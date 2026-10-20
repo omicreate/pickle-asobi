@@ -55,6 +55,15 @@ export interface GameInfo {
   adult?: boolean
   /** ホームのカードで折り返してよい所を | で示した名前（単語の途中で折り返さないように） */
   wrap?: string
+  /** ふたりで協力する（ホームのカードの影が きょうりょくの色になる） */
+  coop?: boolean
+}
+
+/** ホームのカードの影の色の種類（デザインシステム「ピクルポップ」D4）。並び順でなく、遊び方で決める */
+export function gameCategory(g: GameInfo): 'versus' | 'team' | 'solo' {
+  if (g.players === 1) return 'solo'
+  if (g.players === 'group' || g.coop) return 'team'
+  return 'versus'
 }
 
 /** 記録を文字にする（じゅんばんモードの結果など） */
@@ -99,6 +108,7 @@ export const GAMES: GameInfo[] = [
     face: 'think',
     howto: t('ふたりで きょうりょく。ネットの まえの キッチンに、そっと ボールを おとして、なんかい つづくか ちょうせんしよう。'),
     players: 2,
+    coop: true,
   },
   {
     id: 'hayatouch',

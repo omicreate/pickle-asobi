@@ -59,12 +59,12 @@
 }
 .party-chip {
   display: inline-block;
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   font-weight: 900;
   border-radius: var(--r-pill);
   padding: 2px 12px;
   white-space: nowrap;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 .party-chip-big {
   font-size: 26px;
@@ -145,14 +145,14 @@
   margin: auto 0;
   min-height: 60vh;
   border-radius: var(--r-lg);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 14px;
   box-shadow: 8px 8px 0 var(--ink);
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
   animation: pop-in 0.3s var(--ease);
 }
 .party-handoff-name {
@@ -265,18 +265,19 @@
   z-index: 31;
   right: 8px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   font-weight: 900;
   border-radius: var(--r-pill);
   padding: 2px 14px;
   pointer-events: none;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 
 /* チーム戦 */
 .party-team {
   display: inline-block;
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   font-weight: 900;
   font-size: 14px;
   border-radius: var(--r-pill);
