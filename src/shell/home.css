@@ -94,9 +94,9 @@
   transform: rotate(4deg);
 }
 .game-title {
-  font-family: var(--display);
-  font-size: 18px;
-  font-weight: 400;
+  font-family: var(--display-s);
+  font-size: var(--fs-body-l);
+  font-weight: var(--display-s-weight);
   line-height: 1.25;
 }
 .game-desc {
@@ -166,8 +166,10 @@
 .game-section-title {
   /* アメリカンポップ：見出しはシール（白地・太い縁・少し傾ける） */
   justify-self: start;
-  font-size: 18px;
-  color: var(--ink);
+  font-family: var(--display-s);
+  font-weight: var(--display-s-weight);
+  font-size: var(--fs-body-l);
+  color: var(--text);
   background: var(--surface-2);
   border: 3px solid var(--ink);
   border-radius: var(--r-pill);
@@ -175,15 +177,15 @@
   padding: 2px 16px 4px;
   transform: rotate(-1.5deg);
 }
-/* カードの影を 赤・青・黄 の順に（動画の3か条と同じ並び） */
-.game-list li:nth-child(3n + 1) .game-card {
-  box-shadow: 5px 5px 0 var(--cherry);
+/* カードの影の色は遊び方で決める：たいせん＝赤、きょうりょく・みんなで＝青、ひとりで＝黄（ピクルポップ D4） */
+.game-card[data-cat='versus'] {
+  box-shadow: 5px 5px 0 var(--cat-versus);
 }
-.game-list li:nth-child(3n + 2) .game-card {
-  box-shadow: 5px 5px 0 var(--pool);
+.game-card[data-cat='team'] {
+  box-shadow: 5px 5px 0 var(--cat-team);
 }
-.game-list li:nth-child(3n) .game-card {
-  box-shadow: 5px 5px 0 var(--sunny);
+.game-card[data-cat='solo'] {
+  box-shadow: 5px 5px 0 var(--cat-solo);
 }
 .game-list li .game-card:active {
   box-shadow: none;
@@ -218,8 +220,9 @@
 }
 .mission-head h2 {
   flex: 1;
-  font-size: 20px;
-  font-weight: 900;
+  font-family: var(--display-s);
+  font-size: var(--fs-title);
+  font-weight: var(--display-s-weight);
   color: var(--pk-line);
 }
 .mission-speak {

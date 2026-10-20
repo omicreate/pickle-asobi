@@ -47,15 +47,74 @@
 
   --display: 'Dela Gothic One', 'Zen Maru Gothic', sans-serif; /* 見出し */
   --latin: 'Bowlby One', 'Dela Gothic One', sans-serif; /* 英字・数字の飾り */
+  /* 24px 未満の見出し：日本語はゼン丸の 900（デラゴシックは小さいと線がつぶれる）。英語はボウルビーのまま */
+  --display-s: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', sans-serif;
+  --display-s-weight: 900;
   --font: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
 
+  /* ---------- ピクルポップ v2（2026-10-20）：意味の色と段。部品はこちらを使う ----------
+   * 決まりごとの本体はデザインシステム「ピクルポップ」（README の「見た目の決まり」参照）。
+   * 上の素の色は絵（ピクルくん・コート）と、ここでの意味づけにだけ使う。 */
+  --text: var(--ink);
+  --text-sub: var(--mute);
+  --surface-raised: var(--surface-2); /* 押せる面 */
+  --border: var(--ink); /* 太い縁どり */
+  --border-soft: var(--line); /* 区切り線・押せない枠 */
+  --action: var(--sunny); /* 画面に1つの主ボタン */
+  --selected: var(--lime); /* 選んでいる状態（塗り＋縁） */
+  --focus: var(--pool); /* キーボード操作の輪 */
+  --success: var(--ok);
+  --danger: var(--ng);
+  /* ホームのゲームカードの影：ゲームの種類で決める */
+  --cat-versus: var(--cherry);
+  --cat-team: var(--pool);
+  --cat-solo: var(--sunny);
+
+  /* 文字の段（見出し3・本文5・数字2）。デラゴシックは 24px 未満で使わない（線がつぶれる） */
+  --fs-display-xl: clamp(40px, 12vw, 64px);
+  --fs-display-l: clamp(26px, 8vw, 36px);
+  --fs-display-m: 24px;
+  --fs-title: 20px;
+  --fs-body-l: 18px;
+  --fs-body: 16px;
+  --fs-small: 14px;
+  --fs-caption: 12px; /* 大人向けの注記だけ */
+  --fs-score: 64px;
+  --fs-stat: 22px;
+
+  /* 余白（4px 刻み） */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --tap-sub: 48px; /* 大人向け・補助ボタンの最小 */
+
+  /* 縁・影（ぼかさない ink のずらし影3段） */
+  --border-thin: 2px;
+  --border-base: 3px;
+  --shadow-1: 2px 2px 0 var(--ink);
+  --shadow-2: 4px 4px 0 var(--ink);
+  --shadow-3: 8px 8px 0 var(--ink);
+
+  /* 動き */
+  --dur-fast: 120ms;
+  --dur-base: 240ms;
+  --dur-slow: 400ms;
+
+  --radius-sm: 12px;
   --r-md: 16px;
   --r-lg: 24px;
   --r-pill: 999px;
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-pill: var(--r-pill);
   /* 押せる要素の最小の大きさ（小さい子の指でも押せるように大きめ） */
   --tap: 64px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --shadow: 4px 4px 0 var(--ink);
+  --shadow: var(--shadow-2);
 
   color-scheme: light;
 }
@@ -63,4 +122,6 @@
 /* 英語版の見出しは Bowlby One（アメリカのレトロな看板の書体）。日本語版はデラゴシック */
 :root:lang(en) {
   --display: 'Bowlby One', 'Dela Gothic One', sans-serif;
+  --display-s: 'Bowlby One', 'Zen Maru Gothic', sans-serif;
+  --display-s-weight: 400;
 }

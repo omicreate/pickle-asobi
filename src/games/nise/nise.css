@@ -78,7 +78,8 @@
 }
 .nise-tie {
   background: var(--orange);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   font-weight: 900;
   border-radius: var(--r-pill);
   padding: 2px 14px;
@@ -126,10 +127,10 @@
 .nise-color {
   min-height: 72px;
   border-radius: var(--r-md);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   font-size: 22px;
   font-weight: 900;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
   box-shadow: 4px 4px 0 var(--ink);
 }
 .nise-color:active {

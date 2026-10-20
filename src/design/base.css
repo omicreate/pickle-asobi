@@ -231,7 +231,8 @@ img {
   height: 64px;
   padding: 0 14px;
   border-radius: var(--r-pill);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   font-size: 40px;
   font-weight: 900;
   display: grid;

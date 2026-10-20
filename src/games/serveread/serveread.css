@@ -31,7 +31,8 @@
 }
 .sr-final {
   background: var(--orange);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   border-radius: var(--r-pill);
   padding: 0 8px;
   animation: pop-in 0.3s var(--ease);
@@ -102,7 +103,8 @@
 }
 .sr-double[aria-pressed='true'] {
   background: var(--orange);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   border-style: solid;
   animation: pop-in 0.2s var(--ease);
 }
@@ -197,7 +199,8 @@
 }
 .sr-points b {
   background: var(--orange);
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   border-radius: var(--r-pill);
   padding: 0 10px;
   font-size: 15px;
@@ -243,11 +246,11 @@
   font-size: 14px;
 }
 .sr-pass-score {
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   border-radius: var(--r-pill);
   padding: 2px 12px;
   white-space: nowrap;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 .sr-pass-body {
   flex: 1;

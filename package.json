@@ -15,7 +15,10 @@
     "voice": "node scripts/build-voice.mjs",
     "voice:dry": "node scripts/build-voice.mjs --dry",
     "voice:en": "node scripts/build-voice.mjs --lang en",
-    "voice:en:dry": "node scripts/build-voice.mjs --dry --lang en"
+    "voice:en:dry": "node scripts/build-voice.mjs --dry --lang en",
+    "design:audit": "node scripts/design-audit.mjs",
+    "design:shots": "node scripts/design-shots.mjs",
+    "design:diff": "node scripts/design-diff.mjs"
   },
   "dependencies": {
     "@fontsource/bowlby-one": "^5.3.0",

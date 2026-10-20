@@ -10,7 +10,7 @@ import { PHRASES } from '../core/voiceLines'
 import { Pikuru } from '../ui/Pikuru'
 import { GameIcon } from '../ui/GameIcon'
 import { PikuruCut } from '../ui/pikuruArt'
-import { gameById, GAMES } from './games'
+import { gameById, gameCategory, GAMES } from './games'
 import type { GameInfo } from './games'
 import { MissionCard } from './MissionCard'
 import { href } from './route'
@@ -37,7 +37,7 @@ function CardTitle({ g }: { g: GameInfo }) {
 function GameCard({ g, best, medal, tag, className = '' }: { g: GameInfo; best?: number; medal: number; tag: string; className?: string }) {
   const rule = MEDAL_RULES[g.id]
   return (
-    <a className={`game-card ${className}`} href={href('setup', g.id)} data-game={g.id} onClick={unlockAudio}>
+    <a className={`game-card ${className}`} href={href('setup', g.id)} data-game={g.id} data-cat={gameCategory(g)} onClick={unlockAudio}>
       <span className="game-card-top">
         <GameIcon game={g.id} size={64} />
         <span className="game-tag">{tag}</span>

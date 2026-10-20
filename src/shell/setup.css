@@ -25,7 +25,8 @@
   gap: 10px;
 }
 .side-chip {
-  color: #fff;
+  /* プレイヤーの色の上は ink の字（白は 2.35:1 前後で読みにくい。ピクルポップ D6） */
+  color: var(--text);
   white-space: nowrap;
   border-radius: var(--r-pill);
   padding: 2px 14px;
@@ -51,9 +52,10 @@
 .level-btn {
   min-height: 72px;
   border-radius: var(--r-md);
-  background: var(--surface-2);
-  border: 3px solid transparent;
-  box-shadow: var(--shadow);
+  /* 選ぶカード：いつも ink の縁、選んでいる物は lime の塗り（ピクルポップ D5） */
+  background: var(--surface-raised);
+  border: var(--border-base) solid var(--border);
+  box-shadow: var(--shadow-2);
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
@@ -63,8 +65,7 @@
   padding: 6px 12px;
 }
 .level-btn[aria-checked='true'] {
-  border-color: var(--pk-line);
-  background: var(--lime);
+  background: var(--selected);
 }
 .level-mark {
   grid-row: span 2;
