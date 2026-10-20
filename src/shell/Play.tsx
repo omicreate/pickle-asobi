@@ -1,6 +1,6 @@
 /** ゲームの画面の外枠：舞台・画面を消さない・一時停止・さいしょから・記録（ミッション）・きねんカード */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { countFinish, countGame, lowerWon } from '../core/counter'
+import { countFinish, countGame } from '../core/counter'
 import { __setPlayed, breakDue, oneMore, tookBreak } from '../core/playtime'
 import { MEDAL_RULES, pikuruValue } from '../core/records'
 import type { Level } from '../core/players'
@@ -140,12 +140,7 @@ export function Play({ game }: { game: GameId }) {
         const record = (solo || game === 'dink') && !!MEDAL_RULES[game]
         setRewards(recordPlay({ type: 'finish', game, value, two: !solo, record }))
         setLastValue(value)
-        countFinish(game, {
-          lv: solo ? levels[0] : game === 'serveread' ? undefined : `${levels[0]}-${levels[1]}`,
-          sec: clock.current,
-          // ひとり：記録（ピクルくんと ラリーは かったら1）、ディンク：つないだ回数、ふたり：レベルの低い方が勝ったか
-          val: game === 'pikuru' ? (r.winner === 0 ? 1 : 0) : solo || game === 'dink' ? r.value : lowerWon(levels, r.winner),
-        })
+        countFinish(game)
         clock.current = 0
         if (breakDue()) setRest(true)
       },

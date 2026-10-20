@@ -417,7 +417,7 @@ export default {
   "あり": "on",
   "なし": "off",
   "よみあげ": "Voice",
-  "おうちの方へ（記録・集計・共有・あそびかた）": "For grown-ups (records, stats, sharing, how to play)",
+  "おうちの方へ（記録・プライバシーと計測・共有・あそびかた）": "For grown-ups (records, privacy & counting, sharing, how to play)",
   "はじめての プレゼント": "Welcome present",
   "はじめての プレゼント！": "A welcome present!",
   "ほしで ピクルくんの こものや パドルと こうかん できるよ": "Trade stars for Pikuru accessories and paddles",
@@ -485,8 +485,7 @@ export default {
   "遊ばれた回数の集計（匿名）": "Anonymous play counts",
   "どのゲームがよく遊ばれ、どれが最後まで遊ばれているかを知って、ゲームを良くするために、**次のことだけ**を集計（Googleスプレッドシート）に送ります。": "To learn which games are played most and which are played to the end, and to make them better, the app sends **only the following** to a tally (a Google Sheet).",
   "送るもの：アプリを開いた・ゲームを始めた・最後まで遊んだ・きねんカードを共有した、のどれか／ゲームの名前／どのリンクから来たか（例：Instagram のプロフィール）／ホーム画面に追加して開いたか／アプリの版。": "Sent: which event happened (opened the app, started a game, finished a game, or shared a keepsake card) / the game name / which link you came from (e.g. an Instagram profile) / whether it was opened from the home screen / the app version.",
-  "最後まで遊んだときは、難しさを調整するために、選んだレベル・遊んだ秒数・記録（点や回数。ふたりのゲームは、レベルの低い方が勝ったかどうか）も送ります。": "When a game is finished, it also sends the chosen level, the seconds played, and the result (points or counts; for two-player games, whether the lower-level player won) to help tune the difficulty.",
-  "送らないもの：名前・写真・端末を見分けるID・Cookie・位置情報。": "Never sent: names, photos, device IDs, cookies, or location.",
+  "送らないもの：名前・写真・点数や記録・遊んだ時間・選んだレベル・端末を見分けるID・Cookie・位置情報。": "Never sent: names, photos, scores or records, play time, chosen level, device IDs, cookies, or location.",
   "公開版で開いたときだけ送ります。電波がないときは送らずに捨てます。": "It only sends from the public version. With no signal, nothing is sent and the data is discarded.",
   "ブラウザの「トラッキングしない」設定がオンなら送りません。": "Nothing is sent if your browser's “Do Not Track” setting is on.",
   "集計に送る": "Send counts",
@@ -655,4 +654,11 @@ export default {
   "「{0}」で {1}{2} {3}{4}": "“{0}”: {1}{2} {3}{4}",
   // アプリの中のブラウザ（名前が分からないとき。core/browser.ts の InApp）
   "アプリ": "an app",
+  // はじめて開いたときの計測のお知らせ（shell/PrivacyNotice.tsx）と、おうちの方へ の説明
+  "計測のお知らせ": "Notice about counting",
+  "このアプリは、開いた回数と遊んだ回数だけを数えています。": "This app only counts how many times it is opened and played.",
+  "詳しく": "Details",
+  "お知らせを閉じる": "Close notice",
+  "広告や、ほかの会社の解析ツールは使っていません。送り先は、運営者（omicreate）だけが見られる表です。": "No ads and no analytics tools from other companies. Counts go to a sheet only the operator (omicreate) can see.",
+  "1回ごとの記録は13か月で消し、そのあとは日ごとの合計の数だけを残します。": "Each individual record is deleted after 13 months; only daily totals are kept.",
 } as Record<string, string>

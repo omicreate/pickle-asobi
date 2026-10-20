@@ -109,7 +109,7 @@ export function GestureGame() {
       setNewBest(prev > 0)
     }
     setRewards(recordPlay({ type: 'finish', game: 'gesture', value: total, two: true }))
-    countFinish('gesture', { sec: clock.current, val: total })
+    countFinish('gesture')
     clock.current = 0
     sfx.fanfare()
     speak(PHRASES.gestFinal)
