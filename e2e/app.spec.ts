@@ -170,6 +170,18 @@ test('ひとりで：ねらってショットは、どこを触っても自分�
   await expect(page.locator('.solo-banner')).toContainText(/いれよう|おとそう|ふかく|ドロップ|コーナー/, { timeout: 8_000 })
 })
 
+test('ひとりで：ピクルくんに負けると、つぎに ためすことと レベルを えらびなおす道が出る', async ({ page }) => {
+  await open(page, './#/play/pikuru')
+  await expect(page.getByTestId('rally-canvas')).toBeVisible()
+  // あと1点でピクルくんの勝ち。キッズは自動でサーブし、だれも打ち返さないので ピクルくんの点になる
+  await page.waitForFunction(() => !!(window as unknown as { __rally?: unknown }).__rally)
+  await page.evaluate(() => ((window as unknown as { __rally: { score: number[] } }).__rally.score = [0, 4]))
+  await expect(page.getByTestId('lose-level')).toBeVisible({ timeout: 25_000 })
+  await expect(page.locator('.lose-tip')).toContainText('💡')
+  await page.getByTestId('lose-level').click()
+  await expect(page).toHaveURL(/#\/setup\/pikuru/)
+})
+
 test('ひとりで：ピクルくんとラリーでは、ピクルくんが自分で動いて打ち返す', async ({ page }) => {
   await open(page, './#/play/pikuru')
   await expect(page.getByTestId('rally-canvas')).toBeVisible()
