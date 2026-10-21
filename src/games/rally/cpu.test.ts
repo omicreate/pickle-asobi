@@ -64,6 +64,28 @@ describe('ピクルくん（コンピューター）', () => {
       for (const x of events) if (x.type === 'point') expect(['two-bounce', 'kitchen-volley']).not.toContain(x.fault.reason)
     }
   })
+  it('おとな（はじめての人）のピクルくんには、キッズくらいの うでの人でも ときどき勝てる', () => {
+    // 下の人を「キッズのピクルくん」と同じ動きにして、おとなのピクルくんと 5点先取を 30回
+    const winRate = (lv: Level, player: Level) => {
+      let wins = 0
+      for (let seed = 1; seed <= 30; seed++) {
+        const rand = rng(seed)
+        const e = new RallyEngine({ kind: 'versus', mode: 'easy', levels: [lv, lv], target: 5, rand, cpu: 1 })
+        const me = new Cpu(0, CPU_SKILL[player], rand)
+        const pk = new Cpu(1, CPU_SKILL[lv], rand)
+        for (let t = 0; t < 900 && e.phase !== 'over'; t += 1 / 60) {
+          me.update(e, 1 / 60)
+          pk.update(e, 1 / 60)
+          e.step(1 / 60)
+        }
+        if (e.winner === 0) wins++
+      }
+      return wins / 30
+    }
+    expect(winRate('otona', 'kids')).toBeGreaterThanOrEqual(0.35)
+    // せんしゅは つよいまま（おとなの うででは なかなか勝てない）
+    expect(winRate('senshu', 'otona')).toBeLessThan(0.3)
+  })
   it('アウトになる球は見送る（おとな・せんしゅ）', () => {
     const e = new RallyEngine({ kind: 'versus', mode: 'easy', levels: ['otona', 'senshu'], target: 5 })
     e.phase = 'play'

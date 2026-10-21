@@ -279,6 +279,7 @@ export default {
   "スコアの コール {0}": "Score call: {0}",
   "ゆっくり ポンと つなごう": "Keep it going with soft taps",
   "うえに シュッ！で サーブ（まってもOK）": "Swipe up to serve (or just wait)",
+  "サーブを まってるよ。ひとりなら ピクルくんと あそべるよ": "Waiting for a serve. On your own? Play against Pikuru!",
   "うえに シュッ！と ふって サーブ": "Swipe up to serve",
   "ここを ねらう": "Aim here",
   "ピクルマシン": "Pickle Machine",
