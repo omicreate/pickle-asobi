@@ -72,6 +72,15 @@ test('2人とも「せんしゅ」を選ぶと、ラリーはほんかくルー�
   await expect(page.getByRole('radio', { name: 'ほんかく' })).toHaveAttribute('aria-checked', 'true')
 })
 
+test('ラリーたいけつで サーブを待ったままだと、ひとりなら ピクルくんと あそべると出る', async ({ page }) => {
+  // おとな同士は自動でサーブしないので、だれも さわらないと止まったまま
+  await open(page, './#/play/rally', ['otona', 'otona'])
+  await expect(page.getByTestId('rally-canvas')).toBeVisible()
+  await expect(page.getByTestId('lonely-go-0')).toBeVisible({ timeout: 15_000 })
+  await page.getByTestId('lonely-go-0').click()
+  await expect(page).toHaveURL(/#\/setup\/pikuru/)
+})
+
 test('上と下の指で、それぞれのパドルが別々に動く', async ({ page }) => {
   await open(page, './#/play/rally')
   await expect(page.getByTestId('rally-canvas')).toBeVisible()

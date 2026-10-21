@@ -30,7 +30,8 @@ export interface CpuSkill {
 export const CPU_SKILL: Record<Level, CpuSkill> = {
   chibi: { react: 0.4, speed: 2.2, error: 0.9, swing: [0, 3], judgeOut: false, depth: 5.6, whiff: 0.3 },
   kids: { react: 0.3, speed: 3.2, error: 0.6, swing: [0, 6], judgeOut: false, depth: 6.0, whiff: 0.2 },
-  otona: { react: 0.2, speed: 4.5, error: 0.35, swing: [2, 9], judgeOut: true, depth: 6.3, whiff: 0.1 },
+  // おとな＝「はじめての人」。はじめての大人が半分くらい勝てるように、ねらいを甘く・振りを弱く・空振りを少し多く（2026-10 の集計で4戦0勝）
+  otona: { react: 0.2, speed: 4.5, error: 0.45, swing: [1, 6], judgeOut: true, depth: 6.3, whiff: 0.14 },
   senshu: { react: 0.14, speed: 6.5, error: 0.18, swing: [3, 12], judgeOut: true, depth: 6.4, whiff: 0.04 },
 }
 

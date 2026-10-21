@@ -22,6 +22,7 @@ import type { Face } from '../../ui/Pikuru'
 import { PikuruCut } from '../../ui/pikuruArt'
 import { mulberry32 } from '../../core/rng'
 import { usePlay } from '../../shell/playContext'
+import { href } from '../../shell/route'
 import { Cpu, CPU_SKILL } from './cpu'
 import { drawRally, makeView, toWorld } from './draw'
 import { RallyEngine } from './engine'
@@ -45,6 +46,8 @@ interface Props {
 }
 
 const DINK_BEST = 'dink-best'
+/** ラリーたいけつで、サーブの人が これだけ さわらないと「ひとりなら ピクルくんと」を出す（秒） */
+const LONELY_WAIT = 6
 const targetBest = (lv: Level) => `target-best-${lv}`
 
 const MISS_TEXT: Record<ShotMiss, { title: string; sub: string }> = {
@@ -70,6 +73,9 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
   const pointers = useRef(new Map<number, Side>())
   const owner = useRef<[number | null, number | null]>([null, null])
   const noticeTimer = useRef(0)
+  /** サーブの人が さわらずに待っている時間（ひとりで ラリーたいけつ を開いた人に、ピクルくんを すすめる） */
+  const serveIdle = useRef(0)
+  const [lonely, setLonely] = useState(false)
 
   const [score, setScore] = useState<[number, number]>([0, 0])
   const [notice, setNotice] = useState<NoticeData | null>(null)
@@ -127,6 +133,12 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
         if (pkTimer.current <= 0) setPkFace('think')
       }
       pikuru?.update(engine, dt)
+      if (kind === 'versus' && !cpu) {
+        const waiting = engine.phase === 'serve' && !engine.fingers[engine.server].active
+        serveIdle.current = waiting ? serveIdle.current + dt : 0
+        const show = serveIdle.current > LONELY_WAIT
+        if (show !== lonely) setLonely(show)
+      }
       for (const ev of engine.step(dt)) {
         switch (ev.type) {
           case 'countdown':
@@ -322,6 +334,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
       {kind === 'versus' && !cpu && <Scores score={score} />}
       {kind === 'dink' && <DinkCount count={dink.count} best={dink.best} />}
       {showServeHint && <ServeHint side={kind === 'dink' ? 0 : server} kind={kind} level={levels[kind === 'dink' ? 0 : server]} call={call} />}
+      {lonely && !over && <LonelyHint />}
       <Notice data={notice} />
       {over && kind === 'dink' && (
         <Result
@@ -370,6 +383,25 @@ function DinkCount({ count, best }: { count: number; best: number }) {
             <span className="dink-num">{count}</span>
             <span className="dink-label">{t('かい')}</span>
             <span className="dink-best">{t('さいこう {0}', [best])}</span>
+          </div>
+        </Half>
+      ))}
+    </>
+  )
+}
+
+/** サーブを待っているとき、上下どちらにも出す。ひとりなら ピクルくんと あそべることを知らせる */
+function LonelyHint() {
+  return (
+    <>
+      {([1, 0] as Side[]).map((side) => (
+        <Half key={side} side={side} interactive={false}>
+          <div className="lonely-hint" role="status">
+            <PikuruCut art="think" height={44} />
+            <span>{t('サーブを まってるよ。ひとりなら ピクルくんと あそべるよ')}</span>
+            <a className="btn btn-small btn-go lonely-go" href={href('setup', 'pikuru')} data-testid={`lonely-go-${side}`}>
+              {t('ピクルくんと ラリー')}
+            </a>
           </div>
         </Half>
       ))}

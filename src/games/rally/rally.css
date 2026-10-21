@@ -131,3 +131,28 @@
   z-index: 8;
   filter: drop-shadow(0 3px 0 rgba(18, 48, 43, 0.25));
 }
+/* ラリーたいけつ：あいての サーブを待っている人へ（ひとりなら ピクルくんと） */
+.lonely-hint {
+  position: absolute;
+  left: 50%;
+  top: 6%; /* ネット寄り。手もとのパドルと サーブの案内を かくさない */
+  transform: translateX(-50%);
+  width: min(340px, calc(100% - 32px));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border: 3px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--text);
+}
+.lonely-go {
+  grid-column: 1 / -1;
+  pointer-events: auto;
+  text-align: center;
+}
