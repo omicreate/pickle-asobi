@@ -48,6 +48,9 @@ interface Props {
 const DINK_BEST = 'dink-best'
 /** ラリーたいけつで、サーブの人が これだけ さわらないと「ひとりなら ピクルくんと」を出す（秒） */
 const LONELY_WAIT = 6
+/** ラリーの回数を画面に出しはじめる回数と、「ナイス ラリー！」と知らせる回数 */
+const RALLY_SHOW = 3
+const RALLY_CHEER = [10, 20, 30, 50]
 const targetBest = (lv: Level) => `target-best-${lv}`
 
 const MISS_TEXT: Record<ShotMiss, { title: string; sub: string }> = {
@@ -76,6 +79,13 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
   /** サーブの人が さわらずに待っている時間（ひとりで ラリーたいけつ を開いた人に、ピクルくんを すすめる） */
   const serveIdle = useRef(0)
   const [lonely, setLonely] = useState(false)
+  /** たいけつ：今のラリーで打った回数と、この試合で いちばん続いた回数 */
+  const [rally, setRally] = useState({ now: 0, best: 0 })
+  const rallyRef = useRef({ now: 0, best: 0 })
+  const setRallyBoth = (now: number) => {
+    rallyRef.current = { now, best: Math.max(rallyRef.current.best, now) }
+    setRally(rallyRef.current)
+  }
 
   const [score, setScore] = useState<[number, number]>([0, 0])
   const [notice, setNotice] = useState<NoticeData | null>(null)
@@ -146,6 +156,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
             flash({ title: String(ev.n), big: true }, 0.9)
             break
           case 'serve':
+            setRallyBoth(0)
             setServer(ev.server)
             setCall(engine.sideout() ? engine.scoreCall() : '')
             if (kind === 'versus') sfx.go()
@@ -155,6 +166,15 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
             break
           case 'hit':
             sfx.pop(ev.power)
+            if (kind === 'versus') {
+              const n = rallyRef.current.now + 1
+              setRallyBoth(n)
+              if (RALLY_CHEER.includes(n)) {
+                sfx.ok()
+                flash({ title: t('ナイス ラリー！'), sub: t('{0}かい つづいた', [n]), face: 'ok' }, 1.1)
+                if (!cpu) react('ok', 1.1)
+              }
+            }
             break
           case 'bounce':
             sfx.bounce()
@@ -165,7 +185,8 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
             const faces: [NoticeData['face'], NoticeData['face']] = [undefined, undefined]
             faces[ev.winner] = 'ok'
             faces[other(ev.winner)] = 'oops'
-            const sub = mode === 'real' ? `${why.kids} ${why.rule}` : why.kids
+            const long = kind === 'versus' && rallyRef.current.now >= 5 ? ` ${t('ラリー {0}かい', [rallyRef.current.now])}` : ''
+            const sub = (mode === 'real' ? `${why.kids} ${why.rule}` : why.kids) + long
             // サイドアウト：レシーブ側が勝っても点は入らず、サーブが移るだけ
             const title = ev.scored ? t('{0}の てん！', [name(ev.winner)]) : t('サイドアウト！ {0}の サーブ', [name(ev.winner)])
             flash({ title, sub, faces }, 1.8)
@@ -289,6 +310,8 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
     }
   }
 
+  const bestRally = rally.best >= RALLY_SHOW ? <div className="rally-best">{t('いちばん ながい ラリー {0}かい', [rally.best])}</div> : undefined
+
   const showServeHint = phase === 'serve' && !over && kind !== 'target' && !(cpu && server === 1)
 
   return (
@@ -335,6 +358,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
       {kind === 'dink' && <DinkCount count={dink.count} best={dink.best} />}
       {showServeHint && <ServeHint side={kind === 'dink' ? 0 : server} kind={kind} level={levels[kind === 'dink' ? 0 : server]} call={call} />}
       {lonely && !over && <LonelyHint />}
+      {kind === 'versus' && phase === 'play' && rally.now >= RALLY_SHOW && <RallyCount n={rally.now} solo={cpu} />}
       <Notice data={notice} />
       {over && kind === 'dink' && (
         <Result
@@ -360,12 +384,19 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
           sub={() => t('あなた {0} たい {1} ピクルくん', [score[0], score[1]])}
           face={() => (over.winner === 0 ? 'oops' : 'ok')}
           onAgain={again}
+          extra={
+            <>
+              {bestRally}
+              {over.winner === 1 && <LoseTip seed={score[0] + score[1]} />}
+            </>
+          }
         />
       )}
       {over && kind === 'versus' && !cpu && (
         <Result
           title={(side) => (side === over.winner ? t('かち！ やったね') : t('おしい！'))}
           sub={(side) => t('{0} たい {1}', [score[side], score[other(side)]])}
+          extra={bestRally}
           face={(side) => (side === over.winner ? 'ok' : 'oops')}
           onAgain={again}
         />
@@ -387,6 +418,46 @@ function DinkCount({ count, best }: { count: number; best: number }) {
         </Half>
       ))}
     </>
+  )
+}
+
+/** 今のラリーの回数（たいけつ）。2人のときは上下どちらからも読めるように両方へ */
+function RallyCount({ n, solo }: { n: number; solo: boolean }) {
+  const chip = (
+    <div className="rally-count" aria-live="off">
+      {t('ラリー')} <b>{n}</b>
+    </div>
+  )
+  if (solo) return <Half side={0} interactive={false}>{chip}</Half>
+  return (
+    <>
+      {([1, 0] as Side[]).map((side) => (
+        <Half key={side} side={side} interactive={false}>
+          {chip}
+        </Half>
+      ))}
+    </>
+  )
+}
+
+/** ピクルくんに負けたときの ひとこと（つぎに ためすこと）と、レベルを えらびなおす道 */
+const LOSE_TIPS = [
+  t('うえに シュッ！と はやく ふると、つよい たまに なるよ'),
+  t('ボールの かげの すこし まえに パドルを まっておこう'),
+  t('うったら まんなかに もどると、つぎの たまに まにあうよ'),
+  t('よこの はしを ねらうと、ピクルくんが とどきにくいよ'),
+]
+function LoseTip({ seed }: { seed: number }) {
+  return (
+    <div className="lose-tip">
+      <p>
+        <span aria-hidden>💡 </span>
+        {LOSE_TIPS[seed % LOSE_TIPS.length]}
+      </p>
+      <a className="btn btn-small" href={href('setup', 'pikuru')} data-testid="lose-level">
+        {t('レベルを えらびなおす')}
+      </a>
+    </div>
   )
 }
 
