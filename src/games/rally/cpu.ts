@@ -7,7 +7,7 @@ import type { Level, Side } from '../../core/players'
 import { COURT, inCourt, inKitchen, sideOf, toNet } from './court'
 import { FINGER_LEAD } from './engine'
 import type { RallyEngine } from './engine'
-import { REACH_Z, stepBall } from './physics'
+import { REACH_Z, stepBall, swingForPower } from './physics'
 import type { Ball } from './physics'
 
 export interface CpuSkill {
@@ -17,7 +17,7 @@ export interface CpuSkill {
   speed: number
   /** ねらいのズレ（m）。大きいほど空振りする */
   error: number
-  /** 振る速さ（m/s）の範囲。大きいほど深く速い球 */
+  /** 振る強さ（powerFromSwing と同じ 0〜1.4）の範囲。大きいほど深く速い球 */
   swing: [number, number]
   /** アウトになる球を見送る */
   judgeOut: boolean
@@ -28,11 +28,11 @@ export interface CpuSkill {
 }
 
 export const CPU_SKILL: Record<Level, CpuSkill> = {
-  chibi: { react: 0.4, speed: 2.2, error: 0.9, swing: [0, 3], judgeOut: false, depth: 5.6, whiff: 0.3 },
-  kids: { react: 0.3, speed: 3.2, error: 0.6, swing: [0, 6], judgeOut: false, depth: 6.0, whiff: 0.2 },
+  chibi: { react: 0.4, speed: 2.2, error: 0.9, swing: [0, 0.25], judgeOut: false, depth: 5.6, whiff: 0.3 },
+  kids: { react: 0.3, speed: 3.2, error: 0.6, swing: [0, 0.5], judgeOut: false, depth: 6.0, whiff: 0.2 },
   // おとな＝「はじめての人」。はじめての大人が半分くらい勝てるように、ねらいを甘く・振りを弱く・空振りを少し多く（2026-10 の集計で4戦0勝）
-  otona: { react: 0.2, speed: 4.5, error: 0.45, swing: [1, 6], judgeOut: true, depth: 6.3, whiff: 0.14 },
-  senshu: { react: 0.14, speed: 6.5, error: 0.18, swing: [3, 12], judgeOut: true, depth: 6.4, whiff: 0.04 },
+  otona: { react: 0.2, speed: 4.5, error: 0.45, swing: [0.08, 0.5], judgeOut: true, depth: 6.3, whiff: 0.14 },
+  senshu: { react: 0.14, speed: 6.5, error: 0.18, swing: [0.25, 1], judgeOut: true, depth: 6.4, whiff: 0.04 },
 }
 
 export interface HitPlan {
@@ -154,7 +154,7 @@ export class Cpu {
       // ときどき、届かないところへ動いて空振りする
       if (this.rand() < this.skill.whiff) this.err = (this.rand() < 0.5 ? -1 : 1) * (e.paddles[this.side].width / 2 + 0.6)
       const [a, b] = this.skill.swing
-      this.swingV = a + this.rand() * (b - a)
+      this.swingV = swingForPower(a + this.rand() * (b - a))
     }
     this.since += dt
 

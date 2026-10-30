@@ -165,7 +165,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
             setShots((s) => ({ ...s, index: ev.index, label: ev.zone.label }))
             break
           case 'hit':
-            sfx.pop(ev.power)
+            sfx.hit(ev.power)
             if (kind === 'versus') {
               const n = rallyRef.current.now + 1
               setRallyBoth(n)

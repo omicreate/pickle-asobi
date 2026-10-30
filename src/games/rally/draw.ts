@@ -2,12 +2,13 @@
 import { SIDE_COLOR } from '../../core/players'
 import type { Side } from '../../core/players'
 import { COURT, inKitchen, serveHalf, toNet } from './court'
-import { hand, MACHINE, SWING_TIME } from './engine'
+import { hand, IMPACT_TIME, MACHINE, SWING_TIME, TRAIL_LEN } from './engine'
 import type { RallyEngine } from './engine'
 import { predictLanding } from './physics'
 import { drawPaddleArt } from '../../ui/paddleArt'
 import type { PaddleLook } from '../../ui/paddleArt'
 import { drawPikuruArt } from '../../ui/pikuruArt'
+import { drawImpact as drawFxImpact, drawTrail as drawFxTrail } from '../../ui/hitFx'
 import type { Face } from '../../ui/Pikuru'
 import { t } from '../../i18n'
 
@@ -199,6 +200,10 @@ export function drawRally(ctx: CanvasRenderingContext2D, w: number, h: number, v
     drawPlayer(ctx, X, Y, s, e, side, o.pikuruFace ?? 'think', o.paddles?.[side])
   }
 
+  // 強く打った球ほど長く濃い残像、打った瞬間は強さに合わせた光
+  drawTrail(ctx, X, Y, s, e)
+  drawImpact(ctx, X, Y, s, e)
+
   // 球（影で高さを見せる）
   if (e.ballVisible) {
     const r = 0.15
@@ -230,6 +235,30 @@ export function drawRally(ctx: CanvasRenderingContext2D, w: number, h: number, v
 }
 
 type Px = (v: number) => number
+
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
+
+/** 残像の濃さ（0〜1）。そっと当てた球（ディンク）には出さず、強く振るほど長く濃くする */
+export function trailStrength(power: number): number {
+  return clamp01((power - 0.3) / 0.8)
+}
+
+function drawTrail(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: RallyEngine) {
+  if (!e.ballVisible) return
+  let k = trailStrength(e.fx.power)
+  // 跳ねたあとは勢いが落ちるので薄く
+  if (e.ball.bounces > 0) k *= 0.35
+  if (k <= 0) return
+  const n = Math.min(e.trail.length, Math.round(3 + k * (TRAIL_LEN - 3)))
+  const pts = e.trail.slice(e.trail.length - n).map((q) => ({ x: X(q.x), y: Y(q.y) }))
+  drawFxTrail(ctx, pts, 0.15 * (1 + Math.max(0, e.ball.z) * 0.2) * s, k)
+}
+
+function drawImpact(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: RallyEngine) {
+  const im = e.fx.impact
+  if (!im) return
+  drawFxImpact(ctx, X(im.x), Y(im.y), 0.3 * s, 1 - im.t / IMPACT_TIME, im.power)
+}
 
 function drawMachine(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, face: Face) {
   const w = 1.4
@@ -280,7 +309,9 @@ function drawPlayer(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: R
 
   // パドルの面の中心（振る瞬間は前へ押し出す）
   const u = e.swingT[side] > 0 ? 1 - e.swingT[side] / SWING_TIME : 0
-  const punch = u > 0 ? Math.sin(u * Math.PI) * 0.4 : 0
+  // 強く振ったほど大きく前へ（そっと当てたときは小さく）
+  const reach = 0.25 + 0.3 * Math.min(e.fx.power, 1.2)
+  const punch = u > 0 ? Math.sin(u * Math.PI) * reach : 0
   const hx = p.x + e.head[side]
   const hy = p.y + n * punch
   // 肩：パドルのある側（フォアかバックか）

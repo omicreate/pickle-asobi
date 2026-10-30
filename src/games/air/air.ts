@@ -119,6 +119,35 @@ function closest(p: AirPaddle, x: number, y: number): [number, number] {
   return [p.x, clamp(y, p.y - half, p.y + half)]
 }
 
+/**
+ * 打った直後の速さを、上限の手前でゆるやかに頭打ちにする。
+ * 前は上限でぴたっと切っていたので、ふつうに振るだけで上限に届き、軽く打っても強く打っても同じ速さになった。
+ * 上限の半分までは そのまま、その先は強く打つほど上限に近づく（2倍の勢い→上限の89%、3倍→96%）。
+ */
+export function softCap(v: number, max: number): number {
+  const knee = max * 0.5
+  if (v <= knee) return v
+  const room = max - knee
+  return knee + room * (1 - Math.exp(-(v - knee) / (2 * room)))
+}
+
+function hitSpeed(s: AirState) {
+  const b = s.ball
+  const toward: Side = b.vy > 0 ? 0 : 1
+  const max = AIR_LEVEL[s.levels[toward]].maxSpeed
+  const v = Math.hypot(b.vx, b.vy)
+  if (v < 1e-6) return
+  const k = softCap(v, max) / v
+  b.vx *= k
+  b.vy *= k
+}
+
+/** 見た目・音用：球の速さを、向かう先の人の上限に対する強さ（0〜1.2）にする。上限いっぱいで 1.2 */
+export function airPower(s: AirState, speed: number): number {
+  const toward: Side = s.ball.vy > 0 ? 0 : 1
+  return Math.min(1.2, (speed / AIR_LEVEL[s.levels[toward]].maxSpeed) * 1.2)
+}
+
 function capSpeed(s: AirState) {
   const b = s.ball
   // 向かっている側の人のレベルで上限を決める（下へ向かう＝0の人へ）
@@ -203,6 +232,7 @@ export function stepAir(s: AirState, dt: number): AirEvent[] {
           b.vx -= (1 + HIT_E) * vn * dx
           b.vy -= (1 + HIT_E) * vn * dy
           s.hit = true
+          hitSpeed(s)
           capSpeed(s)
           ev.push({ type: 'hit', side, speed: Math.hypot(b.vx, b.vy) })
         }

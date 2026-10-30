@@ -18,7 +18,8 @@ import { drawPaddleArt } from '../../ui/paddleArt'
 import type { PaddleLook } from '../../ui/paddleArt'
 import type { Face } from '../../ui/Pikuru'
 import { PikuruCut } from '../../ui/pikuruArt'
-import { aim, BALL_R, createAir, FIELD_H, FIELD_W, goalWidth, stepAir, TARGET } from './air'
+import { aim, airPower, BALL_R, createAir, FIELD_H, FIELD_W, goalWidth, stepAir, TARGET } from './air'
+import { drawImpact, drawTrail } from '../../ui/hitFx'
 import type { AirState } from './air'
 import { t } from '../../i18n'
 
@@ -30,6 +31,15 @@ interface Props {
 
 /** 指より少しネット側にパドルを出す（指で隠れないように） */
 const FINGER_OFFSET = 9
+/** 残像に残す点の数・打った瞬間の光の時間（秒） */
+const TRAIL_LEN = 9
+const IMPACT_TIME = 0.22
+
+/** 見た目だけに使う残像と光（球の動きには関わらない） */
+interface AirFx {
+  trail: { x: number; y: number }[]
+  impact: { x: number; y: number; power: number; t: number } | null
+}
 
 export function AirGame({ levels, paused, onRestart }: Props) {
   const stage = useStage()
@@ -40,6 +50,7 @@ export function AirGame({ levels, paused, onRestart }: Props) {
   const owner = useRef<[number | null, number | null]>([null, null])
   const noticeTimer = useRef(0)
   const countRef = useRef(3)
+  const fx = useRef<AirFx>({ trail: [], impact: null })
   const [score, setScore] = useState<[number, number]>([0, 0])
   const [notice, setNotice] = useState<NoticeData | null>({ title: '3', big: true })
   const [over, setOver] = useState<Side | null>(null)
@@ -87,9 +98,14 @@ export function AirGame({ levels, paused, onRestart }: Props) {
             setNotice(null)
             setFace('eh')
             break
-          case 'hit':
-            sfx.pop(Math.min(1, ev.speed / 120))
+          case 'hit': {
+            // 強く打つほど高く鋭い音・大きな光
+            const power = airPower(game, ev.speed)
+            sfx.hit(power)
+            fx.current.impact = { x: game.ball.x, y: game.ball.y, power, t: IMPACT_TIME }
+            fx.current.trail = []
             break
+          }
           case 'wall':
             sfx.bounce()
             break
@@ -111,8 +127,19 @@ export function AirGame({ levels, paused, onRestart }: Props) {
         }
       }
     }
+    if (!paused) {
+      const f = fx.current
+      if (game.phase === 'play') {
+        f.trail.push({ x: game.ball.x, y: game.ball.y })
+        if (f.trail.length > TRAIL_LEN) f.trail.shift()
+      } else f.trail = []
+      if (f.impact) {
+        f.impact.t -= dt
+        if (f.impact.t <= 0) f.impact = null
+      }
+    }
     const ctx = canvasRef.current?.getContext('2d')
-    if (ctx) draw(ctx, stage.w, stage.h, view, game, play.paddles)
+    if (ctx) draw(ctx, stage.w, stage.h, view, game, play.paddles, fx.current)
   })
 
   const toField = (e: PointerEvent) => {
@@ -179,7 +206,7 @@ interface View {
   oy: number
 }
 
-function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: AirState, looks: [PaddleLook, PaddleLook]) {
+function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: AirState, looks: [PaddleLook, PaddleLook], fx: AirFx) {
   const k = v.scale
   const X = (x: number) => v.ox + x * k
   const Y = (y: number) => v.oy + y * k
@@ -219,8 +246,16 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, s: A
   ctx.lineWidth = 3
   ctx.stroke()
 
-  // 球（影つき）
+  // 速い球ほど長く濃い残像（まさつで遅くなると薄れる）、打った瞬間は強さに合わせた光
   const b = s.ball
+  const speedK = Math.min(1, Math.max(0, (airPower(s, Math.hypot(b.vx, b.vy)) - 0.5) / 0.6))
+  if (speedK > 0) {
+    const n = Math.min(fx.trail.length, Math.round(3 + speedK * (TRAIL_LEN - 3)))
+    drawTrail(ctx, fx.trail.slice(fx.trail.length - n).map((q) => ({ x: X(q.x), y: Y(q.y) })), BALL_R * k, speedK)
+  }
+  if (fx.impact) drawImpact(ctx, X(fx.impact.x), Y(fx.impact.y), BALL_R * 2 * k, 1 - fx.impact.t / IMPACT_TIME, fx.impact.power)
+
+  // 球（影つき）
   ctx.beginPath()
   ctx.ellipse(X(b.x) + 2, Y(b.y) + 3, BALL_R * k, BALL_R * k * 0.8, 0, 0, Math.PI * 2)
   ctx.fillStyle = 'rgba(0,0,0,0.25)'

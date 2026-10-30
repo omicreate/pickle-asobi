@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { LEVEL_INFO } from '../../core/players'
 import type { Level, Side } from '../../core/players'
 import { COURT, toNet } from './court'
-import { FINGER_LEAD, RallyEngine } from './engine'
+import { FINGER_LEAD, RallyEngine, TRAIL_LEN } from './engine'
+import { trailStrength } from './draw'
 import { launch } from './physics'
 import type { EngineEvent, Kind } from './engine'
 import type { RuleMode } from './rules'
@@ -218,5 +219,37 @@ describe('ディンクでつなごう', () => {
     const { e, events } = play('dink', 'easy', ['otona', 'otona'], 120, { miss: 1.2 })
     expect(count(events, 'dink-end')).toBe(1)
     expect(e.phase).toBe('over')
+  })
+})
+
+describe('打った強さの見た目（残像・光）', () => {
+  it('打つたびに強さと光が記録され、光は少しで消える', () => {
+    const { e, events } = play('versus', 'easy', ['otona', 'otona'], 30, { swing: [14, 14] }, 7)
+    const hits = events.filter((x) => x.type === 'hit')
+    expect(hits.length).toBeGreaterThan(2)
+    // サーブも振った強さが音に伝わる（前は 0.5 固定だった）
+    expect(new Set(hits.map((x) => (x.type === 'hit' ? x.power.toFixed(2) : ''))).size).toBeGreaterThan(1)
+    for (let i = 0; i < 30; i++) e.step(1 / 60)
+    expect(e.fx.impact).toBeNull()
+  })
+  it('残像は飛んでいる間だけ、決まった数まで', () => {
+    const e = new RallyEngine({ kind: 'versus', mode: 'easy', levels: ['otona', 'otona'], target: 5 })
+    e.phase = 'play'
+    e.ballVisible = true
+    e.ball = { x: 3, y: COURT.NET_Y + 5, z: 0.8, vx: 0, vy: 0, vz: 0, bounces: 0, timeScale: 1 }
+    e.state = { lastHitter: 0, shot: 3, bounces: 0, serverX: 3 }
+    launch(e.ball, { x: 3, y: COURT.NET_Y - 4 }, 1, 1)
+    for (let i = 0; i < 20; i++) e.step(1 / 60)
+    expect(e.trail.length).toBe(TRAIL_LEN)
+    e.phase = 'over'
+    e.step(1 / 60)
+    expect(e.trail.length).toBe(0)
+  })
+  it('そっと当てた球には残像を出さず、強いほど濃い', () => {
+    expect(trailStrength(0)).toBe(0)
+    expect(trailStrength(0.3)).toBe(0)
+    expect(trailStrength(0.7)).toBeGreaterThan(0)
+    expect(trailStrength(0.7)).toBeLessThan(trailStrength(1.1))
+    expect(trailStrength(1.4)).toBe(1)
   })
 })

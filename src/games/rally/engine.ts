@@ -68,6 +68,18 @@ export const FINGER_LEAD = 0.75
 const SWING_WINDOW = 0.09
 /** サーブのときに「ネットへ向けて振った」とみなす速さ（m/s） */
 const SERVE_SWING = 1.8
+/** 残像に残す点の数（1コマに1点） */
+export const TRAIL_LEN = 9
+/** 打った瞬間の光を見せる時間（秒） */
+export const IMPACT_TIME = 0.22
+
+/** 見た目だけに使う「打った強さ」の記録（球の動きには関わらない） */
+export interface HitFx {
+  /** 最後に打った球の強さ（0〜1.4）。強いほど残像が長く濃い */
+  power: number
+  /** 打った瞬間の光（場所・強さ・残り時間） */
+  impact: { x: number; y: number; power: number; t: number } | null
+}
 
 interface Sample {
   t: number
@@ -112,6 +124,10 @@ export class RallyEngine {
   zone: Zone | null = null
   shotIndex = 0
   hits = 0
+  /** 見た目：球の残像（新しい順ではなく古い順） */
+  trail: { x: number; y: number; z: number }[] = []
+  /** 見た目：打った強さ */
+  fx: HitFx = { power: 0, impact: null }
   private readonly rand: () => number
   private serveWait = 0
   private now = 0
@@ -187,6 +203,8 @@ export class RallyEngine {
     const at = feedLanding(this.opts.levels[0], zone, this.rand)
     this.ball = { x: MACHINE.x + (this.rand() - 0.5) * 2, y: MACHINE.y, z: MACHINE.z, vx: 0, vy: 0, vz: 0, bounces: 0, timeScale: 1 }
     launch(this.ball, at, 1.5, this.levelOf(0).ballSpeed)
+    this.fx = { power: 0, impact: null }
+    this.trail = []
     // 3球目ドロップの練習：送った球を「リターン（2球目）」とみなし、下の人の球は3球目になる
     this.state = { lastHitter: 1, shot: zone.thirdShot ? 1 : 3, bounces: 0, serverX: this.ball.x }
     this.phase = 'play'
@@ -213,6 +231,12 @@ export class RallyEngine {
     this.ball.bounces = 0
   }
 
+  /** 打った瞬間の見た目を記録する（強さで残像・光・振りの大きさが変わる） */
+  private markHit(power: number, x: number, y: number): void {
+    this.fx = { power, impact: { x, y, power, t: IMPACT_TIME } }
+    this.trail = []
+  }
+
   private doServe(power: number, swingX: number): void {
     const side = this.server
     const lv = this.levelOf(side)
@@ -222,6 +246,7 @@ export class RallyEngine {
     this.state = { lastHitter: side, shot: 0, bounces: 0, serverX: this.ball.x }
     this.phase = 'play'
     this.swingT[side] = SWING_TIME
+    this.markHit(dink ? 0 : power, this.ball.x, this.ball.y)
   }
 
   step(dt: number): EngineEvent[] {
@@ -284,8 +309,9 @@ export class RallyEngine {
         const lv = this.levelOf(this.server)
         const auto = this.opts.kind === 'dink' ? 1.6 : lv.keepIn ? 3 : Infinity
         if (this.serveWait > 0.35 && vNet > SERVE_SWING) {
-          this.doServe(powerFromSwing(vNet), sw.x)
-          ev.push({ type: 'hit', side: this.server, power: 0.5 })
+          const power = powerFromSwing(vNet)
+          this.doServe(power, sw.x)
+          ev.push({ type: 'hit', side: this.server, power })
         } else if (this.serveWait > auto) {
           this.doServe(0.45, 0)
           ev.push({ type: 'hit', side: this.server, power: 0.4 })
@@ -300,7 +326,24 @@ export class RallyEngine {
       case 'over':
         break
     }
+    this.stepFx(dt)
     return ev
+  }
+
+  /** 見た目：残像と打った瞬間の光を進める */
+  private stepFx(dt: number): void {
+    const flying = this.ballVisible && (this.phase === 'play' || this.phase === 'point')
+    if (flying) {
+      this.trail.push({ x: this.ball.x, y: this.ball.y, z: this.ball.z })
+      if (this.trail.length > TRAIL_LEN) this.trail.shift()
+    } else if (this.trail.length) {
+      this.trail = []
+    }
+    const im = this.fx.impact
+    if (im) {
+      im.t -= dt
+      if (im.t <= 0) this.fx.impact = null
+    }
   }
 
   private stepPlay(dt: number, prevPaddles: Vec[], swings: Vec[], ev: EngineEvent[]): void {
@@ -366,6 +409,7 @@ export class RallyEngine {
         const power = powerFromSwing(sw.y * toNet(side), dink)
         // ディンクは協力ゲームなので外には出さない（強すぎたら「つよすぎ」になるだけ）
         const shot = planShot(this.ball, side, power, off, sw.x, { keepIn: lv.keepIn || dink, soft: dink })
+        this.markHit(power, this.ball.x, this.ball.y)
         this.ball.z = Math.max(this.ball.z, 0.35)
         launch(this.ball, shot.target, shot.T, this.levelOf(other(side)).ballSpeed)
         this.state = { ...this.state, lastHitter: side, shot: this.state.shot + 1, bounces: 0 }

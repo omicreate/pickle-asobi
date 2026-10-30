@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AIR_LEVEL, aim, BALL_R, createAir, FIELD_H, FIELD_W, paddleBounds, stepAir, TARGET } from './air'
+import { AIR_LEVEL, aim, BALL_R, createAir, FIELD_H, FIELD_W, paddleBounds, softCap, stepAir, TARGET } from './air'
 import type { AirEvent, AirState } from './air'
 
 const DT = 1 / 60
@@ -108,5 +108,28 @@ describe('エアピックル（時間のずれ）', () => {
       expect(Number.isFinite(p.x)).toBe(true)
       expect(Number.isFinite(p.y)).toBe(true)
     }
+  })
+  it('ゆっくり当てると遅く、速く振るほど速い球（上限に張りつかない）', () => {
+    const speedAt = (v: number) => {
+      const s = createAir(['otona', 'otona'])
+      s.phase = 'play'
+      s.ball = { x: FIELD_W / 2, y: FIELD_H * 0.62, vx: 0, vy: 30 }
+      const p = s.paddles[0]
+      for (let t = 0; t < 1.5; t += 1 / 60) {
+        p.tx = FIELD_W / 2
+        p.ty = Math.max(FIELD_H / 2 + 20, p.ty - v / 60)
+        for (const e of stepAir(s, 1 / 60)) if (e.type === 'hit' && e.side === 0) return e.speed
+      }
+      return 0
+    }
+    const sp = [20, 40, 80, 160].map(speedAt)
+    for (let i = 1; i < sp.length; i++) expect(sp[i]).toBeGreaterThan(sp[i - 1] + 8)
+    expect(sp[3]).toBeLessThanOrEqual(AIR_LEVEL.otona.maxSpeed)
+  })
+  it('softCap：上限の半分までは そのまま、その先はゆるやかに上限へ', () => {
+    expect(softCap(40, 120)).toBe(40)
+    expect(softCap(120, 120)).toBeLessThan(120)
+    expect(softCap(240, 120)).toBeGreaterThan(softCap(120, 120))
+    expect(softCap(10000, 120)).toBeLessThanOrEqual(120)
   })
 })
