@@ -8,6 +8,7 @@ import { predictLanding } from './physics'
 import { drawPaddleArt } from '../../ui/paddleArt'
 import type { PaddleLook } from '../../ui/paddleArt'
 import { drawPikuruArt } from '../../ui/pikuruArt'
+import { drawImpact as drawFxImpact, drawTrail as drawFxTrail } from '../../ui/hitFx'
 import type { Face } from '../../ui/Pikuru'
 import { t } from '../../i18n'
 
@@ -249,48 +250,14 @@ function drawTrail(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: Ra
   if (e.ball.bounces > 0) k *= 0.35
   if (k <= 0) return
   const n = Math.min(e.trail.length, Math.round(3 + k * (TRAIL_LEN - 3)))
-  const pts = e.trail.slice(e.trail.length - n)
-  if (pts.length < 2) return
-  ctx.lineCap = 'round'
-  for (let i = 1; i < pts.length; i++) {
-    const a = pts[i - 1]
-    const b = pts[i]
-    const u = i / (pts.length - 1)
-    const rr = 0.15 * (1 + Math.max(0, b.z) * 0.2) * s
-    ctx.beginPath()
-    ctx.moveTo(X(a.x), Y(a.y))
-    ctx.lineTo(X(b.x), Y(b.y))
-    ctx.lineWidth = Math.max(1, rr * 2 * u)
-    ctx.strokeStyle = `rgba(212, 240, 60, ${(0.8 * k * u).toFixed(3)})`
-    ctx.stroke()
-  }
+  const pts = e.trail.slice(e.trail.length - n).map((q) => ({ x: X(q.x), y: Y(q.y) }))
+  drawFxTrail(ctx, pts, 0.15 * (1 + Math.max(0, e.ball.z) * 0.2) * s, k)
 }
 
 function drawImpact(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, e: RallyEngine) {
   const im = e.fx.impact
   if (!im) return
-  const u = 1 - im.t / IMPACT_TIME
-  const p = Math.min(im.power, 1.4)
-  const r = (0.18 + (0.25 + 0.45 * p) * u) * s
-  const a = (1 - u) * (0.45 + 0.4 * Math.min(p, 1))
-  ctx.beginPath()
-  ctx.arc(X(im.x), Y(im.y), r, 0, Math.PI * 2)
-  ctx.lineWidth = Math.max(2, (0.05 + 0.05 * p) * s * (1 - u))
-  ctx.strokeStyle = `rgba(255, 255, 255, ${a.toFixed(3)})`
-  ctx.stroke()
-  // 強く打ったときだけ、まわりに飛び散る線
-  if (p < 0.7) return
-  const r0 = r * 0.85
-  const r1 = r * (1.15 + 0.3 * (p - 0.7))
-  ctx.beginPath()
-  for (let i = 0; i < 8; i++) {
-    const ang = (i / 8) * Math.PI * 2 + 0.3
-    ctx.moveTo(X(im.x) + Math.cos(ang) * r0, Y(im.y) + Math.sin(ang) * r0)
-    ctx.lineTo(X(im.x) + Math.cos(ang) * r1, Y(im.y) + Math.sin(ang) * r1)
-  }
-  ctx.lineWidth = Math.max(2, 0.05 * s)
-  ctx.strokeStyle = `rgba(212, 240, 60, ${a.toFixed(3)})`
-  ctx.stroke()
+  drawFxImpact(ctx, X(im.x), Y(im.y), 0.3 * s, 1 - im.t / IMPACT_TIME, im.power)
 }
 
 function drawMachine(ctx: CanvasRenderingContext2D, X: Px, Y: Px, s: number, face: Face) {
