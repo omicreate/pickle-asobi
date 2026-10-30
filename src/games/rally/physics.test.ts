@@ -117,3 +117,14 @@ describe('パドルに当たる', () => {
     expect(contact({ x: 3, y: N - 0.4 }, b, near, near, 0, 0.6)).toBeNull()
   })
 })
+
+describe('ドライブ（思いきり振った球）', () => {
+  it('強さ0.6までは前と同じ、その先はもう一段速い。ディンクのゲームでは速くしない', () => {
+    const from = { x: 3, y: COURT.L }
+    const t = (power: number, soft = false) => planShot(from, 0, power, 0, 0, { keepIn: false, soft }).T
+    expect(t(0.5)).toBeCloseTo(1.55 - 0.8 * 0.5, 6)
+    expect(t(1)).toBeLessThan(0.6)
+    expect(t(1.2)).toBeLessThan(t(1))
+    expect(t(1, true)).toBeCloseTo(1.55 - 0.8 + 0.25, 6)
+  })
+})
