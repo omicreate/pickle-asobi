@@ -116,15 +116,45 @@ function shuffle<T>(xs: T[], rand: () => number): T[] {
   return a
 }
 
-/** にせものが ほんものと どこが ちがうか（まちがえて押したときに見せる。いちばん目立つものから1つ） */
-export function whyNot(look: Look): string | null {
-  if (look.hat) return t('ぼうしを かぶってるよ')
-  if (look.glasses) return t('めがねを かけてるよ')
-  if (look.mustache) return t('ひげが あるよ')
-  if (look.band !== 'lime') return t('はちまきの いろが ちがうよ')
-  if (!look.stem) return t('あたまに つるが ないよ')
-  if (look.body !== 'green') return t('からだの いろが ちがうよ')
+/** ほんものと ちがう所（絵の上で 丸を つける所） */
+export type Part = 'hat' | 'glasses' | 'mustache' | 'band' | 'stem' | 'body'
+
+/** にせものが ほんものと どこが ちがうか（いちばん目立つものから1つ） */
+export function partOf(look: Look): Part | null {
+  if (look.hat) return 'hat'
+  if (look.glasses) return 'glasses'
+  if (look.mustache) return 'mustache'
+  if (look.band !== 'lime') return 'band'
+  if (!look.stem) return 'stem'
+  if (look.body !== 'green') return 'body'
   return null
+}
+
+const WHY: Record<Part, string> = {
+  hat: t('ぼうしを かぶってるよ'),
+  glasses: t('めがねを かけてるよ'),
+  mustache: t('ひげが あるよ'),
+  band: t('はちまきの いろが ちがうよ'),
+  stem: t('あたまに つるが ないよ'),
+  body: t('からだの いろが ちがうよ'),
+}
+
+/** まちがえて押したときに見せる文 */
+export function whyNot(look: Look): string | null {
+  const part = partOf(look)
+  return part ? WHY[part] : null
+}
+
+/** ちがう所の まんなか（人の中心からの ずれ。s=高さで かける。flip は左右を逆に） */
+export function partSpot(part: Part, p: Pick<Person, 'x' | 'y' | 's' | 'flip'>): { x: number; y: number; r: number } {
+  const { x, y, s } = p
+  const k = p.flip ? -1 : 1
+  if (part === 'hat') return { x, y: y - s * 0.48, r: s * 0.42 }
+  if (part === 'glasses') return { x, y: y + s * 0.05, r: s * 0.36 }
+  if (part === 'mustache') return { x, y: y + s * 0.25, r: s * 0.3 }
+  if (part === 'band') return { x, y: y - s * 0.18, r: s * 0.38 }
+  if (part === 'stem') return { x: x + k * s * 0.1, y: y - s * 0.6, r: s * 0.25 }
+  return { x, y, r: s * 0.62 }
 }
 
 export const sameLook = (a: Look, b: Look) =>
@@ -144,6 +174,20 @@ export function courtBox(w: number, h: number): CourtBox {
   const ch = Math.min(h * 0.78, (w * 0.5) / 0.455)
   const cw = ch * 0.455
   return { x: (w - cw) / 2, y: (h - ch) / 2, w: cw, h: ch, k: ch * (2.13 / 13.41) }
+}
+
+/** 足もとが 線から m 以上はなれていれば その場所、線に近ければ null（見た目で まよう所に ほんものを置かない） */
+export function clearZone(c: CourtBox, x: number, y: number, m: number): Zone | null {
+  const z = zoneOf(c, x, y)
+  const mid = c.y + c.h / 2
+  const dx = Math.min(Math.abs(x - c.x), Math.abs(x - (c.x + c.w)))
+  const dy = Math.min(...[c.y, c.y + c.h, mid - c.k, mid + c.k].map((l) => Math.abs(y - l)))
+  // コートの中：横は左右の線から、縦は 線から はなす
+  if (z !== 'outside') return dx >= m && dy >= m ? z : null
+  // そと：コートの四角から m 以上
+  const ox = Math.max(c.x - x, 0, x - (c.x + c.w))
+  const oy = Math.max(c.y - y, 0, y - (c.y + c.h))
+  return Math.hypot(ox, oy) >= m ? z : null
 }
 
 export function zoneOf(c: CourtBox, x: number, y: number): Zone {
@@ -192,7 +236,11 @@ export function makeWally(level: Level, w: number, h: number, rand: () => number
   const zone = pick<Zone>(['kitchen', 'service', 'outside'], rand)
   const placed: Placed[] = []
   const people: Person[] = []
-  const tp = place(rand, w, h, s, placed, 1, (x, y) => zoneOf(court, x, y + s * 0.5) === zone) ?? place(rand, w, h, s, placed, 1)!
+  // ほんものは 線から はなして置く（「キッチンに いたよ」と 見た目が くいちがわないように）
+  const tp =
+    place(rand, w, h, s, placed, 1, (x, y) => clearZone(court, x, y + s * 0.5, s * 0.4) === zone) ??
+    place(rand, w, h, s, placed, 1, (x, y) => zoneOf(court, x, y + s * 0.5) === zone) ??
+    place(rand, w, h, s, placed, 1)!
   people.push({ id: 'p0', x: tp.x, y: tp.y, s, look: { ...REAL }, flip: rand() < 0.5 })
   placed.push({ x: tp.x, y: tp.y, r: s * 0.75 })
   for (let i = 1; i < spec.people; i++) {
@@ -230,6 +278,8 @@ export interface Diff {
   x: number
   y: number
   r: number
+  /** 丸では かこめない ちがい（キッチン・ネット）は 四角で当たりにする */
+  rect?: { x: number; y: number; w: number; h: number }
   /** 見つけたあとに出す名前 */
   label: string
 }
@@ -321,14 +371,18 @@ export function makeDiff(level: Level, w: number, h: number, rand: () => number 
     if (usedObj.has('kitchen')) return false
     usedObj.add('kitchen')
     b.kitchenColor = '#2f6fe4'
-    add({ kind: 'kitchen', x: court.x + court.w / 2, y: court.y + court.h / 2 - court.k / 2, r: Math.max(minR, court.k * 0.6) })
+    // キッチンは ネットの両がわ。どちらを押しても当たり
+    const mid = court.y + court.h / 2
+    add({ kind: 'kitchen', x: court.x + court.w / 2, y: mid, r: Math.max(minR, court.k), rect: { x: court.x, y: mid - court.k, w: court.w, h: court.k * 2 } })
     return true
   }
   const netCand: Cand = () => {
     if (usedObj.has('net')) return false
     usedObj.add('net')
     b.net = false
-    add({ kind: 'net', x: court.x + court.w / 2, y: court.y + court.h / 2, r: Math.max(minR, court.w * 0.35) })
+    // ネットは はしから はしまで当たり（柱の所も）
+    const mid = court.y + court.h / 2
+    add({ kind: 'net', x: court.x + court.w / 2, y: mid, r: Math.max(minR, court.w * 0.35), rect: { x: court.x - 5, y: mid - 3.5, w: court.w + 10, h: 7 } })
     return true
   }
   const pool: Cand[] = [
@@ -353,8 +407,9 @@ export function hitDiff(diffs: Diff[], found: Set<string>, x: number, y: number)
   let best: { id: string; d: number } | null = null
   for (const d of diffs) {
     if (found.has(d.id)) continue
-    const dist = Math.hypot(d.x - x, d.y - y)
-    if (dist <= d.r && (!best || dist < best.d)) best = { id: d.id, d: dist }
+    const inRect = d.rect && x >= d.rect.x && x <= d.rect.x + d.rect.w && y >= d.rect.y && y <= d.rect.y + d.rect.h
+    const dist = inRect ? 0 : Math.hypot(d.x - x, d.y - y)
+    if ((inRect || dist <= d.r) && (!best || dist < best.d)) best = { id: d.id, d: dist }
   }
   return best?.id ?? null
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { LEVELS } from '../../core/players'
 import { mulberry32 } from '../../core/rng'
-import { courtBox, decoyLook, DIFF, feet, hitDiff, makeDiff, makeWally, REAL, sameLook, WALLY, whyNot, zoneOf } from './sagasu'
+import { clearZone, courtBox, decoyLook, DIFF, feet, hitDiff, makeDiff, makeWally, partOf, partSpot, REAL, sameLook, WALLY, whyNot, zoneOf } from './sagasu'
 
 describe('さがせ！ピクルくん', () => {
   it('ほんものは1人だけ。にせものは どれも どこかがちがう', () => {
@@ -52,6 +52,33 @@ describe('さがせ！ピクルくん', () => {
     for (const lv of LEVELS) for (let k = 0; k < 40; k++) expect(whyNot(decoyLook(lv, WALLY[lv].changes, rand)), lv).toBeTruthy()
   })
 
+  it('ほんものの足もとは 線から はなれている（見た目と「〜に いたよ」が くいちがわない）', () => {
+    const rand = mulberry32(9)
+    for (const lv of LEVELS)
+      for (const h of [60, 150, 190]) {
+        let near = 0
+        for (let k = 0; k < 100; k++) {
+          const r = makeWally(lv, 100, h, rand)
+          const p = r.scene.people.find((x) => x.id === r.target)!
+          if (clearZone(r.scene.court, feet(p).x, feet(p).y, p.s * 0.4) !== r.zone) near++
+        }
+        // 前は 2〜4割が 線の近くだった。置き場所が とれない ごくまれな時だけ ゆるす
+        expect(near, `${lv} h=${h}`).toBeLessThanOrEqual(2)
+      }
+  })
+
+  it('まちがえた所の丸は、その人の中に ある', () => {
+    const rand = mulberry32(10)
+    for (const lv of LEVELS)
+      for (let k = 0; k < 40; k++) {
+        const look = decoyLook(lv, WALLY[lv].changes, rand)
+        const p = { x: 50, y: 50, s: 10, flip: k % 2 === 0 }
+        const spot = partSpot(partOf(look)!, p)
+        expect(Math.abs(spot.x - p.x)).toBeLessThanOrEqual(p.s * 0.4)
+        expect(Math.abs(spot.y - p.y)).toBeLessThanOrEqual(p.s * 0.7)
+      }
+  })
+
   it('同じ種なら同じ場面（じゅんばんモードで公平に）', () => {
     const a = makeWally('otona', 100, 150, mulberry32(42))
     const b = makeWally('otona', 100, 150, mulberry32(42))
@@ -88,5 +115,30 @@ describe('まちがいさがし', () => {
     expect(hitDiff(r.diffs, new Set(), d.x, d.y)).toBe(d.id)
     expect(hitDiff(r.diffs, new Set([d.id]), d.x, d.y)).not.toBe(d.id)
     expect(hitDiff(r.diffs, new Set(), -50, -50)).toBeNull()
+  })
+
+  it('キッチンの色の ちがいは、ネットの上でも下でも当たり。ネットは はしでも当たり', () => {
+    const rand = mulberry32(11)
+    let kitchen = 0
+    let net = 0
+    for (let k = 0; k < 200; k++) {
+      const r = makeDiff('kids', 100, 120, rand)
+      const c = r.a.court
+      const mid = c.y + c.h / 2
+      for (const d of r.diffs) {
+        if (d.kind === 'kitchen') {
+          kitchen++
+          expect(hitDiff([d], new Set(), c.x + 2, mid - c.k + 1)).toBe(d.id)
+          expect(hitDiff([d], new Set(), c.x + c.w - 2, mid + c.k - 1)).toBe(d.id)
+        }
+        if (d.kind === 'net') {
+          net++
+          expect(hitDiff([d], new Set(), c.x - 2, mid)).toBe(d.id)
+          expect(hitDiff([d], new Set(), c.x + c.w + 2, mid)).toBe(d.id)
+        }
+      }
+    }
+    expect(kitchen).toBeGreaterThan(0)
+    expect(net).toBeGreaterThan(0)
   })
 })

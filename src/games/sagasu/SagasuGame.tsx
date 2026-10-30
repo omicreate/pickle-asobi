@@ -65,17 +65,26 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
   const [ring, setRing] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [hint, setHint] = useState<string | null>(null)
+  /** さがせ！ピクルくん：このラウンドで まちがえた人・いま まちがえた人・ヒントの丸 */
+  const [missed, setMissed] = useState<Set<string>>(new Set())
+  const [miss, setMiss] = useState<string | null>(null)
+  const [wallyHint, setWallyHint] = useState<{ x: number; y: number; r: number } | null>(null)
   const [over, setOver] = useState<{ ms: number; best: number; isBest: boolean } | null>(null)
   const elapsed = useRef(0)
   const penalty = useRef(0)
   const sinceFind = useRef(0)
   const toastTimer = useRef(0)
+  /** 見つけたあと つぎへ進む タイマー（画面を はなれたら止める。止めないと 前の回の記録が あとから とどく） */
+  const nextTimer = useRef(0)
   const [, setTick] = useState(0)
   const busy = ring !== null || over !== null
 
   useEffect(() => {
     speak(mode === 'wally' ? PHRASES.sagasuWally : PHRASES.sagasuDiff)
-    return () => window.clearTimeout(toastTimer.current)
+    return () => {
+      window.clearTimeout(toastTimer.current)
+      window.clearTimeout(nextTimer.current)
+    }
   }, [mode])
 
   useEffect(() => {
@@ -92,7 +101,10 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
   const flash = (text: string) => {
     setToast(text)
     window.clearTimeout(toastTimer.current)
-    toastTimer.current = window.setTimeout(() => setToast(null), 1100)
+    toastTimer.current = window.setTimeout(() => {
+      setToast(null)
+      setMiss(null)
+    }, 1100)
   }
 
   const finish = (ms: number) => {
@@ -120,11 +132,16 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       sfx.ok()
       speak(ZONE_PHRASE[wally.zone])
       setRing(id)
-      window.setTimeout(() => {
+      setMiss(null)
+      setToast(null)
+      setWallyHint(null)
+      nextTimer.current = window.setTimeout(() => {
         if (round + 1 < rounds) {
           setRound(round + 1)
           setWally(makeWally(level, dims.w, dims.h, rand))
           setRing(null)
+          setMissed(new Set())
+          sinceFind.current = 0
         } else {
           finish(total())
         }
@@ -132,7 +149,9 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
     } else {
       sfx.ng()
       penalty.current += MISS_MS[level]
-      // どこが ちがうかを見せる（つぎは見分けられるように）
+      // どこが ちがうかを 文と 絵の丸で見せ、押した人は うすくする（つぎは見分けられるように）
+      setMiss(id)
+      setMissed((cur) => new Set(cur).add(id))
       const why = whyNot(wally.scene.people.find((p) => p.id === id)?.look ?? wally.scene.people[0].look)
       flash(`${why ?? t('ちがうよ')}${MISS_MS[level] ? t(' +{0}びょう', [MISS_MS[level] / 1000]) : ''}`)
     }
@@ -152,7 +171,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
     sfx.ok()
     flash(`${d?.label ?? ''}！`)
     if (next.size >= diff.diffs.length) {
-      window.setTimeout(() => finish(total()), 900)
+      nextTimer.current = window.setTimeout(() => finish(total()), 900)
       setRing('done')
     } else speak(PHRASES.sagasuFound)
   }
@@ -174,8 +193,22 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
     speak(PHRASES.sagasuHint)
   }
 
+  // さがせ！ピクルくん：ほんものの まわりを 丸で しめす（ほんものが まんなかに こないよう、少し ずらす）
+  const useWallyHint = () => {
+    if (!wally || busy) return
+    const p = wally.scene.people.find((x) => x.id === wally.target)
+    if (!p) return
+    sfx.tick()
+    penalty.current += HINT_MS
+    const a = rand() * Math.PI * 2
+    const d = p.s * 0.6
+    setWallyHint({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, r: p.s * 1.1 })
+    speak(PHRASES.sagasuHint)
+  }
+
   const hintDiff = diff && hint ? diff.diffs.find((d) => d.id === hint) ?? null : null
   const canHint = mode === 'diff' && sinceFind.current >= HINT_AFTER && !hint
+  const canWallyHint = mode === 'wally' && sinceFind.current >= HINT_AFTER && !wallyHint && !busy
 
   return (
     <div className="sagasu" data-mode={mode}>
@@ -185,10 +218,8 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
             <TargetCard size={60} />
             <div className="sagasu-head-text">
               <b>{t('ほんものは どこ？')}</b>
-              <small className="sagasu-marks">{t('ライムの はちまき・あたまに つる')}</small>
-              <small>
-                {t('{0} / {1}かいめ', [round + 1, rounds])}
-              </small>
+              <small className="sagasu-marks">{t('○ ライムの はちまき・つる')}</small>
+              <small className="sagasu-marks-no">{t('× めがね・ひげ・ぼうし')}</small>
             </div>
           </>
         ) : (
@@ -201,6 +232,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
         )}
         <span className="sagasu-time" aria-label={t('じかん')}>
           {sec(total())}
+          {mode === 'wally' && <small>{t('{0} / {1}かいめ', [round + 1, rounds])}</small>}
         </span>
         {mode === 'diff' && (
           <button className="btn btn-small sagasu-hint-btn" disabled={!canHint} onClick={useHint} data-testid="sagasu-hint">
@@ -211,7 +243,17 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
 
       <div className="sagasu-field" data-side={dims.side || undefined}>
         {mode === 'wally' && wally && (
-          <SceneSvg key={round} scene={wally.scene} onPerson={onPerson} ring={ring} disabled={busy || paused} testId="sagasu-scene" />
+          <SceneSvg
+            key={round}
+            scene={wally.scene}
+            onPerson={onPerson}
+            ring={ring}
+            missed={missed}
+            miss={miss}
+            hint={wallyHint}
+            disabled={busy || paused}
+            testId="sagasu-scene"
+          />
         )}
         {mode === 'diff' && diff && (
           <>
@@ -227,6 +269,11 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
         </div>
       )}
       {toast && <div className="sagasu-toast">{toast}</div>}
+      {canWallyHint && !toast && (
+        <button className="btn btn-small sagasu-wally-hint" onClick={useWallyHint} data-testid="sagasu-wally-hint">
+          {t('ヒント +{0}びょう', [HINT_MS / 1000])}
+        </button>
+      )}
 
       {over && !contest && (
         <Result

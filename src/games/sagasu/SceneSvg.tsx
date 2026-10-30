@@ -3,6 +3,7 @@
  * （ふたりで遊ぶときの 180° 回した半分でも、座標の計算がいらない）。
  */
 import type { ReactNode } from 'react'
+import { partOf, partSpot } from './sagasu'
 import type { Band, Diff, Hat, Look, Person, Scene, Thing, Tone } from './sagasu'
 
 const INK = '#1b1b3a'
@@ -19,7 +20,7 @@ export function PersonFigure({ look, x, y, s, flip = false }: { look: Look; x: n
   const sw = Math.max(0.5, s * 0.06)
   return (
     <g transform={`translate(${x} ${y})${flip ? ' scale(-1 1)' : ''}`}>
-      <ellipse cx={0} cy={s * 0.52} rx={w * 0.55} ry={s * 0.07} fill="rgba(18,48,43,0.18)" />
+      <ellipse cx={0} cy={s * 0.52} rx={w * 0.55} ry={s * 0.07} fill="rgba(18,48,43,0.18)" pointerEvents="none" />
       {look.stem && !look.hat && <path d={`M ${w * 0.05} ${-s / 2} q ${w * 0.1} ${-s * 0.2} ${w * 0.32} ${-s * 0.16}`} fill="none" stroke={DARK} strokeWidth={s * 0.07} strokeLinecap="round" />}
       <rect x={-w / 2} y={-s / 2} width={w} height={s} rx={w / 2} fill={TONE[look.body]} stroke={DARK} strokeWidth={sw} />
       <rect x={-w / 2 + sw / 2} y={-s * 0.25} width={w - sw} height={s * 0.15} fill={BAND[look.band]} stroke={DARK} strokeWidth={sw * 0.6} />
@@ -90,7 +91,12 @@ function ThingFigure({ t }: { t: Thing }) {
       </g>
     )
   }
-  return <g transform={`translate(${t.x} ${t.y}) rotate(${t.kind === 'ball' ? 0 : (t.rot % 60) - 30})`}>{body}</g>
+  // 物は押せない（人の前に かさなっても、うしろの人に タッチが とどくように）
+  return (
+    <g transform={`translate(${t.x} ${t.y}) rotate(${t.kind === 'ball' ? 0 : (t.rot % 60) - 30})`} pointerEvents="none">
+      {body}
+    </g>
+  )
 }
 
 /** 公園とコート（コートは縦長。キッチンは ネットの両側） */
@@ -135,39 +141,43 @@ export interface SceneSvgProps {
   onDiff?: (id: string) => void
   /** なにもない所をタップ */
   onMiss?: () => void
-  /** 見つけた人を丸でかこむ */
+  /** 見つけた人を丸でかこむ（ほかの人は うすくする） */
   ring?: string | null
+  /** まちがえて押した人（うすくする） */
+  missed?: Set<string>
+  /** いま まちがえて押した人（ちがう所に 丸を つける） */
+  miss?: string | null
   /** ヒントの丸 */
-  hint?: Diff | null
+  hint?: Pick<Diff, 'x' | 'y' | 'r'> | null
   disabled?: boolean
   testId?: string
 }
 
-export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, ring, hint, disabled = false, testId }: SceneSvgProps) {
+export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, ring, missed, miss, hint, disabled = false, testId }: SceneSvgProps) {
+  const tapPerson = (id: string) => (e: { stopPropagation: () => void }) => {
+    if (disabled || !onPerson) return
+    e.stopPropagation()
+    onPerson(id)
+  }
+  const dim = (id: string) => (ring && id !== ring ? 'sagasu-dim' : missed?.has(id) ? 'sagasu-missed' : undefined)
   // 奥（上）から順にかく
   const items = [
-    ...scene.things.map((t) => ({ y: t.y, el: <ThingFigure key={t.id} t={t} /> })),
+    ...scene.things.map((t) => ({ y: t.y, el: <g key={t.id} className={ring ? 'sagasu-dim' : undefined}><ThingFigure t={t} /></g> })),
     ...scene.people.map((p: Person) => ({
       y: p.y,
       el: (
-        <g
-          key={p.id}
-          className="sagasu-person"
-          data-person={p.id}
-          onPointerDown={(e) => {
-            if (disabled || !onPerson) return
-            e.stopPropagation()
-            onPerson(p.id)
-          }}
-        >
+        <g key={p.id} className={['sagasu-person', dim(p.id)].filter(Boolean).join(' ')} data-person={p.id} onPointerDown={tapPerson(p.id)}>
           <PersonFigure look={p.look} x={p.x} y={p.y} s={p.s} flip={p.flip} />
-          {/* 小さい子の指でも当たるよう、体より少し大きい当たり */}
-          <rect x={p.x - p.s * 0.42} y={p.y - p.s * 0.7} width={p.s * 0.84} height={p.s * 1.3} fill="transparent" />
         </g>
       ),
     })),
   ].sort((a, b) => a.y - b.y)
   const ringP = ring ? scene.people.find((p) => p.id === ring) : undefined
+  const missP = miss ? scene.people.find((p) => p.id === miss) : undefined
+  const missPart = missP ? partOf(missP.look) : null
+  const missSpot = missP && missPart ? partSpot(missPart, missP) : null
+  // 丸い当たり（人）の上に、四角い当たり（キッチン・ネット）が かぶらないよう、四角を先に
+  const open = diffs.filter((d) => !found?.has(d.id)).sort((a, b) => Number(!a.rect) - Number(!b.rect))
   return (
     <svg
       className="sagasu-svg"
@@ -179,32 +189,46 @@ export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, r
       }}
     >
       <Ground scene={scene} />
+      {/* 小さい子の指でも当たるよう、体より少し大きい当たり。見えている体より下に置くので、
+          となりの人の当たりが 体の上に かぶらない（見えている人が いつも先に当たる） */}
+      {onPerson &&
+        scene.people.map((p) => (
+          <rect key={`hit-${p.id}`} data-hit={p.id} x={p.x - p.s * 0.42} y={p.y - p.s * 0.7} width={p.s * 0.84} height={p.s * 1.3} fill="transparent" onPointerDown={tapPerson(p.id)} />
+        ))}
       {items.map((x) => x.el)}
       {onDiff &&
-        diffs.map((d) =>
-          found?.has(d.id) ? null : (
-            <circle
-              key={d.id}
-              cx={d.x}
-              cy={d.y}
-              r={d.r}
-              fill="transparent"
-              data-diff={d.id}
-              onPointerDown={(e) => {
-                if (disabled) return
-                e.stopPropagation()
-                onDiff(d.id)
-              }}
-            />
-          ),
-        )}
+        open.map((d) => {
+          const tap = (e: { stopPropagation: () => void }) => {
+            if (disabled) return
+            e.stopPropagation()
+            onDiff(d.id)
+          }
+          return d.rect ? (
+            <rect key={d.id} x={d.rect.x} y={d.rect.y} width={d.rect.w} height={d.rect.h} fill="transparent" data-diff={d.id} onPointerDown={tap} />
+          ) : (
+            <circle key={d.id} cx={d.x} cy={d.y} r={d.r} fill="transparent" data-diff={d.id} onPointerDown={tap} />
+          )
+        })}
       {diffs
         .filter((d) => found?.has(d.id))
-        .map((d) => (
-          <circle key={`f-${d.id}`} className="sagasu-found" cx={d.x} cy={d.y} r={d.r} fill="none" stroke="#ff3d7f" strokeWidth={1.2} pointerEvents="none" />
-        ))}
-      {hint && <circle className="sagasu-hint" cx={hint.x} cy={hint.y} r={hint.r * 1.8} fill="none" stroke="#ff8a3d" strokeWidth={1} strokeDasharray="2 2" pointerEvents="none" />}
-      {ringP && <circle className="sagasu-ring" cx={ringP.x} cy={ringP.y} r={ringP.s * 0.85} fill="none" stroke="#ff3d7f" strokeWidth={Math.max(0.8, ringP.s * 0.08)} pointerEvents="none" />}
+        .map((d) =>
+          d.rect ? (
+            <rect key={`f-${d.id}`} className="sagasu-found" x={d.rect.x} y={d.rect.y} width={d.rect.w} height={d.rect.h} rx={2} fill="none" stroke="#ff3d7f" strokeWidth={1.2} pointerEvents="none" />
+          ) : (
+            <circle key={`f-${d.id}`} className="sagasu-found" cx={d.x} cy={d.y} r={d.r} fill="none" stroke="#ff3d7f" strokeWidth={1.2} pointerEvents="none" />
+          ),
+        )}
+      {hint && <circle className="sagasu-hint" cx={hint.x} cy={hint.y} r={hint.r * 1.8} fill="rgba(255,138,61,0.12)" stroke="#ff8a3d" strokeWidth={1} strokeDasharray="2 2" pointerEvents="none" />}
+      {missSpot && (
+        <g key={miss} className="sagasu-miss-mark" pointerEvents="none" data-testid="sagasu-miss-mark">
+          <circle cx={missSpot.x} cy={missSpot.y} r={Math.max(2.2, missSpot.r)} fill="none" stroke="#ff8a3d" strokeWidth={Math.max(0.6, missP!.s * 0.06)} />
+        </g>
+      )}
+      {ringP && (
+        <g pointerEvents="none">
+          <circle className="sagasu-ring" cx={ringP.x} cy={ringP.y} r={ringP.s * 0.85} fill="none" stroke="#ff3d7f" strokeWidth={Math.max(0.8, ringP.s * 0.08)} />
+        </g>
+      )}
     </svg>
   )
 }
