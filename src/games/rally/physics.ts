@@ -61,12 +61,29 @@ export interface Shot {
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
 /**
+ * 振る速さと強さのつながり：p = SWING_MAX × v / (v + SWING_HALF)。
+ * まっすぐ比例だと、スマホでふつうに振るだけで上限に張りつき、軽く振っても強く振っても同じ球になる。
+ * ゆるやかな曲線にして、そっと押す・ふつうに振る・思いきり振るの差が球に出るようにする。
+ * 目安（コート上の速さ）：3m/s→0.23、12m/s→0.64、20m/s→0.84、30m/s→1.0（ベースライン際）、50m/s→1.18（外に出る）
+ */
+const SWING_HALF = 18
+const SWING_MAX = 1.6
+/** ディンクのゲームは振りを弱めに受け取る */
+const SOFT_SCALE = 0.75
+
+/**
  * パドルの速さから、強さを決める。
  * vNet：ネットの方向へ動いた速さ（m/s）。止めて当てる＝0、速く振る＝大。
  */
 export function powerFromSwing(vNet: number, soft = false): number {
-  const p = Math.max(0, vNet) / (soft ? 16 : 12)
-  return clamp(p, 0, 1.4)
+  const v = Math.max(0, vNet) * (soft ? SOFT_SCALE : 1)
+  return clamp((SWING_MAX * v) / (v + SWING_HALF), 0, 1.4)
+}
+
+/** powerFromSwing の逆：その強さを出すのに要る振りの速さ（m/s）。ピクルくんの振りに使う */
+export function swingForPower(power: number): number {
+  const p = clamp(power, 0, 1.4)
+  return (SWING_HALF * p) / (SWING_MAX - p)
 }
 
 /**

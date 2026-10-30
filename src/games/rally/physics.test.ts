@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { COURT, inKitchen } from './court'
-import { contact, G, launch, planShot, powerFromSwing, predictLanding, stepBall } from './physics'
+import { contact, G, launch, planShot, powerFromSwing, predictLanding, stepBall, swingForPower } from './physics'
 import type { Ball } from './physics'
 
 const N = COURT.NET_Y
@@ -34,11 +34,22 @@ describe('打つ強さと落ちる場所', () => {
   })
   it('速く振るほど奥へ。強すぎると外に出る', () => {
     const from = { x: 3, y: COURT.L }
-    const mid = planShot(from, 0, powerFromSwing(6), 0, 0, { keepIn: false })
-    const deep = planShot(from, 0, powerFromSwing(12), 0, 0, { keepIn: false })
-    const over = planShot(from, 0, powerFromSwing(17), 0, 0, { keepIn: false })
+    const mid = planShot(from, 0, powerFromSwing(8), 0, 0, { keepIn: false })
+    const deep = planShot(from, 0, powerFromSwing(20), 0, 0, { keepIn: false })
+    const over = planShot(from, 0, powerFromSwing(60), 0, 0, { keepIn: false })
     expect(deep.target.y).toBeLessThan(mid.target.y)
     expect(over.target.y).toBeLessThan(0)
+  })
+  it('ふつうの振りでは上限に張りつかず、振る速さの差が強さに出る', () => {
+    // 前は 12m/s で上限（1）に届いていた
+    const ps = [3, 8, 12, 20, 30].map((v) => powerFromSwing(v))
+    for (let i = 1; i < ps.length; i++) expect(ps[i] - ps[i - 1]).toBeGreaterThan(0.1)
+    expect(powerFromSwing(12)).toBeLessThan(0.7)
+    expect(powerFromSwing(20)).toBeLessThan(1)
+    expect(powerFromSwing(200)).toBe(1.4)
+  })
+  it('swingForPower は powerFromSwing の逆', () => {
+    for (const p of [0, 0.25, 0.5, 1, 1.3]) expect(powerFromSwing(swingForPower(p))).toBeCloseTo(p, 6)
   })
   it('小さい子（keepIn）は強く振ってもコートに入る', () => {
     const shot = planShot({ x: 0.2, y: COURT.L }, 0, 1.4, -1, -8, { keepIn: true })
