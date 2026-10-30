@@ -81,6 +81,9 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
   const [lonely, setLonely] = useState(false)
   /** たいけつ：今のラリーで打った回数と、この試合で いちばん続いた回数 */
   const [rally, setRally] = useState({ now: 0, best: 0 })
+  /** 振りメーター（URL に ?meter をつけたときだけ）。人が実際にどれくらいの速さで振るかを測る。どこにも送らない */
+  const meter = useMemo(() => new URLSearchParams(window.location.search).has('meter'), [])
+  const [swings, setSwings] = useState<MeterRow[]>([])
   const rallyRef = useRef({ now: 0, best: 0 })
   const setRallyBoth = (now: number) => {
     rallyRef.current = { now, best: Math.max(rallyRef.current.best, now) }
@@ -166,6 +169,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
             break
           case 'hit':
             sfx.hit(ev.power)
+            if (meter && ev.side === 0 && ev.swing > 0) setSwings((r) => [{ px: ev.swing * view.scale, ms: ev.swing, power: ev.power, serve: engine.state.shot === 0 }, ...r].slice(0, 8))
             if (kind === 'versus') {
               const n = rallyRef.current.now + 1
               setRallyBoth(n)
@@ -326,6 +330,7 @@ export function RallyGame({ kind, levels, mode, target, scoring, cpu = false, pa
         onPointerCancel={onUp}
         onContextMenu={(e) => e.preventDefault()}
       />
+      {meter && <SwingMeter rows={swings} scale={view.scale} />}
       {umpire && (
         <div className="umpire" aria-label={t('しんぱんの ピクルくん')}>
           <PikuruCut art={pkFace} height={Math.round(Math.min(96, stage.w * 0.2))} />
@@ -496,5 +501,31 @@ function ServeHint({ side, kind, level, call }: { side: Side; kind: Kind; level:
         {kind === 'dink' ? t('ゆっくり ポンと つなごう') : auto ? t('うえに シュッ！で サーブ（まってもOK）') : t('うえに シュッ！と ふって サーブ')}
       </div>
     </Half>
+  )
+}
+
+interface MeterRow {
+  /** 指の速さ（画面の px/秒） */
+  px: number
+  /** コート上の速さ（m/秒） */
+  ms: number
+  power: number
+  /** サーブ（振りはじめで打つので、ラリーより低く出やすい） */
+  serve: boolean
+}
+
+/** 振りメーター：下の人が打った振りの速さを、新しい順に出す（測るためだけ。遊ぶ人には ?meter のときしか見えない） */
+function SwingMeter({ rows, scale }: { rows: MeterRow[]; scale: number }) {
+  return (
+    <div className="swing-meter" data-testid="swing-meter">
+      <div>{`ふりメーター（1m=${Math.round(scale)}px）`}</div>
+      <div>px/秒 · m/秒 · つよさ</div>
+      {rows.length === 0 && <div>下の人が うつと でます</div>}
+      {rows.map((r, i) => (
+        <div key={i} style={{ opacity: i === 0 ? 1 : 0.7 }}>
+          {`${Math.round(r.px)} · ${r.ms.toFixed(1)} · ${r.power.toFixed(2)}${r.serve ? ' サーブ' : ''}`}
+        </div>
+      ))}
+    </div>
   )
 }

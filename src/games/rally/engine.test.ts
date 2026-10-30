@@ -253,3 +253,24 @@ describe('打った強さの見た目（残像・光）', () => {
     expect(trailStrength(1.4)).toBe(1)
   })
 })
+
+describe('振りメーター', () => {
+  it('打った瞬間の振りの速さ（m/s）が hit に入る', () => {
+    const e = new RallyEngine({ kind: 'versus', mode: 'easy', levels: ['otona', 'otona'], target: 5 })
+    e.phase = 'play'
+    e.ballVisible = true
+    e.state = { lastHitter: 1, shot: 2, bounces: 0, serverX: 3 }
+    e.ball = { x: 3, y: COURT.NET_Y + 2, z: 0.8, vx: 0, vy: 0, vz: 0, bounces: 0, timeScale: 1 }
+    launch(e.ball, { x: 3, y: COURT.L - 1 }, 1.2, 1)
+    // 指を 10m/s でネットへ向けて動かし続ける
+    let fy = COURT.L + 1.5
+    let hit: EngineEvent | undefined
+    for (let t = 0; t < 2 && !hit; t += 1 / 60) {
+      fy -= 10 / 60
+      e.setFinger(0, true, 3, Math.max(fy, COURT.NET_Y + 1))
+      hit = e.step(1 / 60).find((x) => x.type === 'hit')
+    }
+    expect(hit?.type).toBe('hit')
+    if (hit?.type === 'hit') expect(hit.swing).toBeCloseTo(10, 0)
+  })
+})

@@ -41,7 +41,8 @@ export interface EngineOptions {
 export type EngineEvent =
   | { type: 'countdown'; n: number }
   | { type: 'serve'; server: Side }
-  | { type: 'hit'; side: Side; power: number }
+  /** swing：ネットへ向けて振った速さ（m/s。振りメーター用。自動サーブは 0） */
+  | { type: 'hit'; side: Side; power: number; swing: number }
   | { type: 'bounce' }
   /** ラリーが終わった。scored=false はサイドアウト（点は入らず、サーブが winner に移る） */
   | { type: 'point'; fault: Fault; winner: Side; scored: boolean }
@@ -311,10 +312,10 @@ export class RallyEngine {
         if (this.serveWait > 0.35 && vNet > SERVE_SWING) {
           const power = powerFromSwing(vNet)
           this.doServe(power, sw.x)
-          ev.push({ type: 'hit', side: this.server, power })
+          ev.push({ type: 'hit', side: this.server, power, swing: vNet })
         } else if (this.serveWait > auto) {
           this.doServe(0.45, 0)
-          ev.push({ type: 'hit', side: this.server, power: 0.4 })
+          ev.push({ type: 'hit', side: this.server, power: 0.4, swing: 0 })
         }
         break
       }
@@ -415,7 +416,7 @@ export class RallyEngine {
         this.state = { ...this.state, lastHitter: side, shot: this.state.shot + 1, bounces: 0 }
         this.swingT[side] = SWING_TIME
         this.head[side] = off * (p.width / 2)
-        ev.push({ type: 'hit', side, power })
+        ev.push({ type: 'hit', side, power, swing: Math.max(0, sw.y * toNet(side)) })
         break
       }
 
