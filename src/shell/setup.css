@@ -307,3 +307,37 @@
   font-weight: 400;
   color: var(--mute);
 }
+
+/* ピクルくん さがしの ステージ：レベルの かわりに ステージを えらぶ */
+.solo-label[hidden],
+.level-grid[hidden] {
+  display: none;
+}
+.sagasu-stage-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.sagasu-stage-pick p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+}
+.sagasu-stage-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sagasu-stage-step b {
+  min-width: 6.5em;
+  font-size: 20px;
+  font-weight: 900;
+}
+.sagasu-stage-pick small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mute);
+}

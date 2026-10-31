@@ -12,6 +12,9 @@ import { PaddleIcon, PaddlePicker } from '../ui/PaddleIcon'
 import { Pikuru } from '../ui/Pikuru'
 import type { GameInfo } from './games'
 import { href } from './route'
+import { STAGE_MAX_KEY, stageLimit } from '../games/sagasu/SagasuGame'
+import { STAGES } from '../games/sagasu/sagasu'
+import { load } from '../core/storage'
 import './setup.css'
 import { t } from '../i18n'
 
@@ -23,6 +26,11 @@ export function SoloSetup({ game }: { game: GameInfo }) {
   const [help, setHelp] = useState(false)
   const [picker, setPicker] = useState(false)
   // 自分のパドルが画面に出るゲームだけ（ジャンプ・キャッチ・リアクション・ピタッと では出さない）
+  // ピクルくん さがしの ステージは レベルの かわりに ステージを えらぶ
+  const stageMode = game.id === 'sagasu' && settings.sagasuMode === 'stage'
+  const limit = stageLimit()
+  const cleared = load<number>(STAGE_MAX_KEY, 0)
+  const stageStart = Math.max(1, Math.min(limit, settings.sagasuStage || 1))
   const usesPaddle = (['lift', 'breakout', 'target', 'pikuru'] as string[]).includes(game.id)
 
   useEffect(() => {
@@ -47,8 +55,10 @@ export function SoloSetup({ game }: { game: GameInfo }) {
         </button>
       </div>
 
-      <h2 className="solo-label">{game.id === 'pikuru' ? t('レベル（ピクルくんも おなじ つよさ）') : t('レベル')}</h2>
-      <div className="level-grid" role="radiogroup" aria-label={t('レベル')}>
+      <h2 className="solo-label" hidden={stageMode}>
+        {game.id === 'pikuru' ? t('レベル（ピクルくんも おなじ つよさ）') : t('レベル')}
+      </h2>
+      <div className="level-grid" role="radiogroup" aria-label={t('レベル')} hidden={stageMode}>
         {LEVELS.map((lv) => (
           <button
             key={lv}
@@ -74,12 +84,27 @@ export function SoloSetup({ game }: { game: GameInfo }) {
       {game.id === 'sagasu' && (
         <div className="solo-options">
           <div className="seg" role="radiogroup" aria-label={t('あそびかた')}>
-            {(['wally', 'diff'] as const).map((m) => (
+            {(['wally', 'diff', 'stage'] as const).map((m) => (
               <button key={m} role="radio" aria-checked={settings.sagasuMode === m} onClick={() => setSettings({ sagasuMode: m })} data-testid={`sagasu-mode-${m}`}>
-                {m === 'wally' ? t('さがせ！ピクルくん') : t('まちがいさがし')}
+                {m === 'wally' ? t('さがせ！ピクルくん') : m === 'diff' ? t('まちがいさがし') : t('ステージ')}
               </button>
             ))}
           </div>
+          {stageMode && (
+            <div className="sagasu-stage-pick">
+              <p>{t('だんだん ひとが ふえて、ちいさく、こまかく なるよ。ゆびで ひろげると おおきく みえる。')}</p>
+              <div className="sagasu-stage-step" role="group" aria-label={t('ステージ')}>
+                <button className="btn btn-small" aria-label={t('まえの ステージ')} disabled={stageStart <= 1} onClick={() => setSettings({ sagasuStage: stageStart - 1 })}>
+                  －
+                </button>
+                <b data-testid="sagasu-stage-start">{t('ステージ {0}', [stageStart])}</b>
+                <button className="btn btn-small" aria-label={t('つぎの ステージ')} disabled={stageStart >= limit} onClick={() => setSettings({ sagasuStage: stageStart + 1 })}>
+                  ＋
+                </button>
+              </div>
+              <small>{t('クリアした ステージ：{0} / {1}', [cleared, STAGES])}</small>
+            </div>
+          )}
         </div>
       )}
 

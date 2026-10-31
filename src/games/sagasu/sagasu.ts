@@ -14,6 +14,8 @@ export type Band = 'lime' | 'orange' | 'blue' | 'pink' | 'white' | 'yellow'
 export type Hat = 'red' | 'blue'
 export type Tone = 'green' | 'dark' | 'olive'
 
+export type Mouth = 'smile' | 'o'
+
 export interface Look {
   band: Band
   stem: boolean
@@ -21,10 +23,14 @@ export interface Look {
   mustache: boolean
   hat: Hat | null
   body: Tone
+  /** くちの かたち（ステージの後半だけ ちがいに使う） */
+  mouth: Mouth
+  /** まゆげ（ステージの後半だけ ちがいに使う） */
+  brows: boolean
 }
 
 /** ほんもののピクルくん */
-export const REAL: Look = { band: 'lime', stem: true, glasses: false, mustache: false, hat: null, body: 'green' }
+export const REAL: Look = { band: 'lime', stem: true, glasses: false, mustache: false, hat: null, body: 'green', mouth: 'smile', brows: false }
 
 export interface Person {
   id: string
@@ -92,8 +98,10 @@ export const DIFF: Record<Level, { people: number; things: number; s: number; di
   senshu: { people: 9, things: 12, s: 13, diffs: 7 },
 }
 
+type Variants = { [K in keyof Look]?: Look[K][] }
+
 /** にせものに使う ちがい（レベルが上がるほど、まぎらわしい物がふえる） */
-function variants(level: Level): { [K in keyof Look]?: Look[K][] } {
+function variants(level: Level): Variants {
   const easy = level === 'chibi' || level === 'kids'
   return {
     band: easy ? ['orange', 'blue', 'pink'] : level === 'otona' ? ['orange', 'blue', 'pink', 'white'] : ['orange', 'blue', 'white', 'yellow'],
@@ -117,7 +125,7 @@ function shuffle<T>(xs: T[], rand: () => number): T[] {
 }
 
 /** ほんものと ちがう所（絵の上で 丸を つける所） */
-export type Part = 'hat' | 'glasses' | 'mustache' | 'band' | 'stem' | 'body'
+export type Part = 'hat' | 'glasses' | 'mustache' | 'band' | 'stem' | 'body' | 'mouth' | 'brows'
 
 /** にせものが ほんものと どこが ちがうか（いちばん目立つものから1つ） */
 export function partOf(look: Look): Part | null {
@@ -127,6 +135,8 @@ export function partOf(look: Look): Part | null {
   if (look.band !== 'lime') return 'band'
   if (!look.stem) return 'stem'
   if (look.body !== 'green') return 'body'
+  if (look.brows) return 'brows'
+  if (look.mouth !== 'smile') return 'mouth'
   return null
 }
 
@@ -137,6 +147,8 @@ const WHY: Record<Part, string> = {
   band: t('はちまきの いろが ちがうよ'),
   stem: t('あたまに つるが ないよ'),
   body: t('からだの いろが ちがうよ'),
+  brows: t('まゆげが あるよ'),
+  mouth: t('くちの かたちが ちがうよ'),
 }
 
 /** まちがえて押したときに見せる文 */
@@ -154,15 +166,27 @@ export function partSpot(part: Part, p: Pick<Person, 'x' | 'y' | 's' | 'flip'>):
   if (part === 'mustache') return { x, y: y + s * 0.25, r: s * 0.3 }
   if (part === 'band') return { x, y: y - s * 0.18, r: s * 0.38 }
   if (part === 'stem') return { x: x + k * s * 0.1, y: y - s * 0.6, r: s * 0.25 }
+  if (part === 'brows') return { x, y: y - s * 0.1, r: s * 0.32 }
+  if (part === 'mouth') return { x, y: y + s * 0.26, r: s * 0.26 }
   return { x, y, r: s * 0.62 }
 }
 
 export const sameLook = (a: Look, b: Look) =>
-  a.band === b.band && a.stem === b.stem && a.glasses === b.glasses && a.mustache === b.mustache && a.hat === b.hat && a.body === b.body
+  a.band === b.band &&
+  a.stem === b.stem &&
+  a.glasses === b.glasses &&
+  a.mustache === b.mustache &&
+  a.hat === b.hat &&
+  a.body === b.body &&
+  a.mouth === b.mouth &&
+  a.brows === b.brows
 
 /** にせものの見た目：ほんものから changes か所だけ変える */
 export function decoyLook(level: Level, changes: number, rand: () => number): Look {
-  const v = variants(level)
+  return lookFrom(variants(level), changes, rand)
+}
+
+function lookFrom(v: Variants, changes: number, rand: () => number): Look {
   const attrs = shuffle(Object.keys(v) as (keyof Look)[], rand).slice(0, Math.max(1, changes))
   const look: Look = { ...REAL }
   for (const a of attrs) (look as unknown as Record<string, unknown>)[a] = pick(v[a] as unknown[], rand)
@@ -227,9 +251,22 @@ export interface WallyRound {
   zone: Zone
 }
 
+interface CrowdSpec {
+  people: number
+  things: number
+  s: number
+  changes: number
+  /** 人どうしの すきま（1＝はなす。小さいほど 重なって、うしろの人が かくれる） */
+  gap: number
+  pool: Variants
+}
+
 /** さがせ！ピクルくん の場面。ほんものは まず決めた場所（キッチン・サービスコート・コートの そと）に置く */
 export function makeWally(level: Level, w: number, h: number, rand: () => number = Math.random): WallyRound {
-  const spec = WALLY[level]
+  return makeCrowd({ ...WALLY[level], gap: 0.82, pool: variants(level) }, w, h, rand)
+}
+
+function makeCrowd(spec: CrowdSpec, w: number, h: number, rand: () => number): WallyRound {
   // 小さい画面（ふたりで遊ぶ半分）では、人を少し小さくする
   const s = spec.s * Math.min(1, Math.sqrt((w * h) / (100 * 150)) * 1.15)
   const court = courtBox(w, h)
@@ -242,19 +279,21 @@ export function makeWally(level: Level, w: number, h: number, rand: () => number
     place(rand, w, h, s, placed, 1, (x, y) => zoneOf(court, x, y + s * 0.5) === zone) ??
     place(rand, w, h, s, placed, 1)!
   people.push({ id: 'p0', x: tp.x, y: tp.y, s, look: { ...REAL }, flip: rand() < 0.5 })
+  // ほんものの まわりは あけておく（重なっても、顔は かくれないように）
   placed.push({ x: tp.x, y: tp.y, r: s * 0.75 })
+  const realSpot = placed[0]
   for (let i = 1; i < spec.people; i++) {
-    const pos = place(rand, w, h, s, placed, 0.82)
+    const pos = place(rand, w, h, s, placed, spec.gap, (x, y) => Math.hypot(x - realSpot.x, y - realSpot.y) >= s * 0.95)
     if (!pos) break
-    let look = decoyLook(level, spec.changes, rand)
-    while (sameLook(look, REAL)) look = decoyLook(level, spec.changes, rand)
+    let look = lookFrom(spec.pool, spec.changes, rand)
+    while (sameLook(look, REAL)) look = lookFrom(spec.pool, spec.changes, rand)
     people.push({ id: `p${i}`, x: pos.x, y: pos.y, s, look, flip: rand() < 0.5 })
     placed.push({ x: pos.x, y: pos.y, r: s * 0.5 })
   }
   const things: Thing[] = []
   for (let i = 0; i < spec.things; i++) {
     const t = makeThing(`t${i}`, rand, s)
-    const pos = place(rand, w, h, t.s, placed, 0.9)
+    const pos = place(rand, w, h, t.s, placed, Math.min(0.9, spec.gap + 0.1), (x, y) => Math.hypot(x - realSpot.x, y - realSpot.y) >= s * 0.9)
     if (!pos) break
     things.push({ ...t, ...pos })
     placed.push({ x: pos.x, y: pos.y, r: t.s * 0.6 })
@@ -266,6 +305,43 @@ export function makeWally(level: Level, w: number, h: number, rand: () => number
     zone: zoneOf(court, feet(real).x, feet(real).y),
   }
 }
+
+// ---------------- ステージ（だんだん むずかしく） ----------------
+
+/** ステージの数。さいごは 150人の 人ごみから さがす */
+export const STAGES = 30
+
+/** ステージ n（1〜STAGES）の むずかしさ。人がふえ、小さくなり、重なり、ちがいが こまかくなる */
+export function stageSpec(n: number): CrowdSpec {
+  const k = Math.min(1, Math.max(0, (n - 1) / (STAGES - 1)))
+  const pool: Variants =
+    n <= 4
+      ? variants('chibi')
+      : n <= 9
+        ? variants('otona')
+        : {
+            ...variants('senshu'),
+            // 15から くち、21から まゆげ（大きくして 見れば わかる ちがい）
+            ...(n >= 15 ? { mouth: ['o'] as Mouth[] } : {}),
+            ...(n >= 21 ? { brows: [true] } : {}),
+          }
+  return {
+    people: Math.round(10 + 140 * Math.pow(k, 1.3)),
+    things: Math.round(4 + 40 * k),
+    s: 16 - 10.5 * Math.pow(k, 0.8),
+    changes: n <= 3 ? 3 : n <= 6 ? 2 : 1,
+    gap: 0.95 - 0.45 * k,
+    pool,
+  }
+}
+
+/** ステージの場面 */
+export function makeStage(n: number, w: number, h: number, rand: () => number = Math.random): WallyRound {
+  return makeCrowd(stageSpec(n), w, h, rand)
+}
+
+/** ステージで まちがえたときに足す時間（ミリ秒） */
+export const STAGE_MISS_MS = 2000
 
 // ---------------- まちがいさがし ----------------
 

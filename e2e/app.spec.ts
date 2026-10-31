@@ -761,6 +761,24 @@ test('ピクルくん さがし：ちがう人では進まず、ほんものを�
   await expect(page.getByText('2 / 5かいめ')).toBeVisible({ timeout: 4_000 })
 })
 
+test('ピクルくん さがし ステージ：指で大きくでき、ほんものを押すとクリアして つぎのステージへ', async ({ page }) => {
+  await open(page, './#/setup/sagasu')
+  await page.getByTestId('sagasu-mode-stage').click()
+  await expect(page.getByTestId('sagasu-stage-start')).toContainText('ステージ 1')
+  await page.getByTestId('solo-start').click()
+  await expect(page.getByTestId('sagasu-stage')).toContainText('ステージ 1')
+  const scene = page.getByTestId('sagasu-scene')
+  await expect(scene).toHaveAttribute('data-zoom', '1.00')
+  await page.getByTestId('sagasu-zoom-in').click()
+  await expect(scene).toHaveAttribute('data-zoom', '1.60')
+  await page.getByTestId('sagasu-zoom-out').click()
+  const target = await page.evaluate(() => (window as unknown as { __sagasu: { wally: { target: string } } }).__sagasu.wally.target)
+  const box = (await page.locator(`[data-testid=sagasu-scene] [data-person=${target}] rect`).first().boundingBox())!
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+  await expect(page.getByTestId('sagasu-found')).toContainText('ステージ1 クリア')
+  await expect(page.getByTestId('sagasu-stage')).toContainText('ステージ 2', { timeout: 5_000 })
+})
+
 test('まちがいさがし：上でも下でも、ちがう所を押すと見つかる。ぜんぶ見つけたら結果', async ({ page }) => {
   await open(page, './#/setup/sagasu')
   await page.getByTestId('sagasu-mode-diff').click()

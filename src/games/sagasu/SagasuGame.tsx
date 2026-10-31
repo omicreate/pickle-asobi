@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '../../core/loop'
 import type { Level } from '../../core/players'
 import { mulberry32 } from '../../core/rng'
-import { getSettings } from '../../core/settings'
+import { getSettings, setSettings } from '../../core/settings'
 import { sfx, unlockAudio } from '../../core/sound'
 import { speak } from '../../core/speak'
 import { useStage } from '../../core/Stage'
@@ -16,7 +16,7 @@ import { load, save } from '../../core/storage'
 import { PHRASES } from '../../core/voiceLines'
 import { usePlay } from '../../shell/playContext'
 import { Result } from '../../ui/GameUI'
-import { CONTEST_ROUNDS, HINT_AFTER, HINT_MS, makeDiff, makeWally, MISS_MS, WALLY_ROUNDS, whyNot, ZONE_NAME } from './sagasu'
+import { CONTEST_ROUNDS, HINT_AFTER, HINT_MS, makeDiff, makeStage, makeWally, MISS_MS, STAGE_MISS_MS, STAGES, WALLY_ROUNDS, whyNot, ZONE_NAME } from './sagasu'
 import type { DiffRound, WallyRound, Zone } from './sagasu'
 import { SceneSvg, TargetCard } from './SceneSvg'
 import './sagasu.css'
@@ -38,6 +38,15 @@ export const ZONE_PHRASE: Record<Zone, string> = {
 const HEAD = 72
 const sec = (ms: number) => (ms / 1000).toFixed(1)
 const bestKey = (mode: string, lv: Level) => `sagasu-best-${mode}-${lv}`
+/** ステージ：どこまで クリアしたか */
+export const STAGE_MAX_KEY = 'sagasu-stage-max'
+/** はじめられる ステージ（クリアした つぎ まで） */
+export const stageLimit = () => Math.min(STAGES, load<number>(STAGE_MAX_KEY, 0) + 1)
+
+/** ステージの めじるし（後半は くち・まゆげ も ちがいに なる。3行目は 15から） */
+function stageMarks(n: number): [string, string, string | null] {
+  return [t('○ ライムの はちまき・つる'), t('× めがね・ひげ・ぼうし'), n >= 21 ? t('○ にっこり × まゆげ') : n >= 15 ? t('○ にっこり くち') : null]
+}
 
 export function SagasuGame({ levels, paused, onRestart }: Props) {
   const play = usePlay()
@@ -48,17 +57,21 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
   const [mode] = useState(() => (contest ? 'wally' : getSettings().sagasuMode))
   const rand = useMemo(() => (contest ? mulberry32(contest.seed) : Math.random), [contest])
   const rounds = contest ? CONTEST_ROUNDS : WALLY_ROUNDS
+  const [stageNo, setStageNo] = useState(() => Math.max(1, Math.min(stageLimit(), Math.round(getSettings().sagasuStage) || 1)))
+  const crowd = mode === 'wally' || mode === 'stage'
   // 絵の縦横（画面に合わせて、始めたときに決める）
   const [dims] = useState(() => {
     const W = Math.max(280, stage.w - 16)
     const H = Math.max(300, stage.h - HEAD - 12)
-    if (mode === 'wally') return { side: false, w: 100, h: Math.min(220, Math.max(80, (100 * H) / W)) }
+    if (mode !== 'diff') return { side: false, w: 100, h: Math.min(220, Math.max(80, (100 * H) / W)) }
     const side = W > H * 1.1
     const iw = side ? (W - 10) / 2 : W
     const ih = side ? H : (H - 10) / 2
     return { side, w: 100, h: Math.min(150, Math.max(55, (100 * ih) / iw)) }
   })
-  const [wally, setWally] = useState<WallyRound | null>(() => (mode === 'wally' ? makeWally(level, dims.w, dims.h, rand) : null))
+  const [wally, setWally] = useState<WallyRound | null>(() =>
+    mode === 'wally' ? makeWally(level, dims.w, dims.h, rand) : mode === 'stage' ? makeStage(stageNo, dims.w, dims.h, rand) : null,
+  )
   const [diff] = useState<DiffRound | null>(() => (mode === 'diff' ? makeDiff(level, dims.w, dims.h, rand) : null))
   const [round, setRound] = useState(0)
   const [found, setFound] = useState<Set<string>>(new Set())
@@ -70,6 +83,8 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
   const [miss, setMiss] = useState<string | null>(null)
   const [wallyHint, setWallyHint] = useState<{ x: number; y: number; r: number } | null>(null)
   const [over, setOver] = useState<{ ms: number; best: number; isBest: boolean } | null>(null)
+  /** ステージ：さいごまで クリアした */
+  const [allClear, setAllClear] = useState(false)
   const elapsed = useRef(0)
   const penalty = useRef(0)
   const sinceFind = useRef(0)
@@ -77,10 +92,10 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
   /** 見つけたあと つぎへ進む タイマー（画面を はなれたら止める。止めないと 前の回の記録が あとから とどく） */
   const nextTimer = useRef(0)
   const [, setTick] = useState(0)
-  const busy = ring !== null || over !== null
+  const busy = ring !== null || over !== null || allClear
 
   useEffect(() => {
-    speak(mode === 'wally' ? PHRASES.sagasuWally : PHRASES.sagasuDiff)
+    speak(mode === 'diff' ? PHRASES.sagasuDiff : PHRASES.sagasuWally)
     return () => {
       window.clearTimeout(toastTimer.current)
       window.clearTimeout(nextTimer.current)
@@ -135,6 +150,28 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       setMiss(null)
       setToast(null)
       setWallyHint(null)
+      if (mode === 'stage') {
+        if (stageNo > load<number>(STAGE_MAX_KEY, 0)) save(STAGE_MAX_KEY, stageNo)
+        // こたえあわせで 大きく見せるので、少し長めに止める
+        nextTimer.current = window.setTimeout(() => {
+          if (stageNo >= STAGES) {
+            sfx.fanfare()
+            speak(PHRASES.sagasuAll)
+            setAllClear(true)
+            return
+          }
+          setStageNo(stageNo + 1)
+          setSettings({ sagasuStage: stageNo + 1 })
+          setWally(makeStage(stageNo + 1, dims.w, dims.h, rand))
+          setRing(null)
+          setMissed(new Set())
+          sinceFind.current = 0
+          // タイムは ステージごと
+          elapsed.current = 0
+          penalty.current = 0
+        }, 2400)
+        return
+      }
       nextTimer.current = window.setTimeout(() => {
         if (round + 1 < rounds) {
           setRound(round + 1)
@@ -148,12 +185,13 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       }, 1900)
     } else {
       sfx.ng()
-      penalty.current += MISS_MS[level]
+      const missMs = mode === 'stage' ? STAGE_MISS_MS : MISS_MS[level]
+      penalty.current += missMs
       // どこが ちがうかを 文と 絵の丸で見せ、押した人は うすくする（つぎは見分けられるように）
       setMiss(id)
       setMissed((cur) => new Set(cur).add(id))
       const why = whyNot(wally.scene.people.find((p) => p.id === id)?.look ?? wally.scene.people[0].look)
-      flash(`${why ?? t('ちがうよ')}${MISS_MS[level] ? t(' +{0}びょう', [MISS_MS[level] / 1000]) : ''}`)
+      flash(`${why ?? t('ちがうよ')}${missMs ? t(' +{0}びょう', [missMs / 1000]) : ''}`)
     }
   }
 
@@ -208,18 +246,20 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
 
   const hintDiff = diff && hint ? diff.diffs.find((d) => d.id === hint) ?? null : null
   const canHint = mode === 'diff' && sinceFind.current >= HINT_AFTER && !hint
-  const canWallyHint = mode === 'wally' && sinceFind.current >= HINT_AFTER && !wallyHint && !busy
+  const canWallyHint = crowd && sinceFind.current >= HINT_AFTER && !wallyHint && !busy
+  const marks = mode === 'stage' ? stageMarks(stageNo) : stageMarks(1)
 
   return (
     <div className="sagasu" data-mode={mode}>
       <header className="sagasu-head">
-        {mode === 'wally' ? (
+        {crowd ? (
           <>
             <TargetCard size={60} />
             <div className="sagasu-head-text">
-              <b>{t('ほんものは どこ？')}</b>
-              <small className="sagasu-marks">{t('○ ライムの はちまき・つる')}</small>
-              <small className="sagasu-marks-no">{t('× めがね・ひげ・ぼうし')}</small>
+              {!marks[2] && <b>{t('ほんものは どこ？')}</b>}
+              <small className="sagasu-marks">{marks[0]}</small>
+              <small className="sagasu-marks-no">{marks[1]}</small>
+              {marks[2] && <small className="sagasu-marks">{marks[2]}</small>}
             </div>
           </>
         ) : (
@@ -233,6 +273,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
         <span className="sagasu-time" aria-label={t('じかん')}>
           {sec(total())}
           {mode === 'wally' && <small>{t('{0} / {1}かいめ', [round + 1, rounds])}</small>}
+          {mode === 'stage' && <small data-testid="sagasu-stage">{t('ステージ {0}', [stageNo])}</small>}
         </span>
         {mode === 'diff' && (
           <button className="btn btn-small sagasu-hint-btn" disabled={!canHint} onClick={useHint} data-testid="sagasu-hint">
@@ -242,9 +283,10 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
       </header>
 
       <div className="sagasu-field" data-side={dims.side || undefined}>
-        {mode === 'wally' && wally && (
+        {crowd && wally && (
           <SceneSvg
-            key={round}
+            key={mode === 'stage' ? stageNo : round}
+            zoomable={mode === 'stage'}
             scene={wally.scene}
             onPerson={onPerson}
             ring={ring}
@@ -263,9 +305,13 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
         )}
       </div>
 
-      {ring && mode === 'wally' && wally && (
+      {ring && crowd && wally && (
         <div className="sagasu-found-note" data-testid="sagasu-found">
-          <Rich text={t('みつけた！ **{0}**に いたよ', [ZONE_NAME[wally.zone]])} />
+          {mode === 'stage' ? (
+            <Rich text={t('ステージ{0} クリア！ **{1}**に いたよ', [stageNo, ZONE_NAME[wally.zone]])} />
+          ) : (
+            <Rich text={t('みつけた！ **{0}**に いたよ', [ZONE_NAME[wally.zone]])} />
+          )}
         </div>
       )}
       {toast && <div className="sagasu-toast">{toast}</div>}
@@ -275,6 +321,18 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
         </button>
       )}
 
+      {allClear && (
+        <Result
+          single
+          title={() => t('ぜんぶの ステージ クリア！')}
+          sub={() => t('{0}にんの なかから みつけた めいたんてい', [wally?.scene.people.length ?? 0])}
+          face={() => 'ok'}
+          onAgain={() => {
+            setSettings({ sagasuStage: 1 })
+            onRestart()
+          }}
+        />
+      )}
       {over && !contest && (
         <Result
           single

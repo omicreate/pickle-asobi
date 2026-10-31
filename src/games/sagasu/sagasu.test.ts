@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { LEVELS } from '../../core/players'
 import { mulberry32 } from '../../core/rng'
-import { clearZone, courtBox, decoyLook, DIFF, feet, hitDiff, makeDiff, makeWally, partOf, partSpot, REAL, sameLook, WALLY, whyNot, zoneOf } from './sagasu'
+import { clearZone, courtBox, decoyLook, DIFF, feet, hitDiff, makeDiff, makeStage, makeWally, partOf, partSpot, REAL, sameLook, STAGES, stageSpec, WALLY, whyNot, zoneOf } from './sagasu'
 
 describe('さがせ！ピクルくん', () => {
   it('ほんものは1人だけ。にせものは どれも どこかがちがう', () => {
@@ -140,5 +140,45 @@ describe('まちがいさがし', () => {
     }
     expect(kitchen).toBeGreaterThan(0)
     expect(net).toBeGreaterThan(0)
+  })
+})
+
+describe('ステージ', () => {
+  it('ステージが すすむほど 人がふえ、小さくなり、ちがいが へる', () => {
+    for (let n = 2; n <= STAGES; n++) {
+      const a = stageSpec(n - 1)
+      const b = stageSpec(n)
+      expect(b.people, `${n}`).toBeGreaterThanOrEqual(a.people)
+      expect(b.s, `${n}`).toBeLessThanOrEqual(a.s)
+      expect(b.changes, `${n}`).toBeLessThanOrEqual(a.changes)
+    }
+    expect(stageSpec(1).people).toBeLessThanOrEqual(12)
+    expect(stageSpec(STAGES).people).toBeGreaterThanOrEqual(140)
+  })
+
+  it('どのステージも ほんものは1人だけ。にせものは どこかが ちがい、ちがう所を言える', () => {
+    const rand = mulberry32(12)
+    for (const n of [1, 5, 10, 15, 21, 25, STAGES]) {
+      const r = makeStage(n, 100, 190, rand)
+      expect(r.scene.people.filter((p) => sameLook(p.look, REAL)).map((p) => p.id), `${n}`).toEqual([r.target])
+      for (const p of r.scene.people) if (p.id !== r.target) expect(whyNot(p.look), `${n}`).toBeTruthy()
+    }
+  })
+
+  it('さいごの ステージは 人ごみ（130人より多く）。くち・まゆげの ちがいも出る', () => {
+    const r = makeStage(STAGES, 100, 190, mulberry32(13))
+    expect(r.scene.people.length).toBeGreaterThan(130)
+    const parts = new Set(r.scene.people.map((p) => partOf(p.look)))
+    expect(parts.has('mouth')).toBe(true)
+    expect(parts.has('brows')).toBe(true)
+  })
+
+  it('ほんものの顔は、ほかの人に かくれない（まわりを あけてある）', () => {
+    const rand = mulberry32(14)
+    for (let k = 0; k < 20; k++) {
+      const r = makeStage(STAGES, 100, 190, rand)
+      const real = r.scene.people.find((p) => p.id === r.target)!
+      for (const p of r.scene.people) if (p !== real) expect(Math.hypot(p.x - real.x, p.y - real.y)).toBeGreaterThanOrEqual(real.s * 0.95 - 1e-9)
+    }
   })
 })
