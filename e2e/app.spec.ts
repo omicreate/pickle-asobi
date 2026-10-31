@@ -738,10 +738,45 @@ test('ピクルくん さがし：ちがう人では進まず、ほんものを�
   await page.locator(`[data-testid=sagasu-scene] [data-person=${ids.other}]`).dispatchEvent('pointerdown')
   // どこが ちがうかが出る（めがね・ぼうし など）
   await expect(page.locator('.sagasu-toast')).toContainText(/よ/)
+  // 押した にせものの ちがう所に 丸が出て、その人は うすくなる
+  await expect(page.getByTestId('sagasu-miss-mark')).toBeVisible()
+  await expect(page.locator(`[data-testid=sagasu-scene] [data-person=${ids.other}]`)).toHaveClass(/sagasu-missed/)
   await expect(page.getByText('1 / 5かいめ')).toBeVisible()
+  // 見えている体の まんなかを押すと、かならず その人に当たる（となりの人の 広めの当たりに とられない）
+  const wrongHits = await page.evaluate(() => {
+    const bad: string[] = []
+    for (const g of document.querySelectorAll<SVGGElement>('[data-testid=sagasu-scene] [data-person]')) {
+      const body = g.querySelector('rect')!.getBoundingClientRect()
+      for (const fy of [0.25, 0.5, 0.7]) {
+        const el = document.elementFromPoint(body.x + body.width / 2, body.y + body.height * fy)
+        const hit = el?.closest('[data-person]')?.getAttribute('data-person') ?? el?.getAttribute('data-hit')
+        if (hit !== g.dataset.person) bad.push(`${g.dataset.person}@${fy}->${hit}`)
+      }
+    }
+    return bad
+  })
+  expect(wrongHits).toEqual([])
   await page.locator(`[data-testid=sagasu-scene] [data-person=${ids.target}]`).dispatchEvent('pointerdown')
   await expect(page.getByTestId('sagasu-found')).toContainText(/キッチン|サービスコート|コートの そと/)
   await expect(page.getByText('2 / 5かいめ')).toBeVisible({ timeout: 4_000 })
+})
+
+test('ピクルくん さがし ステージ：指で大きくでき、ほんものを押すとクリアして つぎのステージへ', async ({ page }) => {
+  await open(page, './#/setup/sagasu')
+  await page.getByTestId('sagasu-mode-stage').click()
+  await expect(page.getByTestId('sagasu-stage-start')).toContainText('ステージ 1')
+  await page.getByTestId('solo-start').click()
+  await expect(page.getByTestId('sagasu-stage')).toContainText('ステージ 1')
+  const scene = page.getByTestId('sagasu-scene')
+  await expect(scene).toHaveAttribute('data-zoom', '1.00')
+  await page.getByTestId('sagasu-zoom-in').click()
+  await expect(scene).toHaveAttribute('data-zoom', '1.60')
+  await page.getByTestId('sagasu-zoom-out').click()
+  const target = await page.evaluate(() => (window as unknown as { __sagasu: { wally: { target: string } } }).__sagasu.wally.target)
+  const box = (await page.locator(`[data-testid=sagasu-scene] [data-person=${target}] rect`).first().boundingBox())!
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+  await expect(page.getByTestId('sagasu-found')).toContainText('ステージ1 クリア')
+  await expect(page.getByTestId('sagasu-stage')).toContainText('ステージ 2', { timeout: 5_000 })
 })
 
 test('まちがいさがし：上でも下でも、ちがう所を押すと見つかる。ぜんぶ見つけたら結果', async ({ page }) => {

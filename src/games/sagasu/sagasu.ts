@@ -14,6 +14,8 @@ export type Band = 'lime' | 'orange' | 'blue' | 'pink' | 'white' | 'yellow'
 export type Hat = 'red' | 'blue'
 export type Tone = 'green' | 'dark' | 'olive'
 
+export type Mouth = 'smile' | 'o'
+
 export interface Look {
   band: Band
   stem: boolean
@@ -21,10 +23,14 @@ export interface Look {
   mustache: boolean
   hat: Hat | null
   body: Tone
+  /** くちの かたち（ステージの後半だけ ちがいに使う） */
+  mouth: Mouth
+  /** まゆげ（ステージの後半だけ ちがいに使う） */
+  brows: boolean
 }
 
 /** ほんもののピクルくん */
-export const REAL: Look = { band: 'lime', stem: true, glasses: false, mustache: false, hat: null, body: 'green' }
+export const REAL: Look = { band: 'lime', stem: true, glasses: false, mustache: false, hat: null, body: 'green', mouth: 'smile', brows: false }
 
 export interface Person {
   id: string
@@ -92,8 +98,10 @@ export const DIFF: Record<Level, { people: number; things: number; s: number; di
   senshu: { people: 9, things: 12, s: 13, diffs: 7 },
 }
 
+type Variants = { [K in keyof Look]?: Look[K][] }
+
 /** にせものに使う ちがい（レベルが上がるほど、まぎらわしい物がふえる） */
-function variants(level: Level): { [K in keyof Look]?: Look[K][] } {
+function variants(level: Level): Variants {
   const easy = level === 'chibi' || level === 'kids'
   return {
     band: easy ? ['orange', 'blue', 'pink'] : level === 'otona' ? ['orange', 'blue', 'pink', 'white'] : ['orange', 'blue', 'white', 'yellow'],
@@ -116,23 +124,69 @@ function shuffle<T>(xs: T[], rand: () => number): T[] {
   return a
 }
 
-/** にせものが ほんものと どこが ちがうか（まちがえて押したときに見せる。いちばん目立つものから1つ） */
-export function whyNot(look: Look): string | null {
-  if (look.hat) return t('ぼうしを かぶってるよ')
-  if (look.glasses) return t('めがねを かけてるよ')
-  if (look.mustache) return t('ひげが あるよ')
-  if (look.band !== 'lime') return t('はちまきの いろが ちがうよ')
-  if (!look.stem) return t('あたまに つるが ないよ')
-  if (look.body !== 'green') return t('からだの いろが ちがうよ')
+/** ほんものと ちがう所（絵の上で 丸を つける所） */
+export type Part = 'hat' | 'glasses' | 'mustache' | 'band' | 'stem' | 'body' | 'mouth' | 'brows'
+
+/** にせものが ほんものと どこが ちがうか（いちばん目立つものから1つ） */
+export function partOf(look: Look): Part | null {
+  if (look.hat) return 'hat'
+  if (look.glasses) return 'glasses'
+  if (look.mustache) return 'mustache'
+  if (look.band !== 'lime') return 'band'
+  if (!look.stem) return 'stem'
+  if (look.body !== 'green') return 'body'
+  if (look.brows) return 'brows'
+  if (look.mouth !== 'smile') return 'mouth'
   return null
 }
 
+const WHY: Record<Part, string> = {
+  hat: t('ぼうしを かぶってるよ'),
+  glasses: t('めがねを かけてるよ'),
+  mustache: t('ひげが あるよ'),
+  band: t('はちまきの いろが ちがうよ'),
+  stem: t('あたまに つるが ないよ'),
+  body: t('からだの いろが ちがうよ'),
+  brows: t('まゆげが あるよ'),
+  mouth: t('くちの かたちが ちがうよ'),
+}
+
+/** まちがえて押したときに見せる文 */
+export function whyNot(look: Look): string | null {
+  const part = partOf(look)
+  return part ? WHY[part] : null
+}
+
+/** ちがう所の まんなか（人の中心からの ずれ。s=高さで かける。flip は左右を逆に） */
+export function partSpot(part: Part, p: Pick<Person, 'x' | 'y' | 's' | 'flip'>): { x: number; y: number; r: number } {
+  const { x, y, s } = p
+  const k = p.flip ? -1 : 1
+  if (part === 'hat') return { x, y: y - s * 0.48, r: s * 0.42 }
+  if (part === 'glasses') return { x, y: y + s * 0.05, r: s * 0.36 }
+  if (part === 'mustache') return { x, y: y + s * 0.25, r: s * 0.3 }
+  if (part === 'band') return { x, y: y - s * 0.18, r: s * 0.38 }
+  if (part === 'stem') return { x: x + k * s * 0.1, y: y - s * 0.6, r: s * 0.25 }
+  if (part === 'brows') return { x, y: y - s * 0.1, r: s * 0.32 }
+  if (part === 'mouth') return { x, y: y + s * 0.26, r: s * 0.26 }
+  return { x, y, r: s * 0.62 }
+}
+
 export const sameLook = (a: Look, b: Look) =>
-  a.band === b.band && a.stem === b.stem && a.glasses === b.glasses && a.mustache === b.mustache && a.hat === b.hat && a.body === b.body
+  a.band === b.band &&
+  a.stem === b.stem &&
+  a.glasses === b.glasses &&
+  a.mustache === b.mustache &&
+  a.hat === b.hat &&
+  a.body === b.body &&
+  a.mouth === b.mouth &&
+  a.brows === b.brows
 
 /** にせものの見た目：ほんものから changes か所だけ変える */
 export function decoyLook(level: Level, changes: number, rand: () => number): Look {
-  const v = variants(level)
+  return lookFrom(variants(level), changes, rand)
+}
+
+function lookFrom(v: Variants, changes: number, rand: () => number): Look {
   const attrs = shuffle(Object.keys(v) as (keyof Look)[], rand).slice(0, Math.max(1, changes))
   const look: Look = { ...REAL }
   for (const a of attrs) (look as unknown as Record<string, unknown>)[a] = pick(v[a] as unknown[], rand)
@@ -144,6 +198,20 @@ export function courtBox(w: number, h: number): CourtBox {
   const ch = Math.min(h * 0.78, (w * 0.5) / 0.455)
   const cw = ch * 0.455
   return { x: (w - cw) / 2, y: (h - ch) / 2, w: cw, h: ch, k: ch * (2.13 / 13.41) }
+}
+
+/** 足もとが 線から m 以上はなれていれば その場所、線に近ければ null（見た目で まよう所に ほんものを置かない） */
+export function clearZone(c: CourtBox, x: number, y: number, m: number): Zone | null {
+  const z = zoneOf(c, x, y)
+  const mid = c.y + c.h / 2
+  const dx = Math.min(Math.abs(x - c.x), Math.abs(x - (c.x + c.w)))
+  const dy = Math.min(...[c.y, c.y + c.h, mid - c.k, mid + c.k].map((l) => Math.abs(y - l)))
+  // コートの中：横は左右の線から、縦は 線から はなす
+  if (z !== 'outside') return dx >= m && dy >= m ? z : null
+  // そと：コートの四角から m 以上
+  const ox = Math.max(c.x - x, 0, x - (c.x + c.w))
+  const oy = Math.max(c.y - y, 0, y - (c.y + c.h))
+  return Math.hypot(ox, oy) >= m ? z : null
 }
 
 export function zoneOf(c: CourtBox, x: number, y: number): Zone {
@@ -183,30 +251,49 @@ export interface WallyRound {
   zone: Zone
 }
 
+interface CrowdSpec {
+  people: number
+  things: number
+  s: number
+  changes: number
+  /** 人どうしの すきま（1＝はなす。小さいほど 重なって、うしろの人が かくれる） */
+  gap: number
+  pool: Variants
+}
+
 /** さがせ！ピクルくん の場面。ほんものは まず決めた場所（キッチン・サービスコート・コートの そと）に置く */
 export function makeWally(level: Level, w: number, h: number, rand: () => number = Math.random): WallyRound {
-  const spec = WALLY[level]
+  return makeCrowd({ ...WALLY[level], gap: 0.82, pool: variants(level) }, w, h, rand)
+}
+
+function makeCrowd(spec: CrowdSpec, w: number, h: number, rand: () => number): WallyRound {
   // 小さい画面（ふたりで遊ぶ半分）では、人を少し小さくする
   const s = spec.s * Math.min(1, Math.sqrt((w * h) / (100 * 150)) * 1.15)
   const court = courtBox(w, h)
   const zone = pick<Zone>(['kitchen', 'service', 'outside'], rand)
   const placed: Placed[] = []
   const people: Person[] = []
-  const tp = place(rand, w, h, s, placed, 1, (x, y) => zoneOf(court, x, y + s * 0.5) === zone) ?? place(rand, w, h, s, placed, 1)!
+  // ほんものは 線から はなして置く（「キッチンに いたよ」と 見た目が くいちがわないように）
+  const tp =
+    place(rand, w, h, s, placed, 1, (x, y) => clearZone(court, x, y + s * 0.5, s * 0.4) === zone) ??
+    place(rand, w, h, s, placed, 1, (x, y) => zoneOf(court, x, y + s * 0.5) === zone) ??
+    place(rand, w, h, s, placed, 1)!
   people.push({ id: 'p0', x: tp.x, y: tp.y, s, look: { ...REAL }, flip: rand() < 0.5 })
+  // ほんものの まわりは あけておく（重なっても、顔は かくれないように）
   placed.push({ x: tp.x, y: tp.y, r: s * 0.75 })
+  const realSpot = placed[0]
   for (let i = 1; i < spec.people; i++) {
-    const pos = place(rand, w, h, s, placed, 0.82)
+    const pos = place(rand, w, h, s, placed, spec.gap, (x, y) => Math.hypot(x - realSpot.x, y - realSpot.y) >= s * 0.95)
     if (!pos) break
-    let look = decoyLook(level, spec.changes, rand)
-    while (sameLook(look, REAL)) look = decoyLook(level, spec.changes, rand)
+    let look = lookFrom(spec.pool, spec.changes, rand)
+    while (sameLook(look, REAL)) look = lookFrom(spec.pool, spec.changes, rand)
     people.push({ id: `p${i}`, x: pos.x, y: pos.y, s, look, flip: rand() < 0.5 })
     placed.push({ x: pos.x, y: pos.y, r: s * 0.5 })
   }
   const things: Thing[] = []
   for (let i = 0; i < spec.things; i++) {
     const t = makeThing(`t${i}`, rand, s)
-    const pos = place(rand, w, h, t.s, placed, 0.9)
+    const pos = place(rand, w, h, t.s, placed, Math.min(0.9, spec.gap + 0.1), (x, y) => Math.hypot(x - realSpot.x, y - realSpot.y) >= s * 0.9)
     if (!pos) break
     things.push({ ...t, ...pos })
     placed.push({ x: pos.x, y: pos.y, r: t.s * 0.6 })
@@ -219,6 +306,43 @@ export function makeWally(level: Level, w: number, h: number, rand: () => number
   }
 }
 
+// ---------------- ステージ（だんだん むずかしく） ----------------
+
+/** ステージの数。さいごは 150人の 人ごみから さがす */
+export const STAGES = 30
+
+/** ステージ n（1〜STAGES）の むずかしさ。人がふえ、小さくなり、重なり、ちがいが こまかくなる */
+export function stageSpec(n: number): CrowdSpec {
+  const k = Math.min(1, Math.max(0, (n - 1) / (STAGES - 1)))
+  const pool: Variants =
+    n <= 4
+      ? variants('chibi')
+      : n <= 9
+        ? variants('otona')
+        : {
+            ...variants('senshu'),
+            // 15から くち、21から まゆげ（大きくして 見れば わかる ちがい）
+            ...(n >= 15 ? { mouth: ['o'] as Mouth[] } : {}),
+            ...(n >= 21 ? { brows: [true] } : {}),
+          }
+  return {
+    people: Math.round(10 + 140 * Math.pow(k, 1.3)),
+    things: Math.round(4 + 40 * k),
+    s: 16 - 10.5 * Math.pow(k, 0.8),
+    changes: n <= 3 ? 3 : n <= 6 ? 2 : 1,
+    gap: 0.95 - 0.45 * k,
+    pool,
+  }
+}
+
+/** ステージの場面 */
+export function makeStage(n: number, w: number, h: number, rand: () => number = Math.random): WallyRound {
+  return makeCrowd(stageSpec(n), w, h, rand)
+}
+
+/** ステージで まちがえたときに足す時間（ミリ秒） */
+export const STAGE_MISS_MS = 2000
+
 // ---------------- まちがいさがし ----------------
 
 export type DiffKind = 'band' | 'glasses' | 'stem' | 'hat' | 'remove' | 'color' | 'add' | 'kitchen' | 'net'
@@ -230,6 +354,8 @@ export interface Diff {
   x: number
   y: number
   r: number
+  /** 丸では かこめない ちがい（キッチン・ネット）は 四角で当たりにする */
+  rect?: { x: number; y: number; w: number; h: number }
   /** 見つけたあとに出す名前 */
   label: string
 }
@@ -321,14 +447,18 @@ export function makeDiff(level: Level, w: number, h: number, rand: () => number 
     if (usedObj.has('kitchen')) return false
     usedObj.add('kitchen')
     b.kitchenColor = '#2f6fe4'
-    add({ kind: 'kitchen', x: court.x + court.w / 2, y: court.y + court.h / 2 - court.k / 2, r: Math.max(minR, court.k * 0.6) })
+    // キッチンは ネットの両がわ。どちらを押しても当たり
+    const mid = court.y + court.h / 2
+    add({ kind: 'kitchen', x: court.x + court.w / 2, y: mid, r: Math.max(minR, court.k), rect: { x: court.x, y: mid - court.k, w: court.w, h: court.k * 2 } })
     return true
   }
   const netCand: Cand = () => {
     if (usedObj.has('net')) return false
     usedObj.add('net')
     b.net = false
-    add({ kind: 'net', x: court.x + court.w / 2, y: court.y + court.h / 2, r: Math.max(minR, court.w * 0.35) })
+    // ネットは はしから はしまで当たり（柱の所も）
+    const mid = court.y + court.h / 2
+    add({ kind: 'net', x: court.x + court.w / 2, y: mid, r: Math.max(minR, court.w * 0.35), rect: { x: court.x - 5, y: mid - 3.5, w: court.w + 10, h: 7 } })
     return true
   }
   const pool: Cand[] = [
@@ -353,8 +483,9 @@ export function hitDiff(diffs: Diff[], found: Set<string>, x: number, y: number)
   let best: { id: string; d: number } | null = null
   for (const d of diffs) {
     if (found.has(d.id)) continue
-    const dist = Math.hypot(d.x - x, d.y - y)
-    if (dist <= d.r && (!best || dist < best.d)) best = { id: d.id, d: dist }
+    const inRect = d.rect && x >= d.rect.x && x <= d.rect.x + d.rect.w && y >= d.rect.y && y <= d.rect.y + d.rect.h
+    const dist = inRect ? 0 : Math.hypot(d.x - x, d.y - y)
+    if ((inRect || dist <= d.r) && (!best || dist < best.d)) best = { id: d.id, d: dist }
   }
   return best?.id ?? null
 }

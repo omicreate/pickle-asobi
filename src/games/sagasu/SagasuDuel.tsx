@@ -52,10 +52,16 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
   const frozen = useRef<[number, number]>([0, 0])
   /** おてつきの わけ（どこが ちがったか） */
   const [why, setWhy] = useState<[string, string]>(['', ''])
+  /** このラウンドで まちがえた人（うすくする）と、いま まちがえた人（ちがう所に丸） */
+  const [missed, setMissed] = useState<[Set<string>, Set<string>]>([new Set(), new Set()])
+  const [miss, setMiss] = useState<[string | null, string | null]>([null, null])
+  const nextTimer = useRef(0)
   const [, setTick] = useState(0)
 
   useEffect(() => {
     speak(PHRASES.sagasuDuel)
+    // 画面を はなれたら、つぎのラウンドへ進む タイマーも止める
+    return () => window.clearTimeout(nextTimer.current)
   }, [])
   useEffect(() => {
     if (import.meta.env.DEV) (window as unknown as { __sagasuDuel?: unknown }).__sagasuDuel = { rounds }
@@ -70,7 +76,11 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
         sfx.go()
       }
     }
-    for (const sd of [0, 1] as Side[]) if (frozen.current[sd] > 0) frozen.current[sd] = Math.max(0, frozen.current[sd] - dt)
+    for (const sd of [0, 1] as Side[])
+      if (frozen.current[sd] > 0) {
+        frozen.current[sd] = Math.max(0, frozen.current[sd] - dt)
+        if (frozen.current[sd] === 0) setMiss((cur) => (sd === 0 ? [null, cur[1]] : [cur[0], null]))
+      }
     setTick((n) => (n + 1) % 1000)
   })
 
@@ -85,6 +95,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
       frozen.current[side] = FREEZE
       const w = whyNot(r.scene.people.find((p) => p.id === id)?.look ?? r.scene.people[0].look) ?? ''
       setWhy((cur) => (side === 0 ? [w, cur[1]] : [cur[0], w]))
+      setMiss((cur) => (side === 0 ? [id, cur[1]] : [cur[0], id]))
+      setMissed((cur) => (side === 0 ? [new Set(cur[0]).add(id), cur[1]] : [cur[0], new Set(cur[1]).add(id)]))
       return
     }
     sfx.ok()
@@ -94,7 +106,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
     setWinner(side)
     speak(ZONE_PHRASE[r.zone])
     setNotice({ title: t('{0}が みつけた！', [SIDE_NAME[side]]), sub: t('{0}に いたよ', [ZONE_NAME[r.zone]]), faces: side === 0 ? ['ok', 'oops'] : ['oops', 'ok'] })
-    window.setTimeout(() => {
+    setMiss([null, null])
+    nextTimer.current = window.setTimeout(() => {
       if (next[side] >= DUEL_WIN) {
         sfx.fanfare()
         speak(side === 0 ? PHRASES.win0 : PHRASES.win1)
@@ -106,6 +119,7 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
       setRounds(make())
       setNo((n) => n + 1)
       setWinner(null)
+      setMissed([new Set(), new Set()])
       frozen.current = [0, 0]
       ready.current = 1.2
       setNotice({ title: t('よーい'), big: true })
@@ -130,6 +144,8 @@ export function SagasuDuel({ levels, paused, onRestart }: Props) {
                   scene={rounds[side].scene}
                   onPerson={(id) => tap(side, id)}
                   ring={winner !== null ? rounds[side].target : null}
+                  missed={missed[side]}
+                  miss={miss[side]}
                   disabled={!looking}
                   testId={`sagasu-duel-${side}`}
                 />
