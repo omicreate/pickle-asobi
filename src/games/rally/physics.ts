@@ -23,6 +23,10 @@ export const DEPTH_DEEP = 6.0
 /** 強すぎるとここまで飛ぶ（ベースラインはネットから 6.705m） */
 export const DEPTH_OVER = 7.8
 
+/** この強さから上はドライブ：飛ぶ時間をさらに縮める（最大 DRIVE_EXTRA 秒） */
+const DRIVE_FROM = 0.6
+const DRIVE_EXTRA = 0.25
+
 export interface Ball {
   x: number
   y: number
@@ -122,8 +126,10 @@ export function planShot(from: Vec, hitter: Side, power: number, offset: number,
 
   const ty = COURT.NET_Y + dir * depth
   // 強いほど速く、低く飛ぶ。ディンクはゆっくり山なり
+  // 思いきり振った球（ドライブ）は、さらにもう一段速くする（2026-10 omi「はやいやつはもっと早くても」）
+  const drive = opts.soft ? 0 : clamp((power - DRIVE_FROM) / 0.6, 0, 1)
   p = Math.min(p, 1)
-  let T = 1.55 - 0.8 * p
+  let T = 1.55 - 0.8 * p - DRIVE_EXTRA * drive
   if (opts.soft) T += 0.25
   if (opts.serve) T += 0.15
   return { target: { x: tx, y: ty }, T, power }
