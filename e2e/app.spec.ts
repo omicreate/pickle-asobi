@@ -747,7 +747,8 @@ test('ピクルくん さがし：ちがう人では進まず、ほんものを�
     const bad: string[] = []
     for (const g of document.querySelectorAll<SVGGElement>('[data-testid=sagasu-scene] [data-person]')) {
       const body = g.querySelector('rect')!.getBoundingClientRect()
-      for (const fy of [0.25, 0.5, 0.7]) {
+      // 顔のあたり（下の人の つる・ぼうしが 本当に重なって見える おなかの下は のぞく）
+      for (const fy of [0.25, 0.5]) {
         const el = document.elementFromPoint(body.x + body.width / 2, body.y + body.height * fy)
         const hit = el?.closest('[data-person]')?.getAttribute('data-person') ?? el?.getAttribute('data-hit')
         if (hit !== g.dataset.person) bad.push(`${g.dataset.person}@${fy}->${hit}`)
@@ -769,6 +770,12 @@ test('ピクルくん さがし ステージ：指で大きくでき、ほんも
   await expect(page.getByTestId('sagasu-stage')).toContainText('ステージ 1')
   const scene = page.getByTestId('sagasu-scene')
   await expect(scene).toHaveAttribute('data-zoom', '1.00')
+  // ＋－ボタンは 絵の外（下の帯）。絵の上に かぶさると、ほんものが ボタンの下に かくれる
+  const sb = (await scene.boundingBox())!
+  for (const id of ['sagasu-zoom-in', 'sagasu-zoom-out']) {
+    const bb = (await page.getByTestId(id).boundingBox())!
+    expect(bb.y >= sb.y + sb.height || bb.y + bb.height <= sb.y, id).toBe(true)
+  }
   await page.getByTestId('sagasu-zoom-in').click()
   await expect(scene).toHaveAttribute('data-zoom', '1.60')
   await page.getByTestId('sagasu-zoom-out').click()
