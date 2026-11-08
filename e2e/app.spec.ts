@@ -768,6 +768,9 @@ test('ピクルくん さがし ステージ：指で大きくでき、ほんも
   await expect(page.getByTestId('sagasu-stage-start')).toContainText('ステージ 1')
   await page.getByTestId('solo-start').click()
   await expect(page.getByTestId('sagasu-stage')).toContainText('ステージ 1')
+  // 左上の見本（ほんもの）は いつも 見える大きさ
+  const card = (await page.getByTestId('sagasu-card').first().boundingBox())!
+  expect(card.width).toBeGreaterThanOrEqual(50)
   const scene = page.getByTestId('sagasu-scene')
   await expect(scene).toHaveAttribute('data-zoom', '1.00')
   // ＋－ボタンは 絵の外（下の帯）。絵の上に かぶさると、ほんものが ボタンの下に かくれる

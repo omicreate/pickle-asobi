@@ -385,7 +385,8 @@ export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, r
 /** これが ほんもの！ のカード（人1人を大きく） */
 export function TargetCard({ size = 64 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden>
+    // 見出しの文が長くても 縮まないように（Safari では 横ならびの svg が 細く つぶれることがある）
+    <svg className="sagasu-card" viewBox="0 0 40 40" width={size} height={size} style={{ flex: 'none', width: size, height: size, minWidth: size }} aria-hidden data-testid="sagasu-card">
       <rect width={40} height={40} rx={8} fill="#fff6e3" />
       <PersonFigure look={REAL} x={20} y={22} s={26} />
     </svg>
