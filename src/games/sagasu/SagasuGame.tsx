@@ -36,6 +36,8 @@ export const ZONE_PHRASE: Record<Zone, string> = {
 }
 
 const HEAD = 72
+/** 絵の下の帯（ヒント・＋－）。絵の上には ボタンを かぶせない */
+const BAR = 56
 const sec = (ms: number) => (ms / 1000).toFixed(1)
 const bestKey = (mode: string, lv: Level) => `sagasu-best-${mode}-${lv}`
 /** ステージ：どこまで クリアしたか */
@@ -62,7 +64,9 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
   // 絵の縦横（画面に合わせて、始めたときに決める）
   const [dims] = useState(() => {
     const W = Math.max(280, stage.w - 16)
-    const H = Math.max(300, stage.h - HEAD - 12)
+    // せまい画面では めじるしが 2だんめに なり、見出しが 高くなる（sagasu.css の 380px）
+    const head = mode !== 'diff' && stage.w <= 380 ? HEAD + 52 : HEAD
+    const H = Math.max(300, stage.h - head - 12 - (mode === 'diff' ? 0 : BAR))
     if (mode !== 'diff') return { side: false, w: 100, h: Math.min(220, Math.max(80, (100 * H) / W)) }
     const side = W > H * 1.1
     const iw = side ? (W - 10) / 2 : W
@@ -295,6 +299,13 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
             hint={wallyHint}
             disabled={busy || paused}
             testId="sagasu-scene"
+            bar={
+              canWallyHint && !toast ? (
+                <button className="btn btn-small sagasu-wally-hint" onClick={useWallyHint} data-testid="sagasu-wally-hint">
+                  {t('ヒント +{0}びょう', [HINT_MS / 1000])}
+                </button>
+              ) : null
+            }
           />
         )}
         {mode === 'diff' && diff && (
@@ -315,11 +326,7 @@ export function SagasuGame({ levels, paused, onRestart }: Props) {
         </div>
       )}
       {toast && <div className="sagasu-toast">{toast}</div>}
-      {canWallyHint && !toast && (
-        <button className="btn btn-small sagasu-wally-hint" onClick={useWallyHint} data-testid="sagasu-wally-hint">
-          {t('ヒント +{0}びょう', [HINT_MS / 1000])}
-        </button>
-      )}
+
 
       {allClear && (
         <Result

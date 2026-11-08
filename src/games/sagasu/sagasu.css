@@ -100,18 +100,21 @@
   animation: pop-in 0.25s var(--ease);
 }
 .sagasu-found-note {
-  top: 76px;
+  /* 見つけた知らせも 下の帯の上に（上に出すと、上の方にいた ほんものに かぶる） */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
   background: var(--surface-2);
   border: 3px solid var(--pk-line);
-  padding: 8px 18px;
-  font-size: 20px;
+  padding: 8px 12px;
+  /* せまい画面でも 1行に おさめる */
+  font-size: clamp(12px, 3.8vw, 20px);
   box-shadow: 4px 4px 0 var(--ink);
 }
 .sagasu-found-note b {
   color: var(--p0-deep);
 }
 .sagasu-toast {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  /* 絵の下の帯の上に出す（絵に かぶせない） */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
   background: var(--ink, #1b1b3a);
   color: #fff;
   padding: 6px 16px;
@@ -211,34 +214,35 @@
   transform-origin: center;
 }
 .sagasu-wally-hint {
-  position: absolute;
-  right: 16px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
-  z-index: 14;
   min-height: 44px;
   padding: 0 14px;
   font-size: 14px;
   animation: pop-in 0.3s var(--ease);
 }
-.sagasu-found-note {
-  top: 84px;
-}
-/* ステージ：指で ひろげて 大きく・なぞって 動かす */
+/* さがせ！・ステージ：絵と、その下の帯（ボタンは 絵に かぶせない） */
 .sagasu-zoom {
   position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.sagasu-zoom .sagasu-svg {
+.sagasu-zoom .sagasu-svg[data-zoom] {
   touch-action: none;
 }
-.sagasu-zoom-btns {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
+.sagasu-bar {
+  flex: none;
+  height: 50px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.sagasu-bar-end {
+  margin-left: auto;
+}
+.sagasu-zoom-btns {
+  display: flex;
   gap: 8px;
 }
 .sagasu-zoom-btns .btn {
@@ -249,4 +253,23 @@
 }
 .sagasu-zoom-btns .btn:disabled {
   opacity: 0.4;
+}
+/* せまい画面（iPhone SE など）：めじるしの文が つぶれて「×」の行が 見えなくなるので、めじるしは 2だんめに 横いっぱいで出す */
+@media (max-width: 380px) {
+  .sagasu:not([data-mode='diff']) .sagasu-head {
+    height: auto;
+    min-height: 72px;
+    flex-wrap: wrap;
+    row-gap: 2px;
+    padding-right: 8px;
+  }
+  .sagasu:not([data-mode='diff']) .sagasu-time {
+    margin-left: auto;
+    /* 右上の ？・⏸ ボタンの所をあける */
+    margin-right: 104px;
+  }
+  .sagasu:not([data-mode='diff']) .sagasu-head-text {
+    order: 3;
+    flex-basis: 100%;
+  }
 }

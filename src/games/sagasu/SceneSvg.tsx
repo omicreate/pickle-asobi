@@ -164,6 +164,8 @@ export interface SceneSvgProps {
   testId?: string
   /** 指で ひろげて 大きく・なぞって 動かせる（ステージ）。タップは 指を はなしたときに きめる */
   zoomable?: boolean
+  /** 絵の下の帯に出すもの（ヒントなど）。ボタンは絵に かぶせない（ほんものが ボタンの下に かくれないように） */
+  bar?: ReactNode
 }
 
 /** 大きくできる 上限（ばい） */
@@ -175,7 +177,7 @@ interface View {
   h: number
 }
 
-export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, ring, missed, miss, hint, disabled = false, testId, zoomable = false }: SceneSvgProps) {
+export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, ring, missed, miss, hint, disabled = false, testId, zoomable = false, bar }: SceneSvgProps) {
   const full: View = { x: 0, y: 0, w: scene.w, h: scene.h }
   const [view, setView] = useState<View>(full)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -359,17 +361,22 @@ export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, r
       )}
     </svg>
   )
-  if (!zoomable) return svg
+  if (!zoomable && bar === undefined) return svg
   return (
     <div className="sagasu-zoom">
       {svg}
-      <div className="sagasu-zoom-btns">
+      <div className="sagasu-bar">
+        {zoomable && (
+          <div className="sagasu-zoom-btns">
         <button className="btn btn-small" aria-label={t('おおきく')} onClick={() => zoomBy(1.6)} disabled={view.w <= scene.w / MAX_ZOOM + 0.01} data-testid="sagasu-zoom-in">
           ＋
         </button>
         <button className="btn btn-small" aria-label={t('ちいさく')} onClick={() => zoomBy(1 / 1.6)} disabled={view.w >= scene.w - 0.01} data-testid="sagasu-zoom-out">
           －
         </button>
+          </div>
+        )}
+        <div className="sagasu-bar-end">{bar}</div>
       </div>
     </div>
   )
@@ -378,7 +385,8 @@ export function SceneSvg({ scene, onPerson, diffs = [], found, onDiff, onMiss, r
 /** これが ほんもの！ のカード（人1人を大きく） */
 export function TargetCard({ size = 64 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden>
+    // 見出しの文が長くても 縮まないように（Safari では 横ならびの svg が 細く つぶれることがある）
+    <svg className="sagasu-card" viewBox="0 0 40 40" width={size} height={size} style={{ flex: 'none', width: size, height: size, minWidth: size }} aria-hidden data-testid="sagasu-card">
       <rect width={40} height={40} rx={8} fill="#fff6e3" />
       <PersonFigure look={REAL} x={20} y={22} s={26} />
     </svg>
