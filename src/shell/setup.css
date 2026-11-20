@@ -341,3 +341,19 @@
   font-weight: 700;
   color: var(--mute);
 }
+
+/* ピクルくん さがしの「さがせ！／まちがいさがし／ステージ」：
+   1行に詰めると 366px になり、iPhone SE・mini（375px）などでは「ステージ」が画面の外に はみ出して かくれる。
+   画面の幅に おさめ、入らないときは 文字を2行に おる */
+.solo-options .seg {
+  width: 100%;
+  box-sizing: border-box;
+}
+.solo-options .seg button {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 2px 6px;
+  white-space: normal;
+  line-height: 1.2;
+  text-align: center;
+}
