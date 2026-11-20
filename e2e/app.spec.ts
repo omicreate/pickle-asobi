@@ -764,6 +764,13 @@ test('ピクルくん さがし：ちがう人では進まず、ほんものを�
 
 test('ピクルくん さがし ステージ：指で大きくでき、ほんものを押すとクリアして つぎのステージへ', async ({ page }) => {
   await open(page, './#/setup/sagasu')
+  // 「ステージ」の えらぶボタンは せまい画面（iPhone SE・mini）でも 画面の中に おさまる
+  for (const w of [320, 375]) {
+    await page.setViewportSize({ width: w, height: 760 })
+    const bb = (await page.getByTestId('sagasu-mode-stage').boundingBox())!
+    expect(bb.x + bb.width, `${w}px`).toBeLessThanOrEqual(w)
+  }
+  await page.setViewportSize(test.info().project.use.viewport!)
   await page.getByTestId('sagasu-mode-stage').click()
   await expect(page.getByTestId('sagasu-stage-start')).toContainText('ステージ 1')
   await page.getByTestId('solo-start').click()

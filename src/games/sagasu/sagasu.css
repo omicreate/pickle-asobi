@@ -273,3 +273,8 @@
     flex-basis: 100%;
   }
 }
+/* めじるしの文が 3〜5行に おれる幅（390px など）でも、見出しから はみ出して 絵に かくれないよう、見出しは 中身に合わせて のびる */
+.sagasu:not([data-mode='diff']) .sagasu-head {
+  height: auto;
+  min-height: 72px;
+}
